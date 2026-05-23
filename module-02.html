@@ -1,0 +1,1733 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Module 02: How Agents Are Built — Agentic AI Curriculum</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;500&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;500&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap');
+
+  :root {
+    --bg: #0a0a0f;
+    --surface: #111118;
+    --surface2: #18181f;
+    --border: #2a2a3a;
+    --accent: #7c6af7;
+    --accent2: #f7c36a;
+    --accent3: #6af7d4;
+    --text: #e8e8f0;
+    --muted: #6b6b80;
+    --danger: #f76a6a;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 300;
+    line-height: 1.7;
+    min-height: 100vh;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.4;
+  }
+
+  /* Sticky nav */
+  .top-nav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(10,10,15,0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .top-nav-inner {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 0 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 52px;
+    gap: 1rem;
+  }
+
+  .nav-back {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.05em;
+    color: var(--muted);
+    text-decoration: none;
+    transition: color 0.2s;
+    white-space: nowrap;
+  }
+
+  .nav-back:hover { color: var(--text); }
+
+  .nav-module-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    color: var(--muted);
+    text-transform: uppercase;
+    text-align: center;
+    flex: 1;
+  }
+
+  .nav-next {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.05em;
+    color: var(--muted);
+    text-decoration: none;
+    transition: color 0.2s;
+    white-space: nowrap;
+  }
+
+  .nav-next:hover { color: var(--accent); }
+
+  /* Container */
+  .container {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 0 2rem;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Hero */
+  .hero {
+    padding: 4.5rem 0 3.5rem;
+    border-bottom: 1px solid var(--border);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero::after {
+    content: '';
+    position: absolute;
+    top: -100px;
+    right: -200px;
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, rgba(124,106,247,0.10) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .hero-eyebrow {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.2em;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+  }
+
+  .module-badge {
+    display: inline-block;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.1em;
+    padding: 0.25rem 0.6rem;
+    border-radius: 4px;
+    margin-bottom: 1.2rem;
+    background: rgba(124,106,247,0.15);
+    color: var(--accent);
+    border: 1px solid rgba(124,106,247,0.35);
+  }
+
+  .hero h1 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: clamp(2rem, 4.5vw, 3.2rem);
+    line-height: 1.08;
+    margin-bottom: 1.4rem;
+    letter-spacing: -0.02em;
+  }
+
+  .hero-sub {
+    font-size: 1.05rem;
+    color: #a0a0b8;
+    max-width: 620px;
+    line-height: 1.8;
+    margin-bottom: 2rem;
+  }
+
+  .hero-meta {
+    display: flex;
+    gap: 2.5rem;
+    flex-wrap: wrap;
+  }
+
+  .meta-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+  }
+
+  .meta-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.15em;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+
+  .meta-value {
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    font-size: 1rem;
+    color: var(--text);
+  }
+
+  /* Main content */
+  .content {
+    padding: 4rem 0 6rem;
+  }
+
+  /* Topic sections */
+  .topic-section {
+    margin-bottom: 5rem;
+  }
+
+  .topic-section:last-child {
+    margin-bottom: 0;
+  }
+
+  .section-number {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+  }
+
+  .topic-section h2 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 1.65rem;
+    letter-spacing: -0.01em;
+    line-height: 1.2;
+    margin-bottom: 1.6rem;
+    color: var(--text);
+  }
+
+  .topic-section h3 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    font-size: 1.1rem;
+    letter-spacing: -0.01em;
+    margin-top: 2rem;
+    margin-bottom: 0.8rem;
+    color: var(--text);
+  }
+
+  .topic-section p {
+    font-size: 0.97rem;
+    color: #c8c8d8;
+    line-height: 1.8;
+    margin-bottom: 1.2rem;
+  }
+
+  .topic-section p:last-child {
+    margin-bottom: 0;
+  }
+
+  /* Section divider */
+  .section-divider {
+    height: 1px;
+    background: linear-gradient(to right, transparent, var(--border) 20%, var(--border) 80%, transparent);
+    margin: 4.5rem 0;
+  }
+
+  /* Callout boxes */
+  .callout {
+    border-radius: 10px;
+    padding: 1.3rem 1.6rem;
+    margin: 2rem 0;
+  }
+
+  .callout-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 0.6rem;
+    font-weight: 500;
+  }
+
+  .callout p {
+    font-size: 0.92rem;
+    line-height: 1.75;
+    margin-bottom: 0;
+  }
+
+  .callout p + p {
+    margin-top: 0.8rem;
+  }
+
+  .callout-insight {
+    background: rgba(124,106,247,0.07);
+    border: 1px solid rgba(124,106,247,0.25);
+  }
+
+  .callout-insight .callout-label {
+    color: var(--accent);
+  }
+
+  .callout-insight p {
+    color: #b8b0f0;
+  }
+
+  .callout-mistake {
+    background: rgba(247,106,106,0.07);
+    border: 1px solid rgba(247,106,106,0.25);
+  }
+
+  .callout-mistake .callout-label {
+    color: var(--danger);
+  }
+
+  .callout-mistake p {
+    color: #e0b0b0;
+  }
+
+  .callout-example {
+    background: rgba(106,247,212,0.06);
+    border: 1px solid rgba(106,247,212,0.2);
+  }
+
+  .callout-example .callout-label {
+    color: var(--accent3);
+  }
+
+  .callout-example p {
+    color: #a8e8d8;
+  }
+
+  /* Code blocks */
+  .code-block {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.4rem 1.6rem;
+    margin: 1.6rem 0;
+    overflow-x: auto;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.82rem;
+    line-height: 1.75;
+    color: #c0c0d8;
+  }
+
+  .code-block code {
+    font-family: inherit;
+  }
+
+  /* Inline code */
+  code {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.82em;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    padding: 0.1em 0.35em;
+    color: var(--accent3);
+  }
+
+  pre code {
+    background: none;
+    border: none;
+    padding: 0;
+    font-size: inherit;
+    color: inherit;
+  }
+
+  strong {
+    font-weight: 500;
+    color: var(--text);
+  }
+
+  /* Architecture diagram / tool grid */
+  .tool-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.75rem;
+    margin: 2rem 0;
+  }
+
+  @media (max-width: 600px) {
+    .tool-grid { grid-template-columns: 1fr; }
+  }
+
+  .tool-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1rem 1.2rem;
+  }
+
+  .tool-card-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--accent3);
+    margin-bottom: 0.35rem;
+  }
+
+  .tool-card-name {
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: var(--text);
+    margin-bottom: 0.3rem;
+  }
+
+  .tool-card-desc {
+    font-size: 0.78rem;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+
+  /* Memory architecture cards */
+  .memory-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+    margin: 2rem 0;
+  }
+
+  @media (max-width: 540px) {
+    .memory-grid { grid-template-columns: 1fr; }
+  }
+
+  .memory-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.3rem 1.5rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .memory-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+  }
+
+  .mem-incontext::before { background: var(--accent); }
+  .mem-external::before { background: var(--accent2); }
+  .mem-episodic::before { background: var(--accent3); }
+  .mem-semantic::before { background: var(--danger); opacity: 0.7; }
+
+  .memory-card-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 0.4rem;
+  }
+
+  .memory-card-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 1rem;
+    color: var(--text);
+    margin-bottom: 0.5rem;
+  }
+
+  .memory-card-desc {
+    font-size: 0.82rem;
+    color: #9898b0;
+    line-height: 1.6;
+  }
+
+  /* Planning pattern cards */
+  .planning-row {
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+    margin: 2rem 0;
+  }
+
+  .planning-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.2rem 1.5rem;
+    display: grid;
+    grid-template-columns: 140px 1fr;
+    gap: 1.2rem;
+    align-items: start;
+  }
+
+  @media (max-width: 560px) {
+    .planning-card { grid-template-columns: 1fr; }
+  }
+
+  .planning-card-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 0.3rem;
+  }
+
+  .planning-card-name {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: var(--text);
+    margin-bottom: 0.2rem;
+  }
+
+  .planning-card-when {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--accent2);
+  }
+
+  .planning-card-desc {
+    font-size: 0.86rem;
+    color: #9898b0;
+    line-height: 1.65;
+  }
+
+  /* COMPASS diagram */
+  .compass-diagram {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 2rem;
+    margin: 2rem 0;
+  }
+
+  .compass-title {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 1.5rem;
+    text-align: center;
+  }
+
+  .compass-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6rem;
+    flex-wrap: wrap;
+  }
+
+  .compass-node {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0.9rem 1.1rem;
+    text-align: center;
+    min-width: 110px;
+  }
+
+  .compass-node.orchestrator {
+    border-color: rgba(124,106,247,0.4);
+    background: rgba(124,106,247,0.08);
+  }
+
+  .compass-node.subagent {
+    border-color: rgba(106,247,212,0.3);
+    background: rgba(106,247,212,0.05);
+  }
+
+  .compass-node.synthesizer {
+    border-color: rgba(247,195,106,0.35);
+    background: rgba(247,195,106,0.06);
+  }
+
+  .compass-node-role {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.55rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 0.3rem;
+  }
+
+  .orchestrator .compass-node-role { color: var(--accent); }
+  .subagent .compass-node-role { color: var(--accent3); }
+  .synthesizer .compass-node-role { color: var(--accent2); }
+
+  .compass-node-name {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 0.88rem;
+    color: var(--text);
+  }
+
+  .compass-node-desc {
+    font-size: 0.72rem;
+    color: var(--muted);
+    margin-top: 0.3rem;
+    line-height: 1.4;
+  }
+
+  .compass-arrow {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.9rem;
+    color: var(--muted);
+    flex-shrink: 0;
+  }
+
+  .compass-parallel {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  /* 12-factor grid */
+  .factor-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.85rem;
+    margin: 2rem 0;
+  }
+
+  @media (max-width: 600px) {
+    .factor-grid { grid-template-columns: 1fr; }
+  }
+
+  .factor-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.1rem 1.3rem;
+    display: flex;
+    gap: 0.9rem;
+    align-items: flex-start;
+  }
+
+  .factor-number {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.72rem;
+    font-weight: 500;
+    color: var(--accent);
+    min-width: 1.6rem;
+    padding-top: 0.05rem;
+    flex-shrink: 0;
+  }
+
+  .factor-body {}
+
+  .factor-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    font-size: 0.88rem;
+    color: var(--text);
+    margin-bottom: 0.35rem;
+    line-height: 1.3;
+  }
+
+  .factor-desc {
+    font-size: 0.79rem;
+    color: #9898b0;
+    line-height: 1.6;
+  }
+
+  /* Exercise section */
+  .exercise-section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 5rem;
+  }
+
+  .exercise-header {
+    padding: 1.8rem 2rem;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface2);
+  }
+
+  .exercise-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+  }
+
+  .exercise-header h2 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 1.4rem;
+    color: var(--text);
+    margin-bottom: 0.6rem;
+  }
+
+  .exercise-header p {
+    font-size: 0.92rem;
+    color: #9898b0;
+    line-height: 1.7;
+  }
+
+  .exercise-body {
+    padding: 2rem;
+  }
+
+  .exercise-body p {
+    font-size: 0.95rem;
+    color: #c0c0d4;
+    line-height: 1.8;
+    margin-bottom: 1.2rem;
+  }
+
+  .step-card {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.3rem 1.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .step-number {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 0.4rem;
+  }
+
+  .step-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    font-size: 0.97rem;
+    color: var(--text);
+    margin-bottom: 0.5rem;
+  }
+
+  .step-desc {
+    font-size: 0.86rem;
+    color: #9898b0;
+    line-height: 1.65;
+  }
+
+  /* Summary section */
+  .summary-section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 2rem 2.2rem;
+    margin-bottom: 4rem;
+  }
+
+  .summary-section h2 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 1.25rem;
+    margin-bottom: 1.3rem;
+    color: var(--text);
+  }
+
+  .summary-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.7rem;
+  }
+
+  .summary-list li {
+    font-size: 0.93rem;
+    color: #b0b0c8;
+    line-height: 1.7;
+    padding-left: 1.5rem;
+    position: relative;
+  }
+
+  .summary-list li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0.58rem;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+  }
+
+  /* Footer */
+  .footer {
+    border-top: 1px solid var(--border);
+    padding: 2.5rem 0;
+  }
+
+  .footer-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .footer-link {
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    font-size: 0.92rem;
+    color: var(--accent);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: gap 0.2s;
+  }
+
+  .footer-link:hover { gap: 0.8rem; }
+
+  .footer-text {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.68rem;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+    text-align: center;
+  }
+
+  /* Tradeoff table */
+  .tradeoff-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 2rem 0;
+    font-size: 0.86rem;
+  }
+
+  .tradeoff-table th {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    text-align: left;
+    padding: 0.7rem 1rem;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface2);
+  }
+
+  .tradeoff-table td {
+    padding: 0.8rem 1rem;
+    color: #c0c0d4;
+    border-bottom: 1px solid rgba(42,42,58,0.5);
+    line-height: 1.5;
+    vertical-align: top;
+  }
+
+  .tradeoff-table tr:last-child td {
+    border-bottom: none;
+  }
+
+  .tradeoff-table tr:hover td {
+    background: rgba(255,255,255,0.02);
+  }
+
+  .tradeoff-table .col-approach {
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    font-size: 0.88rem;
+    color: var(--text);
+    white-space: nowrap;
+  }
+
+  .pill-good {
+    display: inline-block;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.6rem;
+    padding: 0.15rem 0.45rem;
+    border-radius: 3px;
+    background: rgba(106,247,212,0.1);
+    color: var(--accent3);
+    border: 1px solid rgba(106,247,212,0.2);
+    white-space: nowrap;
+  }
+
+  .pill-bad {
+    display: inline-block;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.6rem;
+    padding: 0.15rem 0.45rem;
+    border-radius: 3px;
+    background: rgba(247,106,106,0.08);
+    color: var(--danger);
+    border: 1px solid rgba(247,106,106,0.2);
+    white-space: nowrap;
+  }
+
+  .pill-mid {
+    display: inline-block;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.6rem;
+    padding: 0.15rem 0.45rem;
+    border-radius: 3px;
+    background: rgba(247,195,106,0.08);
+    color: var(--accent2);
+    border: 1px solid rgba(247,195,106,0.2);
+    white-space: nowrap;
+  }
+</style>
+</head>
+<body>
+
+<!-- Sticky top nav -->
+<nav class="top-nav">
+  <div class="top-nav-inner">
+    <a href="agentic-ai-curriculum.html" class="nav-back">← Back to Curriculum</a>
+    <span class="nav-module-label">Module 02 · Architecture Patterns</span>
+    <a href="module-03.html" class="nav-next">Next: Module 03 →</a>
+  </div>
+</nav>
+
+<!-- Hero -->
+<div class="hero">
+  <div class="container">
+    <div class="hero-eyebrow">Module 02 · Core</div>
+    <div class="module-badge">CORE</div>
+    <h1>How Agents Are Built:<br>Architecture Patterns</h1>
+    <p class="hero-sub">
+      This module goes inside the machine. You'll learn the major architectural patterns used to build agents today — from the simplest ReAct loop to full orchestrator-subagent hierarchies — and understand when to reach for each one. Special attention is paid to the difference between single-agent and multi-agent designs, and why complexity should be justified by the task, not imported by default.
+    </p>
+    <div class="hero-meta">
+      <div class="meta-item">
+        <span class="meta-label">Duration</span>
+        <span class="meta-value">2 weeks</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">Level</span>
+        <span class="meta-value">Core</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">Prerequisites</span>
+        <span class="meta-value">Module 01</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Main content -->
+<div class="content">
+  <div class="container">
+
+    <!-- Section 1: ReAct -->
+    <div class="topic-section">
+      <div class="section-number">Topic 01</div>
+      <h2>The ReAct Pattern: Reason + Act</h2>
+
+      <p>Every agent architecture you'll encounter is a variation of one core idea: the model should be able to think, then do something, then look at what happened, then think again. This is the ReAct pattern — Reasoning and Acting interleaved in a loop — and it was formalized in a 2022 paper by Yao et al. that changed how people thought about grounding LLM outputs in real-world actions.</p>
+
+      <p>The insight behind ReAct is simple but powerful. A language model on its own is a one-shot function: input goes in, output comes out. There's no feedback, no ability to correct mistakes, no way to gather new information mid-task. ReAct breaks that constraint by giving the model a scratchpad — a place to reason — and a set of tools it can invoke. The output of each tool call becomes new input. The loop continues until the model decides it's done, or a stop condition fires.</p>
+
+      <p>In code terms, the loop looks like this: the model produces a "thought" and an "action" (a tool call with parameters). The runtime executes the tool and returns an "observation." That observation is appended to the conversation context. The model sees it and produces the next thought-action pair. Repeat until the model outputs a final answer instead of an action.</p>
+
+      <div class="callout callout-example">
+        <div class="callout-label">Aria in the ReAct Loop</div>
+        <p>A customer emails: "My order hasn't arrived — I was told it shipped two weeks ago." Aria's ReAct loop might look like this: <strong>Thought:</strong> I need to look up this customer's order history. <strong>Action:</strong> <code>lookup_order(customer_id="CX-4421")</code>. <strong>Observation:</strong> Order #8823 shipped 14 days ago, carrier USPS, last scan 10 days ago in Memphis. <strong>Thought:</strong> The shipment is stalled. I should check if it's within my refund authority. <strong>Action:</strong> <code>get_order_value(order_id="8823")</code>. <strong>Observation:</strong> $34.99. <strong>Thought:</strong> Under my $50 limit. I can issue a refund without escalating. <strong>Action:</strong> <code>issue_refund(order_id="8823", amount=34.99)</code>. <strong>Observation:</strong> Refund issued. Confirmation #RF-9912. <strong>Thought:</strong> I should notify the customer. <strong>Action:</strong> <code>send_email(...)</code>. Done.</p>
+      </div>
+
+      <p>What makes this pattern powerful is not any single step — it's the coupling between reasoning and evidence. Aria doesn't just issue a refund based on the customer's description. She looks up the order. She checks the value. She acts on facts, not assumptions. Every action is grounded in an observation, and every observation updates the reasoning. This is why agents built with ReAct are substantially more reliable than agents that try to plan everything upfront in a single pass.</p>
+
+      <p>The limitations of ReAct are worth naming honestly. The loop is sequential — each step waits for the previous one to complete. That adds latency. The model can also get stuck in repetitive cycles if it isn't told how to handle failed tool calls. And the quality of the reasoning depends entirely on the quality of the model and the quality of the tools. Bad tools produce bad observations, and bad observations lead the model astray. We'll cover tool design in the next section for exactly this reason.</p>
+
+      <h3>When ReAct is enough</h3>
+
+      <p>For a large fraction of real-world agent use cases, a single ReAct loop with a well-chosen tool set is all you need. If the task is bounded — a single user intent, a knowable set of actions, a clear completion state — don't reach for multi-agent complexity. Aria handles most customer service scenarios with a single loop and five to eight tools. The art is in choosing the right tools and writing the right stop conditions, not in layering more architecture on top.</p>
+
+      <div class="callout callout-insight">
+        <div class="callout-label">Key Insight</div>
+        <p>ReAct is not a framework or a library — it's a design principle. Any system where a model can (1) reason about what to do, (2) invoke a tool, and (3) observe the result before deciding what to do next is implementing ReAct, regardless of what it's called. Most production agent frameworks are wrappers around this loop.</p>
+      </div>
+    </div>
+
+    <div class="section-divider"></div>
+
+    <!-- Section 2: Tool Design -->
+    <div class="topic-section">
+      <div class="section-number">Topic 02</div>
+      <h2>Tool Design: What Makes a Good Tool for an Agent</h2>
+
+      <p>Tools are where agents make contact with the real world. A web search, a database query, a code execution sandbox, an API call to issue a refund — these are all tools. In Module 1, we established that tools are capabilities invoked by the agent and executed by the runtime. Now we need to go deeper: what separates a tool that makes an agent more reliable from one that makes it less reliable?</p>
+
+      <p>The short answer is: good tools are narrow, legible, and honest about failure. Bad tools are broad, ambiguous, or silent when something goes wrong.</p>
+
+      <h3>Granularity: fewer, sharper tools</h3>
+
+      <p>The temptation when designing an agent's tool set is to build everything into as few tools as possible. One "do_crm_stuff" tool that handles lookups, updates, and escalations sounds efficient. In practice it's a reliability disaster. The model can't easily distinguish which sub-capability to invoke. Error messages become ambiguous. The tool's parameter surface becomes complex enough that the model frequently misuses it.</p>
+
+      <p>The opposite mistake is over-splitting: a separate tool for every conceivable micro-action. Then the model spends reasoning cycles just navigating the tool list, and you've created an API design problem masquerading as an agent problem.</p>
+
+      <p>The useful frame is: <strong>one tool, one side-effect domain.</strong> A tool should do one type of thing in the world. <code>lookup_order</code> reads. <code>issue_refund</code> writes money. <code>send_email</code> creates external communication. These are categorically different side effects, and they belong in separate tools — not because of software engineering purism, but because the model needs to know the stakes of what it's calling before it calls it. A tool that reads is low risk. A tool that writes money is not. Keeping them separate lets you apply different confirmation logic, rate limits, and guardrails to each.</p>
+
+      <div class="callout callout-example">
+        <div class="callout-label">Aria's Tool Surface</div>
+        <p>Aria's tool list is deliberately small: <code>lookup_customer</code>, <code>lookup_order</code>, <code>get_order_value</code>, <code>issue_refund</code> (capped at $50), <code>escalate_to_human</code>, <code>send_email</code>. Six tools. Each does exactly one thing. The refund tool enforces its own cap — the model doesn't need to check, and a bug in the model's reasoning can't bypass the limit. This is defense in depth through tool design.</p>
+      </div>
+
+      <h3>Naming: the model reads your tool names</h3>
+
+      <p>Tool names and descriptions are not just documentation for human engineers. The model reads them. A poorly named tool — <code>process_request</code>, <code>handle_thing</code>, <code>do_action</code> — gives the model no signal about what the tool does or when to use it. This forces the model to infer from context, which introduces errors. Name your tools as if you were writing them for a competent but information-limited colleague who has no other context: <code>issue_partial_refund</code> is better than <code>refund</code>. <code>search_knowledge_base</code> is better than <code>search</code>.</p>
+
+      <p>Descriptions matter just as much. For each tool, describe what it does, what parameters it takes and why, what it returns, and under what conditions the model should or should not call it. This is not boilerplate — it is control logic. The description is part of the system prompt, and it shapes the model's behavior just as directly as any instruction you'd write there.</p>
+
+      <h3>Error surfaces: what the model does when tools fail</h3>
+
+      <p>Every tool call can fail. The network times out. The database returns an unexpected schema. The API rate limits you. The order ID doesn't exist. Your tool design needs to anticipate these cases and return structured, actionable error messages — not stack traces, not empty responses, not generic "something went wrong" strings.</p>
+
+      <p>A tool that returns <code>{"error": "order_not_found", "order_id": "8823", "suggestion": "verify customer ID and retry"}</code> gives the model something to work with. A tool that raises an uncaught exception crashes the loop. A tool that returns <code>None</code> silently may cause the model to hallucinate a successful result. The error surface is as important as the happy path.</p>
+
+      <div class="callout callout-mistake">
+        <div class="callout-label">Common Mistake</div>
+        <p>Wrapping third-party APIs as tools without error handling is one of the most common sources of agent unreliability. If the external API returns a 503, and your tool just passes that error string to the model, the model may interpret it as data, misunderstand it, or retry in a way that causes unintended side effects. Always translate external errors into agent-legible structured responses before they reach the model.</p>
+      </div>
+
+      <p>Think of tool design as the single highest-leverage point in building a reliable agent. You can't prompt-engineer your way out of a bad tool. The model is only as capable as the tools it has access to, and only as reliable as the contracts those tools expose.</p>
+
+      <div class="tool-grid">
+        <div class="tool-card">
+          <div class="tool-card-label">Principle</div>
+          <div class="tool-card-name">One Side Effect Per Tool</div>
+          <div class="tool-card-desc">Read tools and write tools should never be the same function. Separate stakes mean separate controls.</div>
+        </div>
+        <div class="tool-card">
+          <div class="tool-card-label">Principle</div>
+          <div class="tool-card-name">Descriptive Names</div>
+          <div class="tool-card-desc">The model reads your tool names. Name them like documentation for an expert with no context.</div>
+        </div>
+        <div class="tool-card">
+          <div class="tool-card-label">Principle</div>
+          <div class="tool-card-name">Structured Errors</div>
+          <div class="tool-card-desc">Every tool should return a legible error object. Silent failures and raw exceptions are both wrong.</div>
+        </div>
+        <div class="tool-card">
+          <div class="tool-card-label">Principle</div>
+          <div class="tool-card-name">Enforce Limits in Tools</div>
+          <div class="tool-card-desc">Business rules like refund caps belong in the tool, not the prompt. Don't trust the model to remember limits.</div>
+        </div>
+        <div class="tool-card">
+          <div class="tool-card-label">Principle</div>
+          <div class="tool-card-name">Idempotency Where Possible</div>
+          <div class="tool-card-desc">A tool the model can safely call twice is far less dangerous than one with irreversible first-call effects.</div>
+        </div>
+        <div class="tool-card">
+          <div class="tool-card-label">Principle</div>
+          <div class="tool-card-name">Return Rich Context</div>
+          <div class="tool-card-desc">Successful responses should include enough context for the model to know what to do next, not just confirm the action.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-divider"></div>
+
+    <!-- Section 3: Memory Architecture -->
+    <div class="topic-section">
+      <div class="section-number">Topic 03</div>
+      <h2>Memory Architecture: Where Agents Store What They Know</h2>
+
+      <p>Agents don't have persistent memory by default. The model processes a context window — the finite block of text it sees at inference time — and produces output. When the interaction ends, nothing is retained unless you explicitly persist it somewhere. This is the fundamental memory problem in agent design, and how you solve it shapes everything from cost to capability.</p>
+
+      <p>There are four distinct memory types used in production agents. Understanding when to use each is as important as understanding how they work.</p>
+
+      <div class="memory-grid">
+        <div class="memory-card mem-incontext">
+          <div class="memory-card-label">Type 01</div>
+          <div class="memory-card-title">In-Context Memory</div>
+          <div class="memory-card-desc">Everything currently in the context window: the system prompt, conversation history, tool call results, injected documents. Fast and immediate — the model can reference it without any retrieval step. Limited by the context window size and cost per token.</div>
+        </div>
+        <div class="memory-card mem-external">
+          <div class="memory-card-label">Type 02</div>
+          <div class="memory-card-title">External Memory</div>
+          <div class="memory-card-desc">A database, vector store, or file system outside the model. Practically unlimited capacity. Requires explicit read/write tool calls. The agent retrieves what it needs, when it needs it — this is the basis of Retrieval-Augmented Generation (RAG).</div>
+        </div>
+        <div class="memory-card mem-episodic">
+          <div class="memory-card-label">Type 03</div>
+          <div class="memory-card-title">Episodic Memory</div>
+          <div class="memory-card-desc">A log of past interactions or tasks that the agent can query. "What did I do last time a customer had a stalled shipment?" Enables cross-session learning and consistency. Implemented as structured logs in an external store with retrieval capabilities.</div>
+        </div>
+        <div class="memory-card mem-semantic">
+          <div class="memory-card-label">Type 04</div>
+          <div class="memory-card-title">Semantic Memory</div>
+          <div class="memory-card-desc">Embedded knowledge — product documentation, policy rules, FAQ content — stored as vector embeddings and retrieved by semantic similarity. The agent can answer "what's our return policy?" without hallucinating, because the answer lives in the store.</div>
+        </div>
+      </div>
+
+      <h3>Short-term context vs. long-term storage</h3>
+
+      <p>The context window is your agent's working memory. It's fast, it's always available, and the model can reference any part of it without a retrieval step. But it's expensive and finite. At 200k tokens — which sounds generous — you'll hit limits faster than you expect once you include a system prompt, tool definitions, conversation history, and multiple tool call results per loop iteration.</p>
+
+      <p>The general principle: keep only what's <em>decision-relevant right now</em> in context. Summarize or externalize everything else. For Aria, the active conversation thread stays in context. Her knowledge base — return policies, shipping partner SLAs, escalation procedures — lives in a vector store and is retrieved per-turn only when relevant. She doesn't need to read the entire policy document every time a customer asks about an order.</p>
+
+      <p>This is context engineering in practice: making deliberate choices about what information earns a spot in the context window for any given inference call. Context engineering is a skill that separates working prototypes from production-grade agents. Poor context engineering is the single most common cause of agents that perform well in demos and fail under real conditions.</p>
+
+      <h3>Retrieval-augmented generation (RAG) for agents</h3>
+
+      <p>RAG as a pattern is widely understood in the context of question-answering systems. In agent contexts, it takes on a slightly different character. The agent isn't just retrieving context for a single response — it's deciding, mid-loop, whether to retrieve and what to retrieve. That decision is itself a reasoning step. The agent might call a <code>search_knowledge_base</code> tool not because the user asked a factual question, but because the agent recognizes mid-task that it lacks the information to proceed reliably.</p>
+
+      <p>Retrieval quality matters enormously. A RAG system that retrieves the wrong chunks, or returns chunks that are semantically close but contextually wrong, will mislead the agent. Chunk size, embedding model choice, and retrieval scoring all become engineering decisions with direct consequences for agent reliability. This is not a detail you can treat as a commodity configuration — it requires evaluation against your specific data and task distribution.</p>
+
+      <div class="callout callout-insight">
+        <div class="callout-label">Key Insight</div>
+        <p>There is no universal rule for how much to put in context vs. how much to retrieve. The right answer depends on your task's information density, your context budget, and how much retrieval latency you can tolerate. The wrong answer is to ignore the question and dump everything into context — that's expensive, slow, and often makes the model perform worse, not better, because useful signal gets drowned in noise.</p>
+      </div>
+    </div>
+
+    <div class="section-divider"></div>
+
+    <!-- Section 4: Planning Patterns -->
+    <div class="topic-section">
+      <div class="section-number">Topic 04</div>
+      <h2>Planning Patterns: How Agents Reason Before They Act</h2>
+
+      <p>Not every task is simple enough for a linear ReAct loop. Some tasks require decomposing a goal into subgoals, evaluating multiple possible approaches, or generating a plan that spans dozens of steps before committing to any of them. This is the domain of planning patterns — explicit strategies for structuring how a model reasons through a complex problem before it acts.</p>
+
+      <p>Three patterns dominate current practice. Each makes a different tradeoff between latency, reasoning quality, and computational cost.</p>
+
+      <div class="planning-row">
+        <div class="planning-card">
+          <div>
+            <div class="planning-card-label">Pattern 01</div>
+            <div class="planning-card-name">Chain-of-Thought</div>
+            <div class="planning-card-when">When: most tasks</div>
+          </div>
+          <div class="planning-card-desc">The model reasons step-by-step in a linear sequence before producing an answer or action. The original "let's think step by step" prompting technique. Low overhead — just adds tokens before the action. Works well for problems with a clear sequential structure. The ReAct loop is essentially chain-of-thought with tool calls interleaved.</div>
+        </div>
+        <div class="planning-card">
+          <div>
+            <div class="planning-card-label">Pattern 02</div>
+            <div class="planning-card-name">Tree-of-Thought</div>
+            <div class="planning-card-when">When: high-stakes, branching decisions</div>
+          </div>
+          <div class="planning-card-desc">The model generates multiple candidate reasoning paths simultaneously, evaluates each, and selects the best one to continue. Think of it as beam search applied to reasoning — you explore branches before committing. High reasoning quality, high cost. Appropriate for tasks where choosing the wrong path has irreversible consequences (legal reasoning, code architecture decisions, complex debugging).</div>
+        </div>
+        <div class="planning-card">
+          <div>
+            <div class="planning-card-label">Pattern 03</div>
+            <div class="planning-card-name">Skeleton-of-Thoughts</div>
+            <div class="planning-card-when">When: complex tasks requiring upfront structure</div>
+          </div>
+          <div class="planning-card-desc">The model first generates a high-level plan ("skeleton") with placeholder steps, then fills in each step — potentially in parallel. Optimized for latency on decomposable tasks. You get the plan's structure quickly and can parallelize the detail work. Good for document generation, multi-section research reports, or any task where the shape of the output is predictable even if the content isn't.</div>
+        </div>
+      </div>
+
+      <h3>The latency-quality tradeoff</h3>
+
+      <p>Chain-of-thought is fast and cheap. Tree-of-thought is expensive and slow but can find solutions that chain-of-thought misses. Skeleton-of-thoughts amortizes latency through parallelism but requires tasks that decompose cleanly.</p>
+
+      <p>In production, most agents use chain-of-thought by default and escalate to tree-of-thought only for explicitly high-stakes or high-ambiguity subtasks — and only if the latency budget allows. The error is reaching for tree-of-thought because it sounds more rigorous. More computation doesn't always mean better outcomes, and the additional tokens are real cost.</p>
+
+      <p>For COMPASS, the competitive intelligence network we'll introduce in the next section, skeleton-of-thoughts is the natural fit. The planner generates an outline of what needs to be researched, then researcher agents fill in each section in parallel, and a synthesizer assembles the result. The structure is predictable; only the content varies by run.</p>
+
+      <div class="callout callout-insight">
+        <div class="callout-label">Key Insight</div>
+        <p>Planning patterns are implemented through prompting and context structure — they're not separate APIs or framework features. A tree-of-thought implementation is just a series of model calls with carefully designed prompts that ask the model to generate, evaluate, and select between alternatives. Understanding this means you can implement any planning pattern without waiting for a framework to support it.</p>
+      </div>
+    </div>
+
+    <div class="section-divider"></div>
+
+    <!-- Section 5: Orchestrator / Subagent -->
+    <div class="topic-section">
+      <div class="section-number">Topic 05</div>
+      <h2>Orchestrator vs. Subagent: Multi-Agent Patterns</h2>
+
+      <p>A single agent with a well-designed tool set can accomplish a remarkable range of tasks. But some tasks genuinely benefit from parallelism, specialization, or separation of concerns that a single agent can't easily provide. This is when multi-agent architectures become worth their added complexity.</p>
+
+      <p>The core pattern is simple: an <strong>orchestrator</strong> decomposes a goal into scoped tasks, delegates each task to a <strong>subagent</strong>, and synthesizes the results. The orchestrator is itself an agent — it uses the same perceive-reason-act-observe loop — but its "tools" are other agents. The subagents have no awareness of each other; they receive a task, execute it, and return a result.</p>
+
+      <h3>Introducing COMPASS</h3>
+
+      <p>COMPASS is a three-agent competitive intelligence network. The business problem it solves: a product team needs a weekly briefing on competitor activity — pricing changes, new feature launches, press releases, partnership announcements. Doing this manually takes hours. Doing it with a single agent produces adequate but slow results. COMPASS is designed to be fast and thorough.</p>
+
+      <div class="compass-diagram">
+        <div class="compass-title">COMPASS — Competitive Intelligence Network</div>
+        <div class="compass-row">
+          <div class="compass-node orchestrator">
+            <div class="compass-node-role">Orchestrator</div>
+            <div class="compass-node-name">Planner</div>
+            <div class="compass-node-desc">Decomposes goal into research tasks. Assigns to researchers. Assembles briefing skeleton.</div>
+          </div>
+          <div class="compass-arrow">→</div>
+          <div class="compass-parallel">
+            <div class="compass-node subagent">
+              <div class="compass-node-role">Subagent</div>
+              <div class="compass-node-name">Researcher A</div>
+              <div class="compass-node-desc">Competitor A: web, press, pricing</div>
+            </div>
+            <div class="compass-node subagent">
+              <div class="compass-node-role">Subagent</div>
+              <div class="compass-node-name">Researcher B</div>
+              <div class="compass-node-desc">Competitor B: web, press, pricing</div>
+            </div>
+          </div>
+          <div class="compass-arrow">→</div>
+          <div class="compass-node synthesizer">
+            <div class="compass-node-role">Synthesizer</div>
+            <div class="compass-node-name">Writer</div>
+            <div class="compass-node-desc">Merges research into executive briefing. Highlights key deltas from last week.</div>
+          </div>
+        </div>
+      </div>
+
+      <p>The Planner receives the goal ("compile this week's competitive intelligence for competitors A and B") and decomposes it into parallel research tasks. Both Researcher subagents run simultaneously — one per competitor. Each has access to web search tools, a news API, and a structured data store for pricing history. When both researchers complete, the Synthesizer receives their combined output and writes the final briefing.</p>
+
+      <p>Why does this beat a single agent? Three reasons. First, true parallelism: both competitors are researched at the same time, cutting wall-clock time roughly in half. Second, specialization: each Researcher subagent has a focused, minimal context — it doesn't need to know about the other competitor, the synthesizer's needs, or anything outside its task. This reduces the chance of context contamination and hallucination. Third, isolation: if Researcher A fails, Researcher B can still complete, and the synthesizer can flag the gap rather than failing entirely.</p>
+
+      <h3>When to decompose, when not to</h3>
+
+      <p>Multi-agent architecture is not free. Every agent boundary is a communication interface, and interfaces have costs: latency (waiting for subagent results), potential for information loss (summarized results may omit details the synthesizer needs), and debugging complexity (where did the error originate?). You should reach for multi-agent design when at least one of these conditions is true:</p>
+
+      <p><strong>Parallelism provides a meaningful speedup.</strong> If COMPASS's researchers ran sequentially, there's no benefit to having two of them. Parallelism only pays when tasks can genuinely run at the same time and the task is latency-sensitive.</p>
+
+      <p><strong>The context window is a genuine constraint.</strong> Research tasks that span 50 web pages, thousands of tokens of source material, and multiple API responses will overflow a single agent's context window. Breaking the task into chunks handled by separate agents with separate contexts is a real architectural necessity, not premature optimization.</p>
+
+      <p><strong>Specialization reduces errors.</strong> A subagent with a narrow task and a lean context will outperform a single overloaded agent that's trying to do everything at once. Specialization is a reliability pattern, not just an organizational preference.</p>
+
+      <div class="callout callout-mistake">
+        <div class="callout-label">Common Mistake</div>
+        <p>Building multi-agent systems before validating that a single agent can't do the job. Every additional agent is an additional point of failure, an additional latency cost, and an additional thing to debug. Start with one agent. Add complexity only when you have evidence — not intuition — that it's needed.</p>
+      </div>
+
+      <h3>Delegation and result synthesis</h3>
+
+      <p>The orchestrator's job isn't just decomposing tasks — it's writing good task specifications. A subagent that receives a vague task will produce a vague result. The Planner in COMPASS doesn't tell Researcher A "look into Competitor A." It tells Researcher A: "Find any pricing changes, new product announcements, partnership press releases, and significant customer reviews published by or about Competitor A in the past 7 days. Return structured JSON with fields: [pricing_changes, product_news, partnerships, notable_reviews]. If no data is found for a field, return an empty array with a note explaining the absence."</p>
+
+      <p>Specificity in task delegation is the orchestrator's primary responsibility. The Synthesizer's job is equally demanding: it must recognize when subagent outputs are contradictory, when a gap exists because no data was found vs. because a subagent failed, and how to present uncertainty honestly in the final output. Synthesis is not concatenation — it's judgment applied to multiple imperfect inputs.</p>
+    </div>
+
+    <div class="section-divider"></div>
+
+    <!-- Section 6: When NOT to use agents -->
+    <div class="topic-section">
+      <div class="section-number">Topic 06</div>
+      <h2>When NOT to Use Agents</h2>
+
+      <p>Agents are powerful. They're also slow, expensive, and harder to debug than a simple pipeline. Every architectural decision has a cost, and the cost of unnecessary agentic complexity is real: higher latency, higher token spend, more failure modes, and harder-to-maintain code.</p>
+
+      <p>Here's a useful heuristic: if you can express the task as a directed acyclic graph where every node is a deterministic function, don't use an agent. Use a pipeline. A pipeline is faster, cheaper, and completely auditable. Its failure modes are enumerable. You can test each node in isolation. An agentic loop can't give you any of those properties without significant additional investment.</p>
+
+      <h3>The case for pipelines</h3>
+
+      <p>Consider a common enterprise workflow: extract data from an invoice PDF, validate the fields against a schema, look up the vendor in a database, write the result to an accounting system. This is four deterministic steps with no branching logic, no information gaps, and no ambiguous decision points. Turning this into an agent doesn't make it smarter — it makes it slower, more expensive, and harder to test. The right tool is a pipeline: OCR → validator → database lookup → write.</p>
+
+      <p>Agents earn their cost when the task has genuine uncertainty or requires real-time information gathering. The invoice pipeline has no uncertainty. The structure of the input may vary, but that's an extraction problem, not an agency problem. An LLM call in the extraction step is fine; an agentic loop is overkill.</p>
+
+      <table class="tradeoff-table">
+        <thead>
+          <tr>
+            <th>Approach</th>
+            <th>Latency</th>
+            <th>Cost</th>
+            <th>Reliability</th>
+            <th>Best For</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="col-approach">Static Pipeline</td>
+            <td><span class="pill-good">Low</span></td>
+            <td><span class="pill-good">Low</span></td>
+            <td><span class="pill-good">High</span></td>
+            <td>Fixed, deterministic workflows</td>
+          </tr>
+          <tr>
+            <td class="col-approach">Single LLM Call</td>
+            <td><span class="pill-good">Low</span></td>
+            <td><span class="pill-good">Low</span></td>
+            <td><span class="pill-mid">Medium</span></td>
+            <td>Classification, extraction, single-step generation</td>
+          </tr>
+          <tr>
+            <td class="col-approach">ReAct Agent</td>
+            <td><span class="pill-mid">Medium</span></td>
+            <td><span class="pill-mid">Medium</span></td>
+            <td><span class="pill-mid">Medium</span></td>
+            <td>Dynamic tasks requiring tool use and iteration</td>
+          </tr>
+          <tr>
+            <td class="col-approach">Multi-Agent Network</td>
+            <td><span class="pill-bad">High*</span></td>
+            <td><span class="pill-bad">High</span></td>
+            <td><span class="pill-mid">Variable</span></td>
+            <td>Parallel research, expert specialization, scale</td>
+          </tr>
+        </tbody>
+      </table>
+      <p style="font-size:0.78rem; color: var(--muted); margin-top: -1rem; margin-bottom: 1.5rem;">* Can be lower than single-agent if tasks run truly in parallel</p>
+
+      <h3>The cost of latency</h3>
+
+      <p>Every loop iteration adds latency. In a customer-facing product, 3–5 seconds per turn is survivable. 15–20 seconds is not. If your task requires 8–10 tool calls to complete, you need to budget that latency explicitly. Either the task is appropriate for async processing (queue it, notify the user when done), or you need to redesign it to require fewer loop iterations, or you shouldn't use an agent at all.</p>
+
+      <p>Cost scales with tool calls. Every iteration is one or more LLM inference calls plus the tool execution. At production scale, poorly bounded agent loops can generate thousands of unnecessary LLM calls per day. Set explicit iteration limits. Monitor actual vs. expected loop depth. Treat a loop that takes more than N iterations as a bug signal, not just slow performance.</p>
+
+      <div class="callout callout-insight">
+        <div class="callout-label">Key Insight</div>
+        <p>The autonomy spectrum from Module 1 isn't just a taxonomy — it's a decision tree. Start at the simplest point that could possibly work. Move right only when you have clear evidence that the simpler approach has a ceiling you've hit. Most real-world AI applications that are described as "agents" are, on inspection, pipelines with one LLM call. That's not a failure — that's appropriate engineering.</p>
+      </div>
+    </div>
+
+    <div class="section-divider"></div>
+
+    <!-- Section 7: 12-Factor Agent -->
+    <div class="topic-section">
+      <div class="section-number">Topic 07</div>
+      <h2>The 12-Factor Agent Principles</h2>
+
+      <p>The 12-Factor App methodology, published by Heroku engineers in 2011, codified a set of practices that made web applications easier to build, scale, and operate. As agent systems have matured, an analogous set of principles has emerged — a practical checklist for building LLM-based agents that are reliable, observable, and maintainable in production. These aren't theoretical ideals; they're lessons extracted from real systems failing in predictable ways.</p>
+
+      <p>If you build agents long enough, you will rediscover most of these the hard way. Consider this an advance preview of the lessons.</p>
+
+      <div class="factor-grid">
+        <div class="factor-card">
+          <div class="factor-number">01</div>
+          <div class="factor-body">
+            <div class="factor-title">Natural Language to Tool Calls</div>
+            <div class="factor-desc">Agents translate user intent into structured actions. The gap between ambiguous natural language input and a precise tool call is where errors happen. Invest in prompt engineering that reliably maps intent to the correct tool and parameters. Test this mapping explicitly.</div>
+          </div>
+        </div>
+        <div class="factor-card">
+          <div class="factor-number">02</div>
+          <div class="factor-body">
+            <div class="factor-title">Own Your Prompts</div>
+            <div class="factor-desc">Don't let frameworks abstract away your system prompts. If you can't read and edit the exact text the model receives, you can't control its behavior. Frameworks that hide prompts make debugging nearly impossible. Own every token in your context.</div>
+          </div>
+        </div>
+        <div class="factor-card">
+          <div class="factor-number">03</div>
+          <div class="factor-body">
+            <div class="factor-title">Own Your Context Window</div>
+            <div class="factor-desc">Know exactly what the model sees at inference time. Understand what's in the system prompt, the conversation history, the tool definitions, and any injected documents. Surprise context is the most common source of surprising behavior. Log and inspect the full context during development.</div>
+          </div>
+        </div>
+        <div class="factor-card">
+          <div class="factor-number">04</div>
+          <div class="factor-body">
+            <div class="factor-title">Tools Are the Interface to the World</div>
+            <div class="factor-desc">Everything outside the model is a tool. Databases, APIs, file systems, other agents — if the model needs to interact with it, it needs a tool. Don't try to bake external state into prompts directly. Design the tool interface deliberately, not as an afterthought.</div>
+          </div>
+        </div>
+        <div class="factor-card">
+          <div class="factor-number">05</div>
+          <div class="factor-body">
+            <div class="factor-title">Small, Focused Agents</div>
+            <div class="factor-desc">One agent, one job. An agent with 20 tools and a 5,000-token system prompt covering 8 different domains is an agent waiting to fail. Focused agents with narrow scopes are easier to prompt, easier to test, and easier to fix when they break. Specialize before you generalize.</div>
+          </div>
+        </div>
+        <div class="factor-card">
+          <div class="factor-number">06</div>
+          <div class="factor-body">
+            <div class="factor-title">Handle Errors Gracefully</div>
+            <div class="factor-desc">Model the failure modes before you deploy. What happens when a tool times out? When the model produces a malformed tool call? When a subagent returns a partial result? Build recovery logic for each case. An agent that crashes on first error is not a production-grade agent.</div>
+          </div>
+        </div>
+        <div class="factor-card">
+          <div class="factor-number">07</div>
+          <div class="factor-body">
+            <div class="factor-title">Support Human-in-the-Loop</div>
+            <div class="factor-desc">Design for escalation from the start. Every agent should have a clear escalation path to a human for cases where it lacks authority, confidence, or information to proceed. HITL is not a fallback for broken agents — it's a first-class design decision. Build it in, not on top.</div>
+          </div>
+        </div>
+        <div class="factor-card">
+          <div class="factor-number">08</div>
+          <div class="factor-body">
+            <div class="factor-title">Return Results, Don't Just Act</div>
+            <div class="factor-desc">Agent outputs should be observable. Every significant action an agent takes should produce a structured result that can be logged, inspected, and verified — not just a side effect in the world. Observability is how you debug production agents. Make outputs first-class artifacts.</div>
+          </div>
+        </div>
+        <div class="factor-card">
+          <div class="factor-number">09</div>
+          <div class="factor-body">
+            <div class="factor-title">Stateless Agents When Possible</div>
+            <div class="factor-desc">Implicit state accumulation — where an agent's behavior changes based on undocumented prior actions — is a major source of subtle bugs. Prefer agents that receive all necessary context in each call and don't rely on persistent internal state. When state is necessary, make it explicit and external.</div>
+          </div>
+        </div>
+        <div class="factor-card">
+          <div class="factor-number">10</div>
+          <div class="factor-body">
+            <div class="factor-title">Explicit Stop Conditions</div>
+            <div class="factor-desc">Every agent loop needs a defined exit. What counts as task completion? What triggers an escalation? What is the maximum number of iterations? What happens when the loop has been running for N seconds? Define these before you deploy, not after your first runaway loop burns through your API budget.</div>
+          </div>
+        </div>
+        <div class="factor-card">
+          <div class="factor-number">11</div>
+          <div class="factor-body">
+            <div class="factor-title">Log Everything</div>
+            <div class="factor-desc">Agent traces — the complete record of every thought, tool call, and observation in a session — are first-class artifacts. Log them. Store them. Make them searchable. When an agent fails, the trace is your only window into what happened. Logging is not optional infrastructure; it is debugging infrastructure.</div>
+          </div>
+        </div>
+        <div class="factor-card">
+          <div class="factor-number">12</div>
+          <div class="factor-body">
+            <div class="factor-title">Evaluate Constantly</div>
+            <div class="factor-desc">Evals are not optional. They are how you know your agent works, how you detect regressions when you update prompts or models, and how you justify confidence to stakeholders. Build an eval suite before you ship. Run it on every significant change. Treat eval coverage like test coverage — a measure of how much you actually know about your system's behavior.</div>
+          </div>
+        </div>
+      </div>
+
+      <p>These twelve principles aren't sequential — you don't implement them in order. They're a checklist to hold up against any agent system you build. If you're violating several of them, you're accumulating technical debt that will surface as production incidents. The earlier you identify and address each one, the less painful the reckoning.</p>
+
+      <div class="callout callout-insight">
+        <div class="callout-label">Key Insight</div>
+        <p>Principles 2 and 3 — own your prompts, own your context — are the ones most frequently violated by teams using agent frameworks. The convenience of high-level abstractions is real, but the loss of visibility is costly in proportion to how much your agent is doing. Use frameworks that let you inspect and override the underlying context. Treat any framework that hides this from you as a red flag.</p>
+      </div>
+    </div>
+
+    <div class="section-divider"></div>
+
+    <!-- Lab Section -->
+    <div class="exercise-section">
+      <div class="exercise-header">
+        <div class="exercise-label">Module 02 Lab</div>
+        <h2>Build a Minimal ReAct Agent from Scratch</h2>
+        <p>No frameworks. No magic. Just an LLM, a tool loop, and a stop condition. The goal is to understand the mechanics before you abstract them away. By the end of this lab, you'll have a working ReAct agent in fewer than 100 lines of Python, and you'll understand exactly what a framework like LangChain or Claude's agent SDK is doing under the hood.</p>
+      </div>
+      <div class="exercise-body">
+
+        <p>We're building a minimal version of Aria's customer service loop. The agent has three tools: <code>lookup_order</code>, <code>issue_refund</code>, and <code>send_email</code>. We'll implement them as stubs — they return plausible fake data — so you can run the full loop locally without any external API dependencies beyond an LLM.</p>
+
+        <div class="step-card">
+          <div class="step-number">Step 01</div>
+          <div class="step-title">Define your tools as Python functions</div>
+          <div class="step-desc">Each tool is a regular Python function that takes typed parameters and returns a dictionary. The structure of the return value is what the model will see as its "observation." Write clean, structured returns — not strings, not raw exceptions.</div>
+        </div>
+
+<pre class="code-block"><code># tools.py — stub implementations for the lab
+
+def lookup_order(order_id: str) -> dict:
+    """Look up an order by ID. Returns order details or an error."""
+    # Stub: return fake data
+    orders = {
+        "ORD-001": {
+            "order_id": "ORD-001",
+            "customer": "Alex Rivera",
+            "item": "Wireless Headphones",
+            "value": 89.99,
+            "status": "shipped",
+            "last_scan": "Memphis, TN — 10 days ago",
+            "carrier": "USPS"
+        },
+        "ORD-002": {
+            "order_id": "ORD-002",
+            "customer": "Sam Chen",
+            "item": "Phone Case",
+            "value": 19.99,
+            "status": "delivered",
+            "delivered_at": "2 days ago"
+        }
+    }
+    if order_id in orders:
+        return {"success": True, "order": orders[order_id]}
+    return {
+        "success": False,
+        "error": "order_not_found",
+        "order_id": order_id,
+        "suggestion": "Verify the order ID and retry."
+    }
+
+
+def issue_refund(order_id: str, amount: float) -> dict:
+    """Issue a refund. Capped at $50. Returns confirmation or error."""
+    REFUND_CAP = 50.00
+    if amount > REFUND_CAP:
+        return {
+            "success": False,
+            "error": "exceeds_authority",
+            "requested": amount,
+            "cap": REFUND_CAP,
+            "suggestion": "Escalate to human agent for refunds over $50."
+        }
+    return {
+        "success": True,
+        "refund_id": f"RF-{order_id}-{int(amount * 100)}",
+        "amount": amount,
+        "order_id": order_id,
+        "status": "processed"
+    }
+
+
+def send_email(to: str, subject: str, body: str) -> dict:
+    """Send an email to the customer."""
+    print(f"\n--- EMAIL SENT ---")
+    print(f"To: {to}")
+    print(f"Subject: {subject}")
+    print(f"Body: {body}")
+    print(f"------------------\n")
+    return {"success": True, "message_id": f"MSG-{hash(subject) % 10000}"}</code></pre>
+
+        <div class="step-card">
+          <div class="step-number">Step 02</div>
+          <div class="step-title">Define your tool schemas for the model</div>
+          <div class="step-desc">The model needs to know what tools are available, what parameters they take, and what they do. This is the tool definition that goes into the context. In a real system this would be formatted per your LLM provider's spec (e.g., Anthropic's tools format). Here we use a simple dict structure to keep it provider-agnostic.</div>
+        </div>
+
+<pre class="code-block"><code># tool_schemas.py — tell the model what tools exist
+
+TOOL_SCHEMAS = [
+    {
+        "name": "lookup_order",
+        "description": (
+            "Look up an order by its order ID. Use this when you need to find "
+            "the status, value, or shipping details of a specific order. "
+            "Returns order details on success or an error dict on failure."
+        ),
+        "parameters": {
+            "order_id": {
+                "type": "string",
+                "description": "The order ID to look up (e.g. 'ORD-001')"
+            }
+        }
+    },
+    {
+        "name": "issue_refund",
+        "description": (
+            "Issue a refund for an order. You are authorized to refund up to $50.00. "
+            "For amounts over $50, use escalate_to_human instead. "
+            "Always look up the order first to confirm the value before refunding."
+        ),
+        "parameters": {
+            "order_id": {"type": "string", "description": "The order ID to refund"},
+            "amount": {"type": "number", "description": "Amount to refund in USD"}
+        }
+    },
+    {
+        "name": "send_email",
+        "description": (
+            "Send an email to the customer. Use after completing an action "
+            "(refund, escalation) to notify them of the outcome."
+        ),
+        "parameters": {
+            "to": {"type": "string", "description": "Customer email address"},
+            "subject": {"type": "string", "description": "Email subject line"},
+            "body": {"type": "string", "description": "Email body text"}
+        }
+    }
+]</code></pre>
+
+        <div class="step-card">
+          <div class="step-number">Step 03</div>
+          <div class="step-title">Build the tool dispatcher</div>
+          <div class="step-desc">The dispatcher is the runtime's job: it receives the model's tool call (name + parameters), routes it to the right function, and returns the result. This is the "executed by the runtime" part from Module 1's definition of tools. It's a plain Python dict lookup — nothing magic here.</div>
+        </div>
+
+<pre class="code-block"><code># dispatcher.py — route tool calls to their implementations
+
+import json
+from tools import lookup_order, issue_refund, send_email
+
+TOOL_REGISTRY = {
+    "lookup_order": lookup_order,
+    "issue_refund": issue_refund,
+    "send_email": send_email,
+}
+
+def dispatch_tool(tool_name: str, parameters: dict) -> str:
+    """
+    Execute a tool call and return the result as a JSON string.
+    The JSON string becomes the 'observation' in the next loop iteration.
+    """
+    if tool_name not in TOOL_REGISTRY:
+        result = {
+            "success": False,
+            "error": "unknown_tool",
+            "tool_name": tool_name,
+            "available_tools": list(TOOL_REGISTRY.keys())
+        }
+    else:
+        try:
+            result = TOOL_REGISTRY[tool_name](**parameters)
+        except TypeError as e:
+            result = {
+                "success": False,
+                "error": "invalid_parameters",
+                "detail": str(e)
+            }
+    return json.dumps(result, indent=2)</code></pre>
+
+        <div class="step-card">
+          <div class="step-number">Step 04</div>
+          <div class="step-title">Build the ReAct loop</div>
+          <div class="step-desc">This is the core of the lab. The loop calls the model, checks whether the model wants to use a tool or is done, dispatches the tool if needed, appends the observation to the conversation, and repeats. The stop conditions are: the model produces a final answer (no tool call), or we hit the iteration limit.</div>
+        </div>
+
+<pre class="code-block"><code># agent.py — the ReAct loop
+
+import json
+import anthropic
+from tool_schemas import TOOL_SCHEMAS
+from dispatcher import dispatch_tool
+
+client = anthropic.Anthropic()  # uses ANTHROPIC_API_KEY env var
+
+SYSTEM_PROMPT = """You are Aria, a customer success agent.
+
+You help customers with order issues. You have access to tools to look up orders,
+issue refunds (up to $50 only — never exceed this limit), and send emails.
+
+When handling a request:
+1. Always look up the order before taking any action.
+2. Verify the order value before issuing a refund.
+3. Send a confirmation email after any action you take.
+4. If a refund would exceed $50, tell the customer you're escalating to a human.
+
+Be direct, clear, and helpful. Don't over-explain."""
+
+MAX_ITERATIONS = 10  # stop condition: never run more than 10 loop turns
+
+
+def run_agent(user_message: str) -> str:
+    """
+    Run the ReAct agent loop for a single user request.
+    Returns the agent's final response.
+    """
+    messages = [{"role": "user", "content": user_message}]
+
+    for iteration in range(MAX_ITERATIONS):
+        print(f"\n[Loop iteration {iteration + 1}]")
+
+        # Call the model
+        response = client.messages.create(
+            model="claude-sonnet-4-5",
+            max_tokens=1024,
+            system=SYSTEM_PROMPT,
+            tools=TOOL_SCHEMAS,  # tool definitions go here
+            messages=messages
+        )
+
+        print(f"Stop reason: {response.stop_reason}")
+
+        # Check stop condition: model is done (no more tool calls)
+        if response.stop_reason == "end_turn":
+            # Extract the final text response
+            final_text = next(
+                (block.text for block in response.content if hasattr(block, "text")),
+                "I've completed the requested actions."
+            )
+            print(f"\n[Agent finished after {iteration + 1} iterations]")
+            return final_text
+
+        # Process tool use
+        if response.stop_reason == "tool_use":
+            # Add the model's response (including tool calls) to history
+            messages.append({"role": "assistant", "content": response.content})
+
+            # Execute each tool call and collect results
+            tool_results = []
+            for block in response.content:
+                if block.type == "tool_use":
+                    print(f"  Tool call: {block.name}({json.dumps(block.input)})")
+                    observation = dispatch_tool(block.name, block.input)
+                    print(f"  Observation: {observation[:200]}...")  # truncate for readability
+
+                    tool_results.append({
+                        "type": "tool_result",
+                        "tool_use_id": block.id,
+                        "content": observation
+                    })
+
+            # Append observations as the next user turn
+            messages.append({"role": "user", "content": tool_results})
+            # Loop continues — model sees the observations and decides next step
+
+        else:
+            # Unexpected stop reason — treat as completion
+            print(f"[Unexpected stop reason: {response.stop_reason}]")
+            break
+
+    return "I wasn't able to complete this request within the allowed number of steps."
+
+
+# --- Run it ---
+if __name__ == "__main__":
+    test_request = (
+        "Hi, I'm Alex Rivera. My order ORD-001 hasn't arrived — "
+        "it was supposed to come two weeks ago. My email is alex@example.com. "
+        "Can you help?"
+    )
+
+    print("=== ARIA CUSTOMER SERVICE AGENT ===")
+    print(f"Customer: {test_request}\n")
+
+    response = run_agent(test_request)
+    print(f"\n=== FINAL RESPONSE ===\n{response}")</code></pre>
+
+        <div class="step-card">
+          <div class="step-number">Step 05</div>
+          <div class="step-title">Run it and read the trace</div>
+          <div class="step-desc">Install the Anthropic SDK (<code>pip install anthropic</code>), set your <code>ANTHROPIC_API_KEY</code>, and run <code>python agent.py</code>. Watch the loop print each iteration, each tool call, and each observation. Then try breaking it: give it an order ID that doesn't exist, request a refund over $50, or give it an ambiguous customer request. The trace will show you exactly where it succeeds and exactly where it struggles.</div>
+        </div>
+
+        <p>Once the basic loop is working, there are three extensions worth trying before moving to Module 3:</p>
+
+        <div class="step-card">
+          <div class="step-number">Extension A</div>
+          <div class="step-title">Add an escalation tool</div>
+          <div class="step-desc">Implement an <code>escalate_to_human</code> tool that logs the escalation, pauses the loop, and returns a structured escalation record. Observe how the agent decides to use it vs. the refund tool. Notice what happens to the stop condition when escalation is the final action — does the loop terminate correctly?</div>
+        </div>
+
+        <div class="step-card">
+          <div class="step-number">Extension B</div>
+          <div class="step-title">Log the full trace</div>
+          <div class="step-desc">Add logging to serialize the complete <code>messages</code> list at the end of each run to a JSON file. Open a few trace files and inspect them. This is exactly what production agent observability looks like. The trace is the artifact. Notice how much context accumulates over even a simple 4-step interaction.</div>
+        </div>
+
+        <div class="step-card">
+          <div class="step-number">Extension C</div>
+          <div class="step-title">Induce a failure and build recovery</div>
+          <div class="step-desc">Modify <code>lookup_order</code> to return an error 50% of the time. Watch the agent struggle. Then update the tool's error response to include a clearer <code>suggestion</code>, and update the system prompt to instruct the agent to retry once on lookup failure. Compare the agent's behavior before and after. This is what "handle errors gracefully" means in practice.</div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Summary Section -->
+    <div class="summary-section">
+      <h2>By the end of this module, you should be able to...</h2>
+      <ul class="summary-list">
+        <li>Explain the ReAct loop in concrete terms — thought, action, observation, repeat — and trace through a multi-step agent interaction showing how each step feeds the next.</li>
+        <li>Design a tool set for a new agent task: choose appropriate granularity, write descriptive names and schemas, define structured error responses, and explain why each tool boundary exists.</li>
+        <li>Name and distinguish the four memory types (in-context, external, episodic, semantic) and identify which is appropriate for a given information access pattern.</li>
+        <li>Compare chain-of-thought, tree-of-thought, and skeleton-of-thoughts planning patterns and explain when the tradeoffs favor each approach.</li>
+        <li>Describe the orchestrator-subagent pattern using COMPASS as a concrete example, and articulate the specific conditions (parallelism, context limits, specialization) that justify adding a second agent to a system.</li>
+        <li>Identify scenarios where a pipeline or single LLM call is a better choice than an agent, and explain the latency, cost, and reliability reasons behind that judgment.</li>
+        <li>Recite and apply the 12-Factor Agent principles, using them as a checklist to evaluate the reliability posture of any agent system.</li>
+        <li>Build a minimal, framework-free ReAct agent from scratch, implement tool dispatch, and trace its execution loop — including reading the full message history to understand what the model sees at each step.</li>
+      </ul>
+    </div>
+
+  </div>
+</div>
+
+<!-- Footer -->
+<div class="footer">
+  <div class="container">
+    <div class="footer-inner">
+      <a href="module-01.html" class="footer-link">← Module 01</a>
+      <span class="footer-text">Module 02 · How Agents Are Built</span>
+      <a href="module-03.html" class="footer-link">Module 03 →</a>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

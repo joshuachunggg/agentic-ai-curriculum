@@ -1,0 +1,1818 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Module 06: Frameworks, Tooling &amp; the Ecosystem — Agentic AI Curriculum</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;500&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;500&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap');
+
+  :root {
+    --bg: #0a0a0f;
+    --surface: #111118;
+    --surface2: #18181f;
+    --border: #2a2a3a;
+    --accent: #7c6af7;
+    --accent2: #f7c36a;
+    --accent3: #6af7d4;
+    --text: #e8e8f0;
+    --muted: #6b6b80;
+    --danger: #f76a6a;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 300;
+    line-height: 1.7;
+    min-height: 100vh;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.4;
+  }
+
+  /* Sticky nav */
+  .top-nav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(10,10,15,0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .top-nav-inner {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 0 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 52px;
+    gap: 1rem;
+  }
+
+  .nav-back {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.05em;
+    color: var(--muted);
+    text-decoration: none;
+    transition: color 0.2s;
+    white-space: nowrap;
+  }
+
+  .nav-back:hover { color: var(--text); }
+
+  .nav-module-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    color: var(--muted);
+    text-transform: uppercase;
+    text-align: center;
+    flex: 1;
+  }
+
+  .nav-next {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.05em;
+    color: var(--muted);
+    text-decoration: none;
+    transition: color 0.2s;
+    white-space: nowrap;
+  }
+
+  .nav-next:hover { color: var(--accent); }
+
+  /* Container */
+  .container {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 0 2rem;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Hero */
+  .hero {
+    padding: 4.5rem 0 3.5rem;
+    border-bottom: 1px solid var(--border);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero::after {
+    content: '';
+    position: absolute;
+    top: -100px;
+    right: -200px;
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, rgba(247,195,106,0.10) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .hero-eyebrow {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.2em;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+  }
+
+  .module-badge {
+    display: inline-block;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.1em;
+    padding: 0.25rem 0.6rem;
+    border-radius: 4px;
+    margin-bottom: 1.2rem;
+  }
+
+  .badge-advanced {
+    background: rgba(247,195,106,0.12);
+    color: var(--accent2);
+    border: 1px solid rgba(247,195,106,0.3);
+  }
+
+  .hero h1 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: clamp(2rem, 4.5vw, 3.2rem);
+    line-height: 1.08;
+    margin-bottom: 1.4rem;
+    letter-spacing: -0.02em;
+  }
+
+  .hero-sub {
+    font-size: 1.05rem;
+    color: #a0a0b8;
+    max-width: 620px;
+    line-height: 1.8;
+    margin-bottom: 2rem;
+  }
+
+  .hero-meta {
+    display: flex;
+    gap: 2.5rem;
+    flex-wrap: wrap;
+  }
+
+  .meta-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+  }
+
+  .meta-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.15em;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+
+  .meta-value {
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    font-size: 1rem;
+    color: var(--text);
+  }
+
+  /* Main content */
+  .content {
+    padding: 4rem 0 6rem;
+  }
+
+  /* Topic sections */
+  .topic-section {
+    margin-bottom: 5rem;
+  }
+
+  .topic-section:last-child {
+    margin-bottom: 0;
+  }
+
+  .section-number {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+  }
+
+  .topic-section h2 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 1.65rem;
+    letter-spacing: -0.01em;
+    line-height: 1.2;
+    margin-bottom: 1.6rem;
+    color: var(--text);
+  }
+
+  .topic-section h3 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    font-size: 1.1rem;
+    letter-spacing: -0.01em;
+    margin-top: 2.2rem;
+    margin-bottom: 0.8rem;
+    color: var(--text);
+  }
+
+  .topic-section p {
+    font-size: 0.97rem;
+    color: #c8c8d8;
+    line-height: 1.8;
+    margin-bottom: 1.2rem;
+  }
+
+  .topic-section p:last-child {
+    margin-bottom: 0;
+  }
+
+  /* Section divider */
+  .section-divider {
+    height: 1px;
+    background: linear-gradient(to right, transparent, var(--border) 20%, var(--border) 80%, transparent);
+    margin: 4.5rem 0;
+  }
+
+  /* Callout boxes */
+  .callout {
+    border-radius: 10px;
+    padding: 1.3rem 1.6rem;
+    margin: 2rem 0;
+  }
+
+  .callout-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 0.6rem;
+    font-weight: 500;
+  }
+
+  .callout p {
+    font-size: 0.92rem;
+    line-height: 1.75;
+    margin-bottom: 0;
+  }
+
+  .callout p + p {
+    margin-top: 0.8rem;
+  }
+
+  .callout-insight {
+    background: rgba(124,106,247,0.07);
+    border: 1px solid rgba(124,106,247,0.25);
+  }
+
+  .callout-insight .callout-label { color: var(--accent); }
+  .callout-insight p { color: #b8b0f0; }
+
+  .callout-mistake {
+    background: rgba(247,106,106,0.07);
+    border: 1px solid rgba(247,106,106,0.25);
+  }
+
+  .callout-mistake .callout-label { color: var(--danger); }
+  .callout-mistake p { color: #e0b0b0; }
+
+  .callout-example {
+    background: rgba(106,247,212,0.06);
+    border: 1px solid rgba(106,247,212,0.2);
+  }
+
+  .callout-example .callout-label { color: var(--accent3); }
+  .callout-example p { color: #a8e8d8; }
+
+  /* Code blocks */
+  .code-block {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.4rem 1.6rem;
+    margin: 1.6rem 0;
+    overflow-x: auto;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.82rem;
+    line-height: 1.75;
+    color: #c0c0d8;
+  }
+
+  .code-block-header {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    padding: 0.6rem 1.6rem;
+    border-bottom: 1px solid var(--border);
+    background: rgba(42,42,58,0.3);
+    border-radius: 8px 8px 0 0;
+    margin: 1.6rem 0 0;
+  }
+
+  .code-block-header + .code-block {
+    border-radius: 0 0 8px 8px;
+    margin-top: 0;
+    border-top: none;
+  }
+
+  .code-block code {
+    font-family: inherit;
+  }
+
+  .kw { color: var(--accent); }
+  .fn { color: var(--accent2); }
+  .str { color: var(--accent3); }
+  .cm { color: var(--muted); font-style: italic; }
+  .hl { color: var(--text); font-weight: 500; }
+
+  /* Framework cards */
+  .framework-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin: 2rem 0;
+  }
+
+  @media (max-width: 620px) {
+    .framework-grid { grid-template-columns: 1fr; }
+  }
+
+  .framework-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.4rem 1.5rem;
+  }
+
+  .framework-card-name {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 1rem;
+    color: var(--text);
+    margin-bottom: 0.3rem;
+  }
+
+  .framework-card-origin {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+    margin-bottom: 0.9rem;
+  }
+
+  .framework-card-desc {
+    font-size: 0.84rem;
+    color: #9898b0;
+    line-height: 1.7;
+    margin-bottom: 1rem;
+  }
+
+  .framework-verdict {
+    border-top: 1px solid var(--border);
+    padding-top: 0.9rem;
+    margin-top: 0.5rem;
+  }
+
+  .framework-verdict-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.58rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--accent2);
+    margin-bottom: 0.35rem;
+  }
+
+  .framework-verdict-text {
+    font-size: 0.83rem;
+    color: #c8c8d8;
+    line-height: 1.6;
+  }
+
+  /* Framework comparison table */
+  .fw-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 2rem 0;
+    font-size: 0.84rem;
+  }
+
+  .fw-table th {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    text-align: left;
+    padding: 0.6rem 0.9rem;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface2);
+  }
+
+  .fw-table th:first-child { border-radius: 8px 0 0 0; }
+  .fw-table th:last-child { border-radius: 0 8px 0 0; }
+
+  .fw-table td {
+    padding: 0.85rem 0.9rem;
+    color: #b0b0c8;
+    border-bottom: 1px solid rgba(42,42,58,0.5);
+    line-height: 1.55;
+    vertical-align: top;
+  }
+
+  .fw-table tr:last-child td { border-bottom: none; }
+
+  .fw-table td:first-child {
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    font-size: 0.88rem;
+    color: var(--text);
+    white-space: nowrap;
+  }
+
+  .fw-table .tag-good {
+    display: inline-block;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.08em;
+    padding: 0.1rem 0.4rem;
+    border-radius: 3px;
+    background: rgba(106,247,212,0.08);
+    color: var(--accent3);
+    border: 1px solid rgba(106,247,212,0.2);
+    white-space: nowrap;
+  }
+
+  .fw-table .tag-warn {
+    display: inline-block;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.08em;
+    padding: 0.1rem 0.4rem;
+    border-radius: 3px;
+    background: rgba(247,195,106,0.08);
+    color: var(--accent2);
+    border: 1px solid rgba(247,195,106,0.2);
+    white-space: nowrap;
+  }
+
+  .fw-table .tag-no {
+    display: inline-block;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.08em;
+    padding: 0.1rem 0.4rem;
+    border-radius: 3px;
+    background: rgba(247,106,106,0.08);
+    color: var(--danger);
+    border: 1px solid rgba(247,106,106,0.2);
+    white-space: nowrap;
+  }
+
+  /* Decision table */
+  .decision-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1.8rem 0;
+    font-size: 0.86rem;
+  }
+
+  .decision-table th {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    text-align: left;
+    padding: 0.6rem 1rem;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface2);
+  }
+
+  .decision-table td {
+    padding: 0.8rem 1rem;
+    color: #b0b0c8;
+    border-bottom: 1px solid rgba(42,42,58,0.5);
+    line-height: 1.6;
+    vertical-align: top;
+  }
+
+  .decision-table tr:last-child td { border-bottom: none; }
+
+  .decision-table td:first-child {
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    color: var(--text);
+    white-space: nowrap;
+  }
+
+  /* Model cascade diagram */
+  .cascade-diagram {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    margin: 2rem 0;
+  }
+
+  .cascade-header {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    padding: 0.65rem 1.4rem;
+    border-bottom: 1px solid var(--border);
+    background: rgba(42,42,58,0.3);
+  }
+
+  .cascade-rows {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .cascade-row {
+    display: grid;
+    grid-template-columns: 2fr 1.5fr 1.5fr;
+    gap: 0.5rem;
+    padding: 1rem 1.4rem;
+    border-bottom: 1px solid var(--border);
+    align-items: center;
+  }
+
+  .cascade-row:last-child { border-bottom: none; }
+
+  .cascade-task {
+    font-size: 0.88rem;
+    color: var(--text);
+    font-weight: 500;
+  }
+
+  .cascade-model {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.76rem;
+    color: var(--accent3);
+  }
+
+  .cascade-why {
+    font-size: 0.8rem;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+
+  /* Deployment cards */
+  .deploy-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin: 2rem 0;
+  }
+
+  @media (max-width: 580px) {
+    .deploy-grid { grid-template-columns: 1fr; }
+  }
+
+  .deploy-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.3rem 1.5rem;
+  }
+
+  .deploy-card-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 0.5rem;
+  }
+
+  .deploy-card-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: var(--text);
+    margin-bottom: 0.5rem;
+  }
+
+  .deploy-card-desc {
+    font-size: 0.83rem;
+    color: #9898b0;
+    line-height: 1.65;
+    margin-bottom: 0.9rem;
+  }
+
+  .deploy-tag-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+  }
+
+  .deploy-tag {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.58rem;
+    letter-spacing: 0.08em;
+    padding: 0.15rem 0.45rem;
+    border-radius: 3px;
+    background: var(--surface2);
+    color: var(--muted);
+    border: 1px solid var(--border);
+  }
+
+  .deploy-tag.good { background: rgba(106,247,212,0.07); color: var(--accent3); border-color: rgba(106,247,212,0.2); }
+  .deploy-tag.warn { background: rgba(247,195,106,0.07); color: var(--accent2); border-color: rgba(247,195,106,0.2); }
+
+  /* Observability cards */
+  .obs-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin: 2rem 0;
+  }
+
+  @media (max-width: 580px) {
+    .obs-grid { grid-template-columns: 1fr; }
+  }
+
+  .obs-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.3rem 1.5rem;
+    border-top: 3px solid var(--accent);
+  }
+
+  .obs-card.teal { border-top-color: var(--accent3); }
+  .obs-card.gold { border-top-color: var(--accent2); }
+  .obs-card.red { border-top-color: var(--danger); }
+
+  .obs-card-name {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 1rem;
+    color: var(--text);
+    margin-bottom: 0.25rem;
+  }
+
+  .obs-card-type {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+    margin-bottom: 0.8rem;
+  }
+
+  .obs-card-desc {
+    font-size: 0.83rem;
+    color: #9898b0;
+    line-height: 1.65;
+    margin-bottom: 0.8rem;
+  }
+
+  .obs-best-for {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.08em;
+    color: var(--accent3);
+    line-height: 1.5;
+  }
+
+  .obs-card.gold .obs-best-for { color: var(--accent2); }
+  .obs-card.red .obs-best-for { color: var(--danger); }
+  .obs-card.plain .obs-best-for { color: var(--accent); }
+
+  /* Lab section */
+  .lab-section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 5rem;
+  }
+
+  .lab-header {
+    padding: 1.8rem 2rem;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface2);
+  }
+
+  .lab-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    color: var(--accent2);
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+  }
+
+  .lab-header h2 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 1.4rem;
+    color: var(--text);
+    margin-bottom: 0.6rem;
+  }
+
+  .lab-header p {
+    font-size: 0.92rem;
+    color: #9898b0;
+    line-height: 1.7;
+  }
+
+  .lab-body {
+    padding: 2rem;
+  }
+
+  .lab-body p {
+    font-size: 0.93rem;
+    color: #b0b0c8;
+    line-height: 1.8;
+    margin-bottom: 1.1rem;
+  }
+
+  .lab-body h3 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    font-size: 1rem;
+    color: var(--text);
+    margin-top: 1.8rem;
+    margin-bottom: 0.7rem;
+  }
+
+  .lab-steps {
+    list-style: none;
+    counter-reset: step;
+    display: flex;
+    flex-direction: column;
+    gap: 0.9rem;
+    margin: 1.2rem 0;
+  }
+
+  .lab-steps li {
+    counter-increment: step;
+    display: grid;
+    grid-template-columns: 2rem 1fr;
+    gap: 0.8rem;
+    align-items: baseline;
+  }
+
+  .lab-steps li::before {
+    content: counter(step);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--accent2);
+    background: rgba(247,195,106,0.08);
+    border: 1px solid rgba(247,195,106,0.2);
+    border-radius: 50%;
+    width: 1.6rem;
+    height: 1.6rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-top: 0.1rem;
+  }
+
+  .lab-steps li span {
+    font-size: 0.9rem;
+    color: #b0b0c8;
+    line-height: 1.7;
+  }
+
+  .choice-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin: 1.4rem 0;
+  }
+
+  @media (max-width: 580px) {
+    .choice-grid { grid-template-columns: 1fr; }
+  }
+
+  .choice-card {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.2rem 1.3rem;
+  }
+
+  .choice-card-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 0.4rem;
+  }
+
+  .choice-card-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: var(--text);
+    margin-bottom: 0.5rem;
+  }
+
+  .choice-card-desc {
+    font-size: 0.82rem;
+    color: #9898b0;
+    line-height: 1.65;
+  }
+
+  /* Summary section */
+  .summary-section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 2rem 2.2rem;
+    margin-bottom: 4rem;
+  }
+
+  .summary-section h2 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 1.25rem;
+    margin-bottom: 1.3rem;
+    color: var(--text);
+  }
+
+  .summary-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.7rem;
+  }
+
+  .summary-list li {
+    font-size: 0.93rem;
+    color: #b0b0c8;
+    line-height: 1.7;
+    padding-left: 1.5rem;
+    position: relative;
+  }
+
+  .summary-list li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0.58rem;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--accent2);
+  }
+
+  /* Footer */
+  .footer {
+    border-top: 1px solid var(--border);
+    padding: 2.5rem 0;
+  }
+
+  .footer-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .footer-text {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.68rem;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+  }
+
+  .footer-prev {
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    font-size: 0.92rem;
+    color: var(--muted);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: color 0.2s;
+  }
+
+  .footer-prev:hover { color: var(--text); }
+
+  .footer-next {
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    font-size: 0.92rem;
+    color: var(--accent);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: gap 0.2s;
+  }
+
+  .footer-next:hover { gap: 0.8rem; }
+
+  /* Inline code */
+  code {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.82em;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    padding: 0.1em 0.35em;
+    color: var(--accent3);
+  }
+
+  strong {
+    font-weight: 500;
+    color: var(--text);
+  }
+
+  /* MCP anatomy */
+  .mcp-anatomy {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    margin: 2rem 0;
+  }
+
+  .mcp-anatomy-header {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    padding: 0.65rem 1.4rem;
+    border-bottom: 1px solid var(--border);
+    background: rgba(42,42,58,0.3);
+  }
+
+  .mcp-part {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 1rem 1.4rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .mcp-part:last-child { border-bottom: none; }
+
+  .mcp-part-num {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.1em;
+    color: var(--accent);
+    background: rgba(124,106,247,0.1);
+    border: 1px solid rgba(124,106,247,0.2);
+    border-radius: 3px;
+    padding: 0.15rem 0.45rem;
+    flex-shrink: 0;
+    margin-top: 0.1rem;
+  }
+
+  .mcp-part-detail {}
+
+  .mcp-part-name {
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: var(--text);
+    margin-bottom: 0.25rem;
+  }
+
+  .mcp-part-desc {
+    font-size: 0.83rem;
+    color: #9898b0;
+    line-height: 1.6;
+  }
+
+  /* comparison strip */
+  .scratch-vs {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    gap: 0;
+    margin: 2rem 0;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+
+  .scratch-col {
+    padding: 1.3rem 1.4rem;
+    background: var(--surface);
+  }
+
+  .scratch-col.right { background: var(--surface2); }
+
+  .scratch-vs-divider {
+    width: 1px;
+    background: var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  }
+
+  .scratch-vs-badge {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 0.3rem 0.35rem;
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+    position: absolute;
+  }
+
+  .scratch-col-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 0.7rem;
+  }
+
+  .scratch-col-label.blue { color: var(--accent); }
+  .scratch-col-label.teal { color: var(--accent3); }
+
+  .scratch-col ul {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .scratch-col ul li {
+    font-size: 0.84rem;
+    color: #9898b0;
+    line-height: 1.6;
+    padding-left: 1rem;
+    position: relative;
+  }
+
+  .scratch-col ul li::before {
+    content: '—';
+    position: absolute;
+    left: 0;
+    color: var(--border);
+  }
+</style>
+</head>
+<body>
+
+<!-- Sticky nav -->
+<nav class="top-nav">
+  <div class="top-nav-inner">
+    <a href="agentic-ai-curriculum.html" class="nav-back">← Back to Curriculum</a>
+    <span class="nav-module-label">Module 06 of 07</span>
+    <a href="module-07.html" class="nav-next">Next: Module 07 →</a>
+  </div>
+</nav>
+
+<!-- Hero -->
+<div class="container">
+  <header class="hero">
+    <div class="hero-eyebrow">Agentic AI Curriculum</div>
+    <div class="module-badge badge-advanced">Advanced</div>
+    <h1>Frameworks, Tooling<br>&amp; the Ecosystem</h1>
+    <p class="hero-sub">LangGraph, CrewAI, AutoGen, OpenAI Agents SDK, Agentforce — the ecosystem has exploded. This module cuts through the noise, comparing frameworks on the axes that matter for production: control, observability, state management, governance fit, and production track record.</p>
+    <div class="hero-meta">
+      <div class="meta-item">
+        <span class="meta-label">Module</span>
+        <span class="meta-value">06</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">Duration</span>
+        <span class="meta-value">1.5 weeks</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">Level</span>
+        <span class="meta-value">Advanced</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">Prerequisites</span>
+        <span class="meta-value">Modules 01–05</span>
+      </div>
+    </div>
+  </header>
+</div>
+
+<!-- Main content -->
+<main class="container">
+  <div class="content">
+
+    <!-- Topic 1: Framework Comparison -->
+    <section class="topic-section">
+      <div class="section-number">Topic 01</div>
+      <h2>Framework Comparison</h2>
+
+      <p>Before we compare frameworks, a clarification on what a framework actually is. In the agentic context, a framework is code that implements the agentic loop — perceive, reason, act, observe, repeat — and exposes abstractions so you don't have to write that loop from scratch. The abstractions differ. So do the tradeoffs.</p>
+
+      <p>We compare across seven axes: abstraction level, state management, multi-agent support, built-in observability, production track record, learning curve, and governance/HITL support. Read the table first, then we'll unpack each framework.</p>
+
+      <div style="overflow-x: auto; margin: 2rem 0;">
+        <table class="fw-table">
+          <thead>
+            <tr>
+              <th>Framework</th>
+              <th>Abstraction</th>
+              <th>State Mgmt</th>
+              <th>Multi-Agent</th>
+              <th>Observability</th>
+              <th>Production</th>
+              <th>HITL</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>LangGraph</td>
+              <td>Low–Mid</td>
+              <td><span class="tag-good">Explicit</span></td>
+              <td><span class="tag-good">Strong</span></td>
+              <td><span class="tag-good">LangSmith</span></td>
+              <td><span class="tag-good">Strong</span></td>
+              <td><span class="tag-good">Native</span></td>
+            </tr>
+            <tr>
+              <td>CrewAI</td>
+              <td>High</td>
+              <td><span class="tag-warn">Managed</span></td>
+              <td><span class="tag-good">Role-based</span></td>
+              <td><span class="tag-warn">Limited</span></td>
+              <td><span class="tag-warn">Moderate</span></td>
+              <td><span class="tag-no">Manual</span></td>
+            </tr>
+            <tr>
+              <td>OpenAI Agents SDK</td>
+              <td>Low</td>
+              <td><span class="tag-warn">Manual</span></td>
+              <td><span class="tag-good">Handoffs</span></td>
+              <td><span class="tag-warn">Tracing</span></td>
+              <td><span class="tag-good">Good</span></td>
+              <td><span class="tag-warn">Manual</span></td>
+            </tr>
+            <tr>
+              <td>AutoGen</td>
+              <td>Mid</td>
+              <td><span class="tag-warn">Message-based</span></td>
+              <td><span class="tag-good">Strong</span></td>
+              <td><span class="tag-no">Weak</span></td>
+              <td><span class="tag-warn">Research-grade</span></td>
+              <td><span class="tag-warn">Manual</span></td>
+            </tr>
+            <tr>
+              <td>Agentforce</td>
+              <td>Very High</td>
+              <td><span class="tag-good">Managed</span></td>
+              <td><span class="tag-good">Enterprise</span></td>
+              <td><span class="tag-good">Built-in</span></td>
+              <td><span class="tag-good">Enterprise</span></td>
+              <td><span class="tag-good">Native</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>LangGraph</h3>
+      <p>LangGraph (by LangChain) models your agent as a directed graph. Nodes are agent steps — each node is a Python function that receives state and returns updated state. Edges are transitions between nodes; they can be conditional (e.g., "if the tool returned an error, go to the retry node; otherwise go to the synthesis node"). You define state as a typed dictionary — an explicit contract for what's in memory at every step.</p>
+      <p>The explicitness is the point. When something goes wrong in production, you can inspect the state at each node. Checkpointing lets you persist state to a database, so long-running agents survive restarts. Human-in-the-loop is a first-class primitive: you pause at a node, wait for human input, resume. For teams that need auditability — compliance, regulated industries, anything covered by M5's EU AI Act discussion — LangGraph's explicitness is not overhead, it's the requirement.</p>
+      <p>The tradeoff is verbosity. Building a simple three-step agent in LangGraph requires more boilerplate than other frameworks. The graph abstraction has a learning curve, especially for engineers new to DAG-based thinking.</p>
+
+      <div class="callout callout-example">
+        <div class="callout-label">Aria &amp; COMPASS</div>
+        <p><strong>COMPASS is the natural fit for LangGraph.</strong> The Planner → parallel Researchers → Synthesizer flow maps cleanly to a graph with conditional edges. You get checkpointing (research takes time), explicit state (which sources have been consulted), and HITL (the human can review the Planner's research questions before execution begins). For Aria: LangGraph is overkill. Aria's flow is nearly linear — read CRM, reason, act, maybe escalate. The graph overhead doesn't earn its keep for a simple customer success agent.</p>
+      </div>
+
+      <h3>CrewAI</h3>
+      <p>CrewAI takes a different metaphor: you hire a crew. Each agent has a role, a goal, and a backstory (a system prompt, in practice). Agents collaborate on tasks. You choose a process — <strong>sequential</strong> (agents execute in order, each building on the last) or <strong>hierarchical</strong> (a manager agent delegates to specialist agents). The framework handles the orchestration loop for you.</p>
+      <p>This high abstraction buys speed. You can prototype a five-agent competitive research system in an afternoon. The cost: you give up control over the internals. Error handling, memory management, and retry logic are handled by the framework — which means when they fail, debugging requires reading CrewAI's internals rather than your own code. Custom memory backends and fine-grained tool permissions require more work than frameworks with lower abstraction.</p>
+      <p>CrewAI's sweet spot is demos, early experiments, and situations where a working prototype in 48 hours matters more than production hardening. For COMPASS, CrewAI gets you to a working multi-agent system fast. Whether it survives contact with real-world scale is a different question.</p>
+
+      <h3>OpenAI Agents SDK</h3>
+      <p>The OpenAI Agents SDK (formerly Swarm) is deliberately lightweight. It gives you agents and handoffs. An agent is a model with instructions and tools. A handoff is an explicit function call that transfers control from one agent to another. The loop is close to the metal — you can read and understand the framework source in an afternoon.</p>
+      <p>This low abstraction is a feature for teams that want to know exactly what is happening. There's no magic. State management is your responsibility. Built-in tracing covers tool calls and handoffs. The SDK is optimized for the OpenAI ecosystem, though it can be adapted for other providers with more effort.</p>
+
+      <div class="callout callout-example">
+        <div class="callout-label">Aria</div>
+        <p><strong>The OpenAI Agents SDK is a strong fit for Aria.</strong> Aria's flow is: intake customer query → read CRM → reason → pick action (refund, email, escalate). That's a clean handoff pattern. The SDK's simplicity means it's easy to add the guardrails from M5 — input validation, output checks, the <code>escalate_to_human</code> tool as a HITL interrupt — without fighting the framework's abstractions.</p>
+      </div>
+
+      <h3>AutoGen</h3>
+      <p>AutoGen (Microsoft) frames multi-agent collaboration as a conversation. Agents send messages to each other. A UserProxyAgent can represent a human in the loop. A ConversableAgent can execute code, which is where AutoGen really shines: it supports agents that write Python, run it in a sandbox, observe the output, and iterate. That makes it powerful for research workflows, coding agents, and internal developer tooling.</p>
+      <p>AutoGen's weak spot is production observability. The message-passing model produces conversational logs, not structured traces. For customer-facing systems with strict SLAs, you'd need to add significant logging infrastructure. For COMPASS, the message-passing model maps reasonably well — each Researcher can be an agent that reports findings via messages — but you'll spend real time on observability setup that LangGraph gives you for free.</p>
+
+      <h3>Salesforce Agentforce</h3>
+      <p>Agentforce is not a developer framework. It's an enterprise platform baked into the Salesforce ecosystem. If your company runs Salesforce CRM, Agentforce lets you deploy agents that have native access to your Salesforce data, workflows, and permissions model. Low-code configuration, enterprise-grade security and governance, built-in audit trails.</p>
+      <p>The constraint is obvious: it only makes sense inside Salesforce. If you're building custom agents, integrating non-Salesforce systems, or need flexibility in model choice, Agentforce is not the answer. It's relevant here because many organizations encountering agentic AI will encounter it through the Salesforce channel — particularly the non-technical stakeholders in your audience.</p>
+
+      <div style="overflow-x: auto; margin: 2rem 0;">
+        <table class="decision-table">
+          <thead>
+            <tr>
+              <th>Framework</th>
+              <th>Best for</th>
+              <th>Avoid when</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>LangGraph</td>
+              <td>Complex flows, production systems, auditability, HITL-heavy workflows</td>
+              <td>Simple linear tasks; small teams new to graph-based thinking</td>
+            </tr>
+            <tr>
+              <td>CrewAI</td>
+              <td>Rapid multi-agent prototyping, role-based task delegation</td>
+              <td>Production hardening, fine-grained error control</td>
+            </tr>
+            <tr>
+              <td>OpenAI Agents SDK</td>
+              <td>Clean handoff patterns, transparency, OpenAI-native teams</td>
+              <td>Provider flexibility, complex persistent state</td>
+            </tr>
+            <tr>
+              <td>AutoGen</td>
+              <td>Code-execution agents, research workflows, internal developer tooling</td>
+              <td>Customer-facing production, strict latency SLAs</td>
+            </tr>
+            <tr>
+              <td>Agentforce</td>
+              <td>Enterprises fully embedded in the Salesforce ecosystem</td>
+              <td>Any non-Salesforce context; custom agent development</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- Topic 2: Framework vs. Scratch -->
+    <section class="topic-section">
+      <div class="section-number">Topic 02</div>
+      <h2>Framework vs. Building from Scratch</h2>
+
+      <p>Abstraction is either leverage or a debugging nightmare. The same layer of code that speeds up your initial build becomes an obstacle when something goes wrong and you can't see inside it. The decision between using a framework and rolling your own comes down to one question: does this framework's abstraction model match what I'm trying to build?</p>
+
+      <div class="scratch-vs">
+        <div class="scratch-col">
+          <div class="scratch-col-label blue">Build from scratch when</div>
+          <ul>
+            <li>You need full control over the agentic loop</li>
+            <li>The framework's abstractions don't match your mental model</li>
+            <li>You're building something the framework wasn't designed for</li>
+            <li>Debugging through framework internals is costing more time than the framework saves</li>
+            <li>Vendor lock-in is a real risk for your organization</li>
+          </ul>
+        </div>
+        <div class="scratch-vs-divider">
+          <span class="scratch-vs-badge">vs</span>
+        </div>
+        <div class="scratch-col right">
+          <div class="scratch-col-label teal">Use a framework when</div>
+          <ul>
+            <li>The framework's abstractions match your use case cleanly</li>
+            <li>You need to ship a prototype quickly</li>
+            <li>The team is small and can't maintain custom infrastructure</li>
+            <li>The framework is open source and you can inspect it</li>
+            <li>You've prototyped enough to know the framework's limits</li>
+          </ul>
+        </div>
+      </div>
+
+      <p>The M2 lab — building a ReAct loop from scratch — was intentional. You should understand the perceive–reason–act–observe cycle before a framework hides it from you. When LangGraph adds a node, you should be able to describe what that node is doing in terms of the underlying loop. If you can't, the framework is hiding complexity you might need to reason about later.</p>
+
+      <div class="callout callout-insight">
+        <div class="callout-label">Rule of Thumb</div>
+        <p>Prototype with a framework. Understand what it's doing — read the source, trace a single request end-to-end, know where state lives. Then decide whether the abstraction is earning its keep. If you're spending more time working around the framework than working with it, the abstraction isn't a fit.</p>
+      </div>
+
+      <div class="callout callout-mistake">
+        <div class="callout-label">Common Mistake</div>
+        <p>Teams sometimes reach for a framework in the first hour, before they've articulated what their agent actually needs to do. The framework then shapes the design — the agent's behavior is determined by what the framework makes easy, not by what the task requires. Prototype by hand first. Even a rough sketch of the loop, state, and tools reveals constraints that matter for framework selection.</p>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- Topic 3: Building MCP Servers -->
+    <section class="topic-section">
+      <div class="section-number">Topic 03</div>
+      <h2>Building MCP Servers</h2>
+
+      <p>We covered MCP as a protocol in M4. Here we build one. An MCP server is a process that exposes tools to agents via the Model Context Protocol. Clients — agents, Claude Desktop, IDEs, anything implementing the MCP client spec — connect, discover what tools are available, and call them. The server handles the execution and returns structured results.</p>
+
+      <div class="mcp-anatomy">
+        <div class="mcp-anatomy-header">MCP Server — Three Required Components</div>
+        <div class="mcp-part">
+          <div class="mcp-part-num">01</div>
+          <div class="mcp-part-detail">
+            <div class="mcp-part-name">Server Manifest</div>
+            <div class="mcp-part-desc">A JSON description listing every tool the server exposes. Each tool entry includes a name, a human-readable description (the model reads this to decide when to call the tool), and an input schema (JSON Schema). The quality of your descriptions directly affects how reliably agents invoke the right tool.</div>
+          </div>
+        </div>
+        <div class="mcp-part">
+          <div class="mcp-part-num">02</div>
+          <div class="mcp-part-detail">
+            <div class="mcp-part-name">Tool Handlers</div>
+            <div class="mcp-part-desc">Python (or TypeScript) functions that execute when a tool is called. They receive validated arguments, perform the actual work — call an API, query a database, write a file — and return a structured result. Error handling belongs here: return structured errors rather than raising exceptions, so the agent can reason about what went wrong.</div>
+          </div>
+        </div>
+        <div class="mcp-part">
+          <div class="mcp-part-num">03</div>
+          <div class="mcp-part-detail">
+            <div class="mcp-part-name">Transport Layer</div>
+            <div class="mcp-part-desc">How the agent communicates with the server. <strong>stdio</strong> is for local development and subprocess deployment — the agent spawns the server as a child process. <strong>HTTP + SSE</strong> is for remote deployment — the server runs as a web service, enabling multi-client access and containerized deployment.</div>
+          </div>
+        </div>
+      </div>
+
+      <p>Let's build a minimal MCP server that wraps a weather REST API. We'll implement two tools: <code>get_current_weather</code> and <code>get_forecast</code>. The pattern generalizes to any REST API your agents need to reach.</p>
+
+      <div class="code-block-header">weather_mcp_server.py — Manifest and Tool Registration</div>
+      <div class="code-block"><code><span class="kw">from</span> mcp.server <span class="kw">import</span> Server
+<span class="kw">from</span> mcp.server.stdio <span class="kw">import</span> stdio_server
+<span class="kw">from</span> mcp.types <span class="kw">import</span> Tool, TextContent
+<span class="kw">import</span> httpx, os
+
+app = Server(<span class="str">"weather-service"</span>)
+
+<span class="cm"># Tool manifest — the model reads these descriptions to decide what to call</span>
+<span class="fn">@app.list_tools()</span>
+<span class="kw">async def</span> <span class="fn">list_tools</span>():
+    <span class="kw">return</span> [
+        Tool(
+            name=<span class="str">"get_current_weather"</span>,
+            description=<span class="str">"Get current weather conditions for a city. "</span>
+                        <span class="str">"Returns temperature (°C), conditions, and wind speed."</span>,
+            inputSchema={
+                <span class="str">"type"</span>: <span class="str">"object"</span>,
+                <span class="str">"properties"</span>: {
+                    <span class="str">"city"</span>: {<span class="str">"type"</span>: <span class="str">"string"</span>, <span class="str">"description"</span>: <span class="str">"City name"</span>},
+                    <span class="str">"country_code"</span>: {<span class="str">"type"</span>: <span class="str">"string"</span>, <span class="str">"description"</span>: <span class="str">"ISO 3166-1 alpha-2 code"</span>},
+                },
+                <span class="str">"required"</span>: [<span class="str">"city"</span>],
+            },
+        ),
+        Tool(
+            name=<span class="str">"get_forecast"</span>,
+            description=<span class="str">"Get a 5-day weather forecast for a city."</span>,
+            inputSchema={
+                <span class="str">"type"</span>: <span class="str">"object"</span>,
+                <span class="str">"properties"</span>: {
+                    <span class="str">"city"</span>: {<span class="str">"type"</span>: <span class="str">"string"</span>},
+                    <span class="str">"days"</span>: {<span class="str">"type"</span>: <span class="str">"integer"</span>, <span class="str">"minimum"</span>: 1, <span class="str">"maximum"</span>: 5},
+                },
+                <span class="str">"required"</span>: [<span class="str">"city"</span>],
+            },
+        ),
+    ]</code></div>
+
+      <div class="code-block-header">weather_mcp_server.py — Tool Handlers</div>
+      <div class="code-block"><code><span class="cm"># Tool handler — call this when the agent invokes a tool</span>
+<span class="fn">@app.call_tool()</span>
+<span class="kw">async def</span> <span class="fn">call_tool</span>(name: str, arguments: dict):
+    api_key = os.environ[<span class="str">"WEATHER_API_KEY"</span>]  <span class="cm"># Never hard-code credentials</span>
+    base_url = <span class="str">"https://api.openweathermap.org/data/2.5"</span>
+
+    <span class="kw">async with</span> httpx.AsyncClient() <span class="kw">as</span> client:
+        <span class="kw">if</span> name == <span class="str">"get_current_weather"</span>:
+            resp = <span class="kw">await</span> client.get(
+                <span class="str">f"{base_url}/weather"</span>,
+                params={<span class="str">"q"</span>: arguments[<span class="str">"city"</span>], <span class="str">"appid"</span>: api_key, <span class="str">"units"</span>: <span class="str">"metric"</span>},
+            )
+            <span class="kw">if</span> resp.status_code != 200:
+                <span class="cm"># Return structured errors — don't raise; let the agent reason about it</span>
+                <span class="kw">return</span> [TextContent(type=<span class="str">"text"</span>, text=<span class="str">f"Error: {resp.json().get('message', 'unknown')}"</span>)]
+            data = resp.json()
+            result = {
+                <span class="str">"city"</span>: data[<span class="str">"name"</span>],
+                <span class="str">"temp_c"</span>: data[<span class="str">"main"</span>][<span class="str">"temp"</span>],
+                <span class="str">"conditions"</span>: data[<span class="str">"weather"</span>][0][<span class="str">"description"</span>],
+                <span class="str">"wind_kph"</span>: data[<span class="str">"wind"</span>][<span class="str">"speed"</span>] * 3.6,
+            }
+            <span class="kw">return</span> [TextContent(type=<span class="str">"text"</span>, text=str(result))]
+
+        <span class="kw">elif</span> name == <span class="str">"get_forecast"</span>:
+            days = arguments.get(<span class="str">"days"</span>, 5)
+            resp = <span class="kw">await</span> client.get(
+                <span class="str">f"{base_url}/forecast"</span>,
+                params={<span class="str">"q"</span>: arguments[<span class="str">"city"</span>], <span class="str">"appid"</span>: api_key, <span class="str">"units"</span>: <span class="str">"metric"</span>, <span class="str">"cnt"</span>: days * 8},
+            )
+            <span class="kw">return</span> [TextContent(type=<span class="str">"text"</span>, text=resp.text)]
+
+<span class="cm"># Run with stdio transport for local/subprocess deployment</span>
+<span class="kw">if</span> __name__ == <span class="str">"__main__"</span>:
+    <span class="kw">import</span> asyncio
+    asyncio.run(stdio_server(app))</code></div>
+
+      <p>Authentication: MCP servers requiring credentials should receive them via environment variables. Never hard-code API keys. For OAuth flows (e.g., connecting to Google Workspace, GitHub), the MCP spec supports a client-to-server credential negotiation step — check the spec for the current implementation pattern.</p>
+
+      <p>For deployment: run the server locally via stdio (the agent spawns it as a subprocess — zero network overhead), containerize it with Docker and expose HTTP+SSE for multi-agent access, or deploy as a serverless function for cloud-native scale. The MCP ecosystem has grown significantly; the official MCP server registry and npm's <code>@modelcontextprotocol</code> namespace include pre-built servers for GitHub, Slack, Notion, Stripe, PostgreSQL, and dozens more. Check there before building from scratch.</p>
+
+      <div class="callout callout-insight">
+        <div class="callout-label">Design Principle</div>
+        <p>Write tool descriptions as if the model has never seen your codebase. Describe what the tool does, when to use it, and what the output looks like. A vague description like "get weather data" produces worse tool selection than "Get current weather conditions for a city — returns temperature in Celsius, sky conditions, and wind speed in kph." The description is the interface contract between your tool and the model's reasoning.</p>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- Topic 4: Model Selection -->
+    <section class="topic-section">
+      <div class="section-number">Topic 04</div>
+      <h2>Model Selection</h2>
+
+      <p>The default assumption — use the biggest frontier model for everything — is wrong. It was wrong in 2024 and it's more wrong now. Smaller, fine-tuned models outperform frontier models on specific, well-defined tasks. They're also faster, cheaper, and can run locally. The discipline is knowing when frontier power is actually required.</p>
+
+      <p>We use a decision framework across four axes: reasoning complexity, task definition, latency requirements, and data sensitivity.</p>
+
+      <div class="cascade-diagram">
+        <div class="cascade-header">Model Selection — Decision Framework</div>
+        <div class="cascade-rows">
+          <div class="cascade-row" style="background: rgba(124,106,247,0.04);">
+            <div class="cascade-task">Broad world knowledge + complex multi-step reasoning</div>
+            <div class="cascade-model">Claude Opus / GPT-4o / Gemini Ultra</div>
+            <div class="cascade-why">Frontier — reasoning complexity justifies cost</div>
+          </div>
+          <div class="cascade-row">
+            <div class="cascade-task">Well-defined, repetitive, domain-specific classification or summarization</div>
+            <div class="cascade-model">Haiku / GPT-4o-mini / Mistral 7B</div>
+            <div class="cascade-why">Smaller fine-tuned model — fraction of the cost, comparable quality</div>
+          </div>
+          <div class="cascade-row" style="background: rgba(124,106,247,0.04);">
+            <div class="cascade-task">Latency-sensitive tasks (&lt;500ms)</div>
+            <div class="cascade-model">Smaller cloud model or local inference</div>
+            <div class="cascade-why">Frontier models can't reliably hit sub-500ms at scale</div>
+          </div>
+          <div class="cascade-row">
+            <div class="cascade-task">Sensitive data that cannot leave the device (legal, medical, financial)</div>
+            <div class="cascade-model">Local: MLX on Apple Silicon / Ollama</div>
+            <div class="cascade-why">Data sovereignty — no cloud dependency</div>
+          </div>
+        </div>
+      </div>
+
+      <h3>The Cascade Pattern</h3>
+      <p>The cascade pattern uses a cheap model for initial routing and a frontier model only when the task genuinely requires it. Apply it wherever your agent receives a high volume of inputs that can be classified before expensive reasoning begins.</p>
+
+      <div class="code-block-header">model_cascade.py — Route simple queries before touching the frontier model</div>
+      <div class="code-block"><code><span class="kw">from</span> anthropic <span class="kw">import</span> Anthropic
+
+client = Anthropic()
+
+<span class="kw">def</span> <span class="fn">classify_query</span>(query: str) -> str:
+    <span class="cm">"""Use a fast, cheap model to classify the query type."""</span>
+    response = client.messages.create(
+        model=<span class="str">"claude-haiku-4-5"</span>,  <span class="cm"># Fast, cheap — perfect for classification</span>
+        max_tokens=<span class="hl">20</span>,
+        messages=[{
+            <span class="str">"role"</span>: <span class="str">"user"</span>,
+            <span class="str">"content"</span>: <span class="str">f"Classify this customer query as: 'simple_faq', 'order_issue', or 'complex_complaint'.\n\nQuery: {query}\n\nRespond with only the category."</span>
+        }]
+    )
+    <span class="kw">return</span> response.content[0].text.strip()
+
+<span class="kw">def</span> <span class="fn">handle_query</span>(query: str, customer_data: dict) -> str:
+    query_type = classify_query(query)
+
+    <span class="kw">if</span> query_type == <span class="str">"simple_faq"</span>:
+        <span class="cm"># Still use fast model — no frontier needed for FAQ lookup</span>
+        response = client.messages.create(
+            model=<span class="str">"claude-haiku-4-5"</span>,
+            max_tokens=<span class="hl">200</span>,
+            messages=[{<span class="str">"role"</span>: <span class="str">"user"</span>, <span class="str">"content"</span>: <span class="str">f"Answer this FAQ: {query}"</span>}]
+        )
+    <span class="kw">else</span>:
+        <span class="cm"># Complex reasoning, empathy, nuanced response — frontier justified</span>
+        response = client.messages.create(
+            model=<span class="str">"claude-opus-4-5"</span>,
+            max_tokens=<span class="hl">800</span>,
+            messages=[{
+                <span class="str">"role"</span>: <span class="str">"user"</span>,
+                <span class="str">"content"</span>: <span class="str">f"Customer context: {customer_data}\n\nQuery: {query}\n\nProvide a detailed, empathetic response."</span>
+            }]
+        )
+    <span class="kw">return</span> response.content[0].text</code></div>
+
+      <h3>Multi-Agent Model Selection: COMPASS</h3>
+      <p>In COMPASS, the three agents don't need the same model. The Planner generates the research agenda — it benefits from a frontier model because it needs to decompose ambiguous competitive intelligence questions into precise research tasks. The parallel Researchers do constrained summarization of fetched documents — a well-defined, repetitive task that a smaller, faster model handles well. The Synthesizer assembles the final report from structured summaries — it needs judgment about what's important, which justifies a frontier model for the final step.</p>
+      <p>This model selection strategy roughly triples throughput and cuts cost by 60–70% compared to using a frontier model for every agent step, with minimal quality loss on the final output. Run evals (from M5) to verify quality before committing to smaller models in production.</p>
+
+      <div class="callout callout-mistake">
+        <div class="callout-label">Common Mistake</div>
+        <p>Teams benchmark their agent on small samples, see that the frontier model produces better outputs, and conclude they must use the frontier model everywhere. The right comparison is: does the quality difference in intermediate steps materially affect the quality of the final output? Often it doesn't. Measure final output quality, not intermediate step quality.</p>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- Topic 5: Deployment Patterns -->
+    <section class="topic-section">
+      <div class="section-number">Topic 05</div>
+      <h2>Deployment Patterns</h2>
+
+      <p>Where you run your agent affects latency, cost, operational complexity, and — critically — what data you're allowed to send where. There are four main patterns. Most production systems use more than one.</p>
+
+      <div class="deploy-grid">
+        <div class="deploy-card">
+          <div class="deploy-card-label">Pattern 01</div>
+          <div class="deploy-card-title">Cloud Functions</div>
+          <div class="deploy-card-desc">AWS Lambda, GCP Cloud Run, Azure Functions. Scalable, managed, pay-per-use. No servers to maintain. Cold starts can add 1–3 seconds of latency on first invocation — a real concern for synchronous agents that a user is waiting on. For asynchronous agents (batch processing, background tasks), cold starts are irrelevant.</div>
+          <div class="deploy-tag-row">
+            <span class="deploy-tag good">Scalable</span>
+            <span class="deploy-tag good">Managed</span>
+            <span class="deploy-tag warn">Cold starts</span>
+          </div>
+        </div>
+        <div class="deploy-card">
+          <div class="deploy-card-label">Pattern 02</div>
+          <div class="deploy-card-title">Containerized (Docker / Kubernetes)</div>
+          <div class="deploy-card-desc">More control, predictable latency, no cold starts if you keep containers warm. Higher operational overhead — you own the infrastructure. Right choice for agents with strict latency SLAs or complex dependencies that don't package cleanly into function deployments.</div>
+          <div class="deploy-tag-row">
+            <span class="deploy-tag good">Predictable</span>
+            <span class="deploy-tag warn">Ops overhead</span>
+          </div>
+        </div>
+        <div class="deploy-card">
+          <div class="deploy-card-label">Pattern 03</div>
+          <div class="deploy-card-title">Edge (Cloudflare Workers, Vercel Edge)</div>
+          <div class="deploy-card-desc">Deploy to data centers close to users. Very low network latency. Severely limited compute — no long-running processes, limited memory, restricted runtime environments. Good for lightweight routing agents and thin proxy layers. Not for multi-step reasoning or complex tool orchestration.</div>
+          <div class="deploy-tag-row">
+            <span class="deploy-tag good">Low latency</span>
+            <span class="deploy-tag warn">Limited compute</span>
+          </div>
+        </div>
+        <div class="deploy-card">
+          <div class="deploy-card-label">Pattern 04</div>
+          <div class="deploy-card-title">Local (MLX / Ollama)</div>
+          <div class="deploy-card-desc">Model runs on-device. Data never leaves the machine. Essential for privacy-sensitive workloads — legal review, medical records, personal finance. MLX on Apple Silicon delivers impressive throughput on M-series chips. Ollama provides a clean local inference server for a wide range of open models. The capability gap vs. frontier models is closing, but not closed.</div>
+          <div class="deploy-tag-row">
+            <span class="deploy-tag good">Data sovereign</span>
+            <span class="deploy-tag good">No cloud cost</span>
+            <span class="deploy-tag warn">Capability gap</span>
+          </div>
+        </div>
+      </div>
+
+      <h3>The Privacy vs. Capability Tradeoff</h3>
+      <p>Local models are the only option when data cannot leave the device. As of 2026, models like Llama 3 and Mistral running locally on M-series hardware are genuinely capable on well-defined tasks. They still trail frontier models on complex multi-step reasoning, long-context synthesis, and tasks that benefit from broad world knowledge. The gap is closing, and it's closing faster than most enterprise procurement timelines.</p>
+      <p>Design for this: build your agent's tool interface so the model is swappable. If you architect Aria against a frontier model today, you should be able to drop in a capable local model in 12 months without restructuring the agent. The agentic loop and tool definitions shouldn't change — only the inference call.</p>
+
+      <div class="callout callout-insight">
+        <div class="callout-label">Architecture Principle</div>
+        <p>Treat the model as a dependency, not an assumption. Define a model interface layer in your agent — a single place where you swap between <code>claude-opus</code>, <code>claude-haiku</code>, a local MLX model, or an Ollama endpoint. This makes A/B testing models in production tractable and prevents frontier model lock-in from becoming a data governance problem later.</p>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- Topic 6: Observability and Eval Tooling -->
+    <section class="topic-section">
+      <div class="section-number">Topic 06</div>
+      <h2>Observability and Eval Tooling</h2>
+
+      <p>In M5 we established why observability matters: without traces, debugging a multi-agent system is archaeology. Here we evaluate the tools. The landscape has consolidated somewhat, but there's still no single winner. Your choice depends on your team's priorities: data sovereignty, eval maturity, compliance requirements, or existing ML monitoring infrastructure.</p>
+
+      <div class="obs-grid">
+        <div class="obs-card">
+          <div class="obs-card-name">Langfuse</div>
+          <div class="obs-card-type">Open source — self-hostable — cloud option</div>
+          <div class="obs-card-desc">Best-in-class for LLM observability. Traces full agentic loops — each span records model call, tokens, cost, latency. User feedback loops, session grouping, dataset management. Strong LangChain and LangGraph integration. Self-hostable means your traces stay in your infrastructure.</div>
+          <div class="obs-best-for">Best for: teams wanting data sovereignty, LangGraph users, broad framework support</div>
+        </div>
+        <div class="obs-card teal">
+          <div class="obs-card-name">Braintrust</div>
+          <div class="obs-card-type">Cloud — eval-first platform</div>
+          <div class="obs-card-desc">Eval-first design with excellent LLM-as-judge support. Strong dataset management — version-controlled test sets, regression tracking across deploys. If structured evals are your priority and you don't need self-hosting, Braintrust is the most mature dedicated eval platform.</div>
+          <div class="obs-best-for">Best for: teams with mature eval workflows; regression testing across model versions</div>
+        </div>
+        <div class="obs-card gold">
+          <div class="obs-card-name">Galileo</div>
+          <div class="obs-card-type">Enterprise — cloud — SOC 2</div>
+          <div class="obs-card-desc">Enterprise-focused with strong hallucination detection and guardrail monitoring built in. Turnkey for regulated industries. Higher cost than open-source alternatives. If you're shipping agents into healthcare or finance and need a compliance-ready observability stack, Galileo removes significant setup overhead.</div>
+          <div class="obs-best-for">Best for: regulated industries; enterprise compliance requirements</div>
+        </div>
+        <div class="obs-card red">
+          <div class="obs-card-name">Phoenix (Arize)</div>
+          <div class="obs-card-type">Open source — local-first</div>
+          <div class="obs-card-desc">Open-source observability from Arize. Strong OpenTelemetry support makes it drop-in for teams already using OTel. Excellent embedding visualization and retrieval debugging — useful when your agents use vector search (RAG, M3). Best if you're already in the Arize ML monitoring ecosystem.</div>
+          <div class="obs-best-for">Best for: RAG debugging; OTel-native teams; embedding visualization</div>
+        </div>
+      </div>
+
+      <h3>PromptFoo — Lightweight CI/CD Evals</h3>
+      <p>PromptFoo deserves a separate mention because it occupies a different niche. It's not a full observability platform — it's a lightweight eval framework designed to integrate into your CI/CD pipeline. You define test cases (prompt + expected output criteria), run them against your agent, and fail the build if quality regresses. Lower overhead than Braintrust, easier to integrate than rolling your own. Use it for prompt regression testing when you're iterating quickly and don't yet need a full eval platform.</p>
+
+      <div class="callout callout-insight">
+        <div class="callout-label">Recommendation</div>
+        <p>Start with Langfuse. It's free, self-hostable, and supports most frameworks out of the box. Add PromptFoo when you want evals in CI/CD. Migrate to Braintrust when evals become a first-class priority and you need dedicated dataset management. Adopt Galileo only if enterprise compliance specifically requires its hallucination detection and audit features — the cost is hard to justify otherwise.</p>
+      </div>
+
+      <div class="callout callout-mistake">
+        <div class="callout-label">Common Mistake</div>
+        <p>Teams add observability after something breaks in production. The right order is: set up Langfuse before you deploy anything. Traces from your first week of production traffic are invaluable for understanding normal behavior. Without that baseline, distinguishing a regression from normal variance is guesswork.</p>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- Lab Section -->
+    <section class="lab-section">
+      <div class="lab-header">
+        <div class="lab-label">Module 06 Lab</div>
+        <h2>Two Frameworks, One System, One Comparison</h2>
+        <p>Build the same agent system in two different frameworks. Observe what each framework makes easy, what it makes hard, and what you would choose in production.</p>
+      </div>
+      <div class="lab-body">
+        <p>The goal is not just to build two working systems. The goal is to develop an informed opinion about framework tradeoffs grounded in direct experience — not documentation or benchmarks. By the end of this lab, you should be able to answer "which framework would you use for this, and why?" with specifics.</p>
+
+        <h3>Step 1 — Choose Your System</h3>
+        <p>Pick one of the two running examples from this curriculum. Both are valid choices; they test different framework axes.</p>
+
+        <div class="choice-grid">
+          <div class="choice-card">
+            <div class="choice-card-label">Option A</div>
+            <div class="choice-card-title">Aria — Customer Success Agent</div>
+            <div class="choice-card-desc">Tools: <code>read_crm</code>, <code>query_order_history</code>, <code>issue_refund(≤$50)</code>, <code>escalate_to_human</code>, <code>send_email</code>. Tests: tool orchestration, guardrails, HITL for escalations, simple linear flows. Frameworks to try: <strong>OpenAI Agents SDK + LangGraph</strong>.</div>
+          </div>
+          <div class="choice-card">
+            <div class="choice-card-label">Option B</div>
+            <div class="choice-card-title">COMPASS — Competitive Intelligence</div>
+            <div class="choice-card-desc">Three agents: Planner, parallel Researchers, Synthesizer. Tests: multi-agent coordination, parallel execution, state passing between agents, conditional routing. Frameworks to try: <strong>LangGraph + CrewAI</strong>.</div>
+          </div>
+        </div>
+
+        <h3>Step 2 — Build Implementation 1 (Suggested: LangGraph)</h3>
+        <p>LangGraph is the suggested first framework for both options — it forces you to be explicit about state and transitions. For Aria, define a state dict with customer context, action history, and a flag for escalation status. For COMPASS, define graph nodes for Planner, each Researcher, and Synthesizer with conditional edges routing based on whether all Researchers have returned results.</p>
+
+        <p>Starter structure for COMPASS in LangGraph:</p>
+
+        <div class="code-block-header">compass_langgraph.py — State and Graph Structure</div>
+        <div class="code-block"><code><span class="kw">from</span> typing <span class="kw">import</span> TypedDict, List, Annotated
+<span class="kw">from</span> langgraph.graph <span class="kw">import</span> StateGraph, END
+<span class="kw">import</span> operator
+
+<span class="cm"># Explicit state — you control exactly what's in context at every node</span>
+<span class="kw">class</span> <span class="fn">CompassState</span>(TypedDict):
+    query: str
+    research_questions: List[str]              <span class="cm"># Set by Planner</span>
+    research_results: Annotated[List[str], operator.add]  <span class="cm"># Accumulated by Researchers</span>
+    final_report: str                          <span class="cm"># Set by Synthesizer</span>
+    error: str                                 <span class="cm"># Set if any node fails</span>
+
+<span class="cm"># Node functions — each receives state, returns state update</span>
+<span class="kw">def</span> <span class="fn">planner_node</span>(state: CompassState) -> dict:
+    <span class="cm"># Call frontier model to decompose query into research questions</span>
+    questions = run_planner(state[<span class="str">"query"</span>])
+    <span class="kw">return</span> {<span class="str">"research_questions"</span>: questions}
+
+<span class="kw">def</span> <span class="fn">researcher_node</span>(state: CompassState, researcher_id: int) -> dict:
+    <span class="cm"># Each researcher handles one question — use cheaper model</span>
+    question = state[<span class="str">"research_questions"</span>][researcher_id]
+    result = run_researcher(question)
+    <span class="kw">return</span> {<span class="str">"research_results"</span>: [result]}  <span class="cm"># operator.add accumulates these</span>
+
+<span class="kw">def</span> <span class="fn">synthesizer_node</span>(state: CompassState) -> dict:
+    <span class="cm"># Frontier model assembles final report from accumulated results</span>
+    report = run_synthesizer(state[<span class="str">"research_results"</span>], state[<span class="str">"query"</span>])
+    <span class="kw">return</span> {<span class="str">"final_report"</span>: report}
+
+<span class="cm"># Build the graph</span>
+builder = StateGraph(CompassState)
+builder.add_node(<span class="str">"planner"</span>, planner_node)
+builder.add_node(<span class="str">"researcher_0"</span>, <span class="kw">lambda</span> s: researcher_node(s, 0))
+builder.add_node(<span class="str">"researcher_1"</span>, <span class="kw">lambda</span> s: researcher_node(s, 1))
+builder.add_node(<span class="str">"synthesizer"</span>, synthesizer_node)
+
+builder.set_entry_point(<span class="str">"planner"</span>)
+builder.add_edge(<span class="str">"planner"</span>, <span class="str">"researcher_0"</span>)
+builder.add_edge(<span class="str">"planner"</span>, <span class="str">"researcher_1"</span>)
+builder.add_edge(<span class="str">"researcher_0"</span>, <span class="str">"synthesizer"</span>)
+builder.add_edge(<span class="str">"researcher_1"</span>, <span class="str">"synthesizer"</span>)
+builder.add_edge(<span class="str">"synthesizer"</span>, END)
+
+compass_graph = builder.compile()</code></div>
+
+        <h3>Step 3 — Build Implementation 2 (Suggested: CrewAI or OpenAI Agents SDK)</h3>
+        <p>For COMPASS: rebuild the same system in CrewAI. Define a Crew with three agents — Planner, Researcher, Synthesizer — with roles, goals, and backstories. Use the hierarchical process so the Planner manager delegates to Researchers. For Aria: rebuild in CrewAI or the OpenAI Agents SDK. The SDK's handoff pattern maps naturally to Aria's flow: triage agent → specialist agent → escalation agent.</p>
+
+        <p>Starter structure for COMPASS in CrewAI:</p>
+
+        <div class="code-block-header">compass_crewai.py — Crew Definition</div>
+        <div class="code-block"><code><span class="kw">from</span> crewai <span class="kw">import</span> Agent, Task, Crew, Process
+
+<span class="cm"># Define agents by role, goal, and backstory</span>
+planner = Agent(
+    role=<span class="str">"Research Planner"</span>,
+    goal=<span class="str">"Decompose the competitive intelligence query into focused, answerable research questions."</span>,
+    backstory=<span class="str">"You are a senior analyst who specializes in structuring ambiguous questions into actionable research tasks."</span>,
+    llm=<span class="str">"claude-opus-4-5"</span>,  <span class="cm"># Frontier model for planning</span>
+)
+
+researcher = Agent(
+    role=<span class="str">"Market Researcher"</span>,
+    goal=<span class="str">"Research and summarize findings for a single research question."</span>,
+    backstory=<span class="str">"You are a meticulous researcher who produces concise, evidence-backed summaries."</span>,
+    llm=<span class="str">"claude-haiku-4-5"</span>,  <span class="cm"># Cheaper model for constrained summarization</span>
+    tools=[web_search_tool, fetch_url_tool],
+)
+
+synthesizer = Agent(
+    role=<span class="str">"Intelligence Synthesizer"</span>,
+    goal=<span class="str">"Produce a coherent, actionable competitive intelligence report."</span>,
+    backstory=<span class="str">"You are a strategic analyst who synthesizes research into executive-grade reports."</span>,
+    llm=<span class="str">"claude-opus-4-5"</span>,  <span class="cm"># Frontier model for final synthesis</span>
+)
+
+<span class="cm"># Tasks define what each agent does and the expected output</span>
+plan_task = Task(description=<span class="str">"Decompose query into 2-3 research questions."</span>, agent=planner, expected_output=<span class="str">"List of research questions."</span>)
+research_task = Task(description=<span class="str">"Research each question."</span>, agent=researcher, expected_output=<span class="str">"Factual summary per question."</span>)
+synthesis_task = Task(description=<span class="str">"Synthesize findings into final report."</span>, agent=synthesizer, expected_output=<span class="str">"Structured competitive intelligence report."</span>)
+
+crew = Crew(
+    agents=[planner, researcher, synthesizer],
+    tasks=[plan_task, research_task, synthesis_task],
+    process=Process.hierarchical,  <span class="cm"># Planner manages Researcher delegation</span>
+    manager_llm=<span class="str">"claude-opus-4-5"</span>,
+)</code></div>
+
+        <h3>Step 4 — Write Your Comparison</h3>
+        <p>After both implementations are working, write a short (one page) structured comparison. Answer these questions specifically — not in the abstract, but grounded in what you actually experienced building both.</p>
+
+        <ol class="lab-steps">
+          <li><span><strong>What did each framework make easier?</strong> Specific examples: "LangGraph made it easy to inspect state between nodes. CrewAI made the agent role definition feel natural."</span></li>
+          <li><span><strong>What did each framework make harder?</strong> Specific examples: "LangGraph required more boilerplate to set up the graph. In CrewAI, I couldn't control which sub-results went to which agent."</span></li>
+          <li><span><strong>Where did you fight the framework?</strong> Moments where the abstraction got in the way and you spent time working around it rather than with it.</span></li>
+          <li><span><strong>How would you add Langfuse tracing to each?</strong> Actually do it — trace at least one tool call in each implementation and compare the debugging experience.</span></li>
+          <li><span><strong>Which would you use in production and why?</strong> Your answer should reference specific production concerns: observability, HITL support, error handling, state persistence.</span></li>
+        </ol>
+
+        <h3>Deliverables</h3>
+        <p>Two working implementations (Python scripts or notebooks) and a written comparison document. The comparison is the primary deliverable — the code is evidence for your claims, not the goal in itself.</p>
+
+        <div class="callout callout-insight">
+          <div class="callout-label">Reflection Prompt</div>
+          <p>After completing the lab: if you had to implement Aria using a framework you didn't use in this lab — AutoGen or Agentforce — what would you predict would be easy and hard, based on what you now understand about how framework abstractions affect development? Write two sentences. This is the skill the module is actually training: the ability to evaluate a framework before committing to it.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Module Summary -->
+    <section class="summary-section">
+      <h2>Module Summary</h2>
+      <ul class="summary-list">
+        <li>LangGraph gives explicit, auditable state management and native HITL — the right choice for complex production systems needing conditional routing and checkpointing. Steeper learning curve, worth it for the control.</li>
+        <li>CrewAI trades control for speed-to-prototype. Right for multi-agent demos and early experiments; requires significant hardening before it's production-ready.</li>
+        <li>The OpenAI Agents SDK is close to the metal — good for teams that want transparency and clean handoff patterns without a lot of abstraction overhead.</li>
+        <li>AutoGen excels at code-execution and research workflows. Its observability requires extra setup and it's not optimized for customer-facing production.</li>
+        <li>Agentforce is an enterprise platform, not a developer framework. Relevant inside Salesforce ecosystems; irrelevant outside them.</li>
+        <li>Framework vs. scratch: prototype with a framework, understand what it does, then decide whether the abstraction is earning its keep. Never let a framework shape your agent's design before you've defined what the agent needs to do.</li>
+        <li>An MCP server needs three things: a tool manifest with high-quality descriptions, tool handlers that return structured results (including errors), and a transport layer. Credentials go in environment variables — never hard-coded.</li>
+        <li>Don't default to the largest frontier model. Use the cascade pattern: cheap model for routing and classification, frontier model only for complex reasoning. Apply the model selection framework across four axes: reasoning complexity, task definition, latency, and data sensitivity.</li>
+        <li>Cloud functions scale without ops overhead but introduce cold start latency. Containers give predictable latency at higher ops cost. Edge works for lightweight routing only. Local inference (MLX, Ollama) is the only option when data cannot leave the device.</li>
+        <li>Start with Langfuse — it's free, self-hostable, and broadly compatible. Add PromptFoo for CI/CD eval regression testing. Migrate to Braintrust when evals become a dedicated workstream. Galileo for enterprise compliance requirements only.</li>
+      </ul>
+    </section>
+
+  </div><!-- .content -->
+
+  <!-- Footer nav -->
+  <footer class="footer">
+    <div class="footer-inner">
+      <a href="module-05.html" class="footer-prev">← Module 05: Production, Safety &amp; Governance</a>
+      <span class="footer-text">Module 06 of 07</span>
+      <a href="module-07.html" class="footer-next">Module 07: Capstone &amp; Beyond →</a>
+    </div>
+  </footer>
+
+</main>
+</body>
+</html>

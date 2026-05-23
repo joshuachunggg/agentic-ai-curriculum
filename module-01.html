@@ -1,0 +1,1151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Module 01: What Makes Something Agentic? — Agentic AI Curriculum</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;500&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;500&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap');
+
+  :root {
+    --bg: #0a0a0f;
+    --surface: #111118;
+    --surface2: #18181f;
+    --border: #2a2a3a;
+    --accent: #7c6af7;
+    --accent2: #f7c36a;
+    --accent3: #6af7d4;
+    --text: #e8e8f0;
+    --muted: #6b6b80;
+    --danger: #f76a6a;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 300;
+    line-height: 1.7;
+    min-height: 100vh;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.4;
+  }
+
+  /* Sticky nav */
+  .top-nav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(10,10,15,0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .top-nav-inner {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 0 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 52px;
+    gap: 1rem;
+  }
+
+  .nav-back {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.05em;
+    color: var(--muted);
+    text-decoration: none;
+    transition: color 0.2s;
+    white-space: nowrap;
+  }
+
+  .nav-back:hover { color: var(--text); }
+
+  .nav-module-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    color: var(--muted);
+    text-transform: uppercase;
+    text-align: center;
+    flex: 1;
+  }
+
+  .nav-next {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.05em;
+    color: var(--muted);
+    text-decoration: none;
+    transition: color 0.2s;
+    white-space: nowrap;
+  }
+
+  .nav-next:hover { color: var(--accent); }
+
+  /* Container */
+  .container {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 0 2rem;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Hero */
+  .hero {
+    padding: 4.5rem 0 3.5rem;
+    border-bottom: 1px solid var(--border);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero::after {
+    content: '';
+    position: absolute;
+    top: -100px;
+    right: -200px;
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, rgba(107,107,128,0.10) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .hero-eyebrow {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.2em;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+  }
+
+  .module-badge {
+    display: inline-block;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.1em;
+    padding: 0.25rem 0.6rem;
+    border-radius: 4px;
+    margin-bottom: 1.2rem;
+    background: rgba(107, 107, 128, 0.2);
+    color: var(--muted);
+    border: 1px solid var(--border);
+  }
+
+  .hero h1 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: clamp(2rem, 4.5vw, 3.2rem);
+    line-height: 1.08;
+    margin-bottom: 1.4rem;
+    letter-spacing: -0.02em;
+  }
+
+  .hero-sub {
+    font-size: 1.05rem;
+    color: #a0a0b8;
+    max-width: 620px;
+    line-height: 1.8;
+    margin-bottom: 2rem;
+  }
+
+  .hero-meta {
+    display: flex;
+    gap: 2.5rem;
+    flex-wrap: wrap;
+  }
+
+  .meta-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+  }
+
+  .meta-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.15em;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+
+  .meta-value {
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    font-size: 1rem;
+    color: var(--text);
+  }
+
+  /* Main content */
+  .content {
+    padding: 4rem 0 6rem;
+  }
+
+  /* Topic sections */
+  .topic-section {
+    margin-bottom: 5rem;
+  }
+
+  .topic-section:last-child {
+    margin-bottom: 0;
+  }
+
+  .section-number {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+  }
+
+  .topic-section h2 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 1.65rem;
+    letter-spacing: -0.01em;
+    line-height: 1.2;
+    margin-bottom: 1.6rem;
+    color: var(--text);
+  }
+
+  .topic-section h3 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    font-size: 1.1rem;
+    letter-spacing: -0.01em;
+    margin-top: 2rem;
+    margin-bottom: 0.8rem;
+    color: var(--text);
+  }
+
+  .topic-section p {
+    font-size: 0.97rem;
+    color: #c8c8d8;
+    line-height: 1.8;
+    margin-bottom: 1.2rem;
+  }
+
+  .topic-section p:last-child {
+    margin-bottom: 0;
+  }
+
+  /* Section divider */
+  .section-divider {
+    height: 1px;
+    background: linear-gradient(to right, transparent, var(--border) 20%, var(--border) 80%, transparent);
+    margin: 4.5rem 0;
+  }
+
+  /* Callout boxes */
+  .callout {
+    border-radius: 10px;
+    padding: 1.3rem 1.6rem;
+    margin: 2rem 0;
+  }
+
+  .callout-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 0.6rem;
+    font-weight: 500;
+  }
+
+  .callout p {
+    font-size: 0.92rem;
+    line-height: 1.75;
+    margin-bottom: 0;
+  }
+
+  .callout p + p {
+    margin-top: 0.8rem;
+  }
+
+  .callout-insight {
+    background: rgba(124,106,247,0.07);
+    border: 1px solid rgba(124,106,247,0.25);
+  }
+
+  .callout-insight .callout-label {
+    color: var(--accent);
+  }
+
+  .callout-insight p {
+    color: #b8b0f0;
+  }
+
+  .callout-mistake {
+    background: rgba(247,106,106,0.07);
+    border: 1px solid rgba(247,106,106,0.25);
+  }
+
+  .callout-mistake .callout-label {
+    color: var(--danger);
+  }
+
+  .callout-mistake p {
+    color: #e0b0b0;
+  }
+
+  .callout-example {
+    background: rgba(106,247,212,0.06);
+    border: 1px solid rgba(106,247,212,0.2);
+  }
+
+  .callout-example .callout-label {
+    color: var(--accent3);
+  }
+
+  .callout-example p {
+    color: #a8e8d8;
+  }
+
+  /* Code blocks */
+  .code-block {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.4rem 1.6rem;
+    margin: 1.6rem 0;
+    overflow-x: auto;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.82rem;
+    line-height: 1.75;
+    color: #c0c0d8;
+  }
+
+  .code-block code {
+    font-family: inherit;
+  }
+
+  /* Spectrum visualization */
+  .spectrum-row {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 0.75rem;
+    margin: 2rem 0;
+  }
+
+  @media (max-width: 640px) {
+    .spectrum-row {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .spectrum-item {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .spectrum-item::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+  }
+
+  .spec-1::before { background: var(--muted); opacity: 0.4; }
+  .spec-2::before { background: linear-gradient(to right, var(--muted), var(--accent)); opacity: 0.5; }
+  .spec-3::before { background: var(--accent); opacity: 0.6; }
+  .spec-4::before { background: linear-gradient(to right, var(--accent), var(--accent3)); opacity: 0.7; }
+  .spec-5::before { background: var(--accent3); opacity: 0.9; }
+
+  .spectrum-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 0.4rem;
+  }
+
+  .spectrum-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    font-size: 0.88rem;
+    color: var(--text);
+    margin-bottom: 0.4rem;
+  }
+
+  .spectrum-desc {
+    font-size: 0.75rem;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+
+  /* Pillars grid */
+  .pillars-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+    margin: 2rem 0;
+  }
+
+  @media (max-width: 540px) {
+    .pillars-grid { grid-template-columns: 1fr; }
+  }
+
+  .pillar-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.3rem 1.5rem;
+  }
+
+  .pillar-number {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.15em;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 0.4rem;
+  }
+
+  .pillar-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 1.1rem;
+    margin-bottom: 0.6rem;
+    color: var(--text);
+  }
+
+  .pillar-desc {
+    font-size: 0.85rem;
+    color: #9898b0;
+    line-height: 1.6;
+  }
+
+  .pillar-missing {
+    margin-top: 0.8rem;
+    padding-top: 0.8rem;
+    border-top: 1px solid var(--border);
+    font-size: 0.78rem;
+    color: var(--danger);
+    font-family: 'IBM Plex Mono', monospace;
+    letter-spacing: 0.02em;
+  }
+
+  /* Exercise section */
+  .exercise-section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 5rem;
+  }
+
+  .exercise-header {
+    padding: 1.8rem 2rem;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface2);
+  }
+
+  .exercise-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+  }
+
+  .exercise-header h2 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 1.4rem;
+    color: var(--text);
+    margin-bottom: 0.6rem;
+  }
+
+  .exercise-header p {
+    font-size: 0.92rem;
+    color: #9898b0;
+    line-height: 1.7;
+  }
+
+  .exercise-body {
+    padding: 2rem;
+  }
+
+  .system-card {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.3rem 1.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .system-card:last-of-type {
+    margin-bottom: 0;
+  }
+
+  .system-number {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 0.4rem;
+  }
+
+  .system-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    font-size: 0.97rem;
+    color: var(--text);
+    margin-bottom: 0.5rem;
+  }
+
+  .system-desc {
+    font-size: 0.86rem;
+    color: #9898b0;
+    line-height: 1.65;
+    margin-bottom: 0.6rem;
+  }
+
+  .system-prompt {
+    font-size: 0.8rem;
+    color: var(--muted);
+    font-family: 'IBM Plex Mono', monospace;
+    letter-spacing: 0.02em;
+    line-height: 1.5;
+  }
+
+  .facil-section {
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--border);
+  }
+
+  .facil-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    font-size: 1rem;
+    color: var(--text);
+    margin-bottom: 1rem;
+  }
+
+  .facil-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+  }
+
+  .facil-list li {
+    font-size: 0.88rem;
+    color: #9898b0;
+    line-height: 1.65;
+    padding-left: 1.2rem;
+    position: relative;
+  }
+
+  .facil-list li::before {
+    content: '—';
+    position: absolute;
+    left: 0;
+    color: var(--muted);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.75rem;
+  }
+
+  /* Summary section */
+  .summary-section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 2rem 2.2rem;
+    margin-bottom: 4rem;
+  }
+
+  .summary-section h2 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 1.25rem;
+    margin-bottom: 1.3rem;
+    color: var(--text);
+  }
+
+  .summary-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.7rem;
+  }
+
+  .summary-list li {
+    font-size: 0.93rem;
+    color: #b0b0c8;
+    line-height: 1.7;
+    padding-left: 1.5rem;
+    position: relative;
+  }
+
+  .summary-list li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0.58rem;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--muted);
+  }
+
+  /* Footer */
+  .footer {
+    border-top: 1px solid var(--border);
+    padding: 2.5rem 0;
+  }
+
+  .footer-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .footer-text {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.68rem;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+  }
+
+  .footer-next {
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    font-size: 0.92rem;
+    color: var(--accent);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: gap 0.2s;
+  }
+
+  .footer-next:hover { gap: 0.8rem; }
+
+  /* Inline code */
+  code {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.82em;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    padding: 0.1em 0.35em;
+    color: var(--accent3);
+  }
+
+  strong {
+    font-weight: 500;
+    color: var(--text);
+  }
+</style>
+</head>
+<body>
+
+<!-- Sticky top nav -->
+<nav class="top-nav">
+  <div class="top-nav-inner">
+    <a href="agentic-ai-curriculum.html" class="nav-back">← Back to Curriculum</a>
+    <span class="nav-module-label">Module 01 · What Makes Something Agentic?</span>
+    <a href="module-02.html" class="nav-next">Next: Module 02 →</a>
+  </div>
+</nav>
+
+<!-- Hero -->
+<div class="hero">
+  <div class="container">
+    <div class="hero-eyebrow">Module 01 · Foundation</div>
+    <div class="module-badge">FOUNDATION</div>
+    <h1>What Makes Something<br>Agentic?</h1>
+    <p class="hero-sub">
+      We start with the question that trips up most people: what actually distinguishes an AI agent from a workflow or a chatbot? This module builds the mental model that everything else in the curriculum depends on. You'll leave able to look at any AI system and classify it correctly — and understand exactly what you'd need to add to make it agentic.
+    </p>
+    <div class="hero-meta">
+      <div class="meta-item">
+        <span class="meta-label">Duration</span>
+        <span class="meta-value">1–2 weeks</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">Level</span>
+        <span class="meta-value">Foundation</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">Exercise</span>
+        <span class="meta-value">Group classification</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">Running Example</span>
+        <span class="meta-value">Aria (customer success agent)</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Main content -->
+<div class="container">
+<div class="content">
+
+  <!-- TOPIC 1 -->
+  <div class="topic-section" id="topic-1">
+    <div class="section-number">Topic 01</div>
+    <h2>The Spectrum from Static AI to Full Autonomy</h2>
+
+    <p>Most people use the word "AI" to describe everything from a spell-checker to a system that can autonomously research, plan, and execute multi-step tasks. That's a problem. Lumping them together creates false expectations, bad architecture decisions, and a lot of wasted engineering effort. Let's draw the lines clearly.</p>
+
+    <p>Think of AI systems on a spectrum of autonomy — not a binary on/off, but a continuum from systems that do exactly one thing when told, to systems that pursue goals across time with minimal human direction. At each level, the system gains something qualitatively new. Understanding what that new thing is tells you both the power and the risk you're taking on.</p>
+
+    <div class="spectrum-row">
+      <div class="spectrum-item spec-1">
+        <div class="spectrum-label">Level 1</div>
+        <div class="spectrum-title">LLM API Call</div>
+        <div class="spectrum-desc">Single prompt in, single completion out. No memory. No state. No action. Stateless text transformation.</div>
+      </div>
+      <div class="spectrum-item spec-2">
+        <div class="spectrum-label">Level 2</div>
+        <div class="spectrum-title">Chatbot</div>
+        <div class="spectrum-desc">Multi-turn conversation. Maintains context across turns. Generates responses. Still only produces text — takes no actions.</div>
+      </div>
+      <div class="spectrum-item spec-3">
+        <div class="spectrum-label">Level 3</div>
+        <div class="spectrum-title">Automation</div>
+        <div class="spectrum-desc">AI embedded in a fixed workflow. Triggers actions, but follows a predetermined script. Branches are pre-defined.</div>
+      </div>
+      <div class="spectrum-item spec-4">
+        <div class="spectrum-label">Level 4</div>
+        <div class="spectrum-title">Agent</div>
+        <div class="spectrum-desc">Perceive, reason, act, observe — in a loop. Chooses which tools to use. Adapts based on results. Goal-directed.</div>
+      </div>
+      <div class="spectrum-item spec-5">
+        <div class="spectrum-label">Level 5</div>
+        <div class="spectrum-title">Agent Network</div>
+        <div class="spectrum-desc">Multiple agents coordinating. Specialization, parallelism, delegation. An orchestrator decomposes tasks; subagents execute them.</div>
+      </div>
+    </div>
+
+    <p>The jump from Level 1 to Level 2 is about memory — the chatbot can refer back to what was said before. The jump from Level 2 to Level 3 is about action — the system can now do things, not just say things. But that action is scripted. You, the developer, wrote the branches in advance.</p>
+
+    <p>The critical jump is from Level 3 to Level 4. This is where the system stops following a script and starts making decisions. An agent at Level 4 looks at the current situation, reasons about what to do next, executes something, observes the result, and then reasons again. The path isn't predetermined. The model chooses it. That's what makes something agentic — and it's also what makes it harder to predict, test, and govern.</p>
+
+    <div class="callout callout-insight">
+      <div class="callout-label">Key Insight</div>
+      <p>The distinguishing feature of an agent is not that it uses AI — everything on this spectrum does. It's that the AI decides what to do next based on what it observes, rather than following a path you've pre-specified. The model is the decision-maker, not the executor.</p>
+    </div>
+
+    <p>Level 5 — agent networks — builds on Level 4 by introducing coordination. Multiple agents, each with their own agentic loops, communicate and collaborate to accomplish tasks no single agent could handle efficiently. One agent plans, others research in parallel, another synthesizes. We cover this in depth in Module 4. For now, understand that agent networks are agents all the way down — the architecture adds coordination, not a new type of system.</p>
+
+    <div class="callout callout-mistake">
+      <div class="callout-label">Common Mistake</div>
+      <p>Teams often build a Level 3 automation with lots of branching logic and call it an agent. It isn't. If you wrote all the branches in code, the AI is not deciding — you are. The AI is just classifying inputs into your pre-written buckets. That's a useful system, but it's not agentic, and you should not expect it to handle novel situations gracefully.</p>
+    </div>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <!-- TOPIC 2 -->
+  <div class="topic-section" id="topic-2">
+    <div class="section-number">Topic 02</div>
+    <h2>The Four Pillars of Agency</h2>
+
+    <p>Strip any agent down to its essentials and you find the same four capabilities: the ability to perceive its environment, the ability to reason about a goal, the ability to act through tools, and the ability to learn from the results of those actions. We call these the four pillars. Remove any one of them and what you have is no longer an agent — it's something less.</p>
+
+    <div class="pillars-grid">
+      <div class="pillar-card">
+        <div class="pillar-number">Pillar 01</div>
+        <div class="pillar-title">Perceive</div>
+        <div class="pillar-desc">The agent can observe its environment. This includes the user's message, the results of previous tool calls, retrieved documents, database records, API responses — any information that gets placed into its context window.</div>
+        <div class="pillar-missing">Without this: The agent is blind. It can't respond to the actual situation.</div>
+      </div>
+      <div class="pillar-card">
+        <div class="pillar-number">Pillar 02</div>
+        <div class="pillar-title">Reason</div>
+        <div class="pillar-desc">The agent can interpret what it perceives and decide what to do. It can decompose a goal into steps, evaluate options, recognize when it doesn't have enough information, and plan a path forward. The language model does the heavy lifting here.</div>
+        <div class="pillar-missing">Without this: The agent is reactive, not deliberate. It can't plan or handle novel situations.</div>
+      </div>
+      <div class="pillar-card">
+        <div class="pillar-number">Pillar 03</div>
+        <div class="pillar-title">Act</div>
+        <div class="pillar-desc">The agent can do things in the world via tools — send an email, query a database, run code, call an API, write a file. Actions have real-world effects. This is what separates agents from chatbots, which can only produce text.</div>
+        <div class="pillar-missing">Without this: The agent is a very smart chatbot. It can only advise, not execute.</div>
+      </div>
+      <div class="pillar-card">
+        <div class="pillar-number">Pillar 04</div>
+        <div class="pillar-title">Observe (Learn)</div>
+        <div class="pillar-desc">The agent receives feedback from the actions it took — a tool's return value, an error message, a confirmation — and uses that feedback to inform its next decision. This closes the loop. Without observation, there's no loop to speak of.</div>
+        <div class="pillar-missing">Without this: The agent acts blindly and can't correct course when something goes wrong.</div>
+      </div>
+    </div>
+
+    <p>These four pillars form what we call the <strong>agentic loop</strong>: Perceive → Reason → Act → Observe → (repeat). The loop continues until the agent decides its goal is met, hits a stop condition, or gets stuck and escalates. Every agent you'll ever encounter is an implementation of this loop, no matter how complex the framework wrapped around it.</p>
+
+    <div class="callout callout-insight">
+      <div class="callout-label">Key Insight</div>
+      <p>The loop is the thing. Not the model, not the framework, not the tools. An agent is fundamentally defined by its loop — the repeated cycle of perceiving, reasoning, acting, and observing. When you're debugging a misbehaving agent, you're almost always debugging a broken loop: the agent observed something wrong, reasoned incorrectly, acted on bad information, or couldn't see the result of what it did.</p>
+    </div>
+
+    <h3>Why "Learn" and Not Just "Observe"?</h3>
+
+    <p>We use "Learn" alongside "Observe" deliberately. At the session level, the agent is learning from each action's outcome within a single run — it observes that a search returned no results, updates its internal reasoning, and tries a different query. This is in-context learning, and it's fundamental to what makes agents adaptive.</p>
+
+    <p>There's also a longer-horizon sense of learning: agents can be updated over time based on aggregated outcomes, user feedback, and evaluation data. That's a separate engineering problem (covered in later modules), but it shares the same underlying idea — the system improves based on the gap between what happened and what was intended.</p>
+
+    <p>The key point for now: an agent that can't learn from within-session observations will repeat its mistakes in the same run. That's a fundamental failure mode to design against.</p>
+
+    <div class="callout callout-mistake">
+      <div class="callout-label">Common Mistake</div>
+      <p>Giving an agent tools but no feedback mechanism. If your agent can call an API but the result never makes it back into the context window, the agent is acting blind. It has Pillar 3 (Act) but not Pillar 4 (Observe). The result is an agent that confidently does the wrong thing, repeatedly, with no ability to self-correct.</p>
+    </div>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <!-- TOPIC 3 -->
+  <div class="topic-section" id="topic-3">
+    <div class="section-number">Topic 03</div>
+    <h2>Linear Automations vs. Agentic Loops</h2>
+
+    <p>The distinction between a linear automation and an agentic loop is the single most important line in this curriculum. Get it wrong and you'll spend months building sophisticated-looking systems that are actually just complex pipelines — unable to handle anything that deviates from the happy path you designed for.</p>
+
+    <h3>Linear Automations: Predetermined Paths</h3>
+
+    <p>A linear automation is a fixed sequence of steps. It may branch — "if customer sentiment is negative, route to tier 2 support; otherwise, send the FAQ" — but the branches are predetermined. A human wrote them. The AI might classify the situation, but it doesn't choose what happens next from open-ended possibility space. It selects from options you've pre-enumerated.</p>
+
+    <p>Linear automations are excellent for well-defined, repetitive processes with predictable variation. They're fast, cheap to run, easy to test, and easy to audit. Don't dismiss them — for many real business problems, they're exactly the right tool. The mistake is using them where you need genuine decision-making, then wondering why the system breaks on edge cases you didn't anticipate.</p>
+
+<pre class="code-block"><code>// Linear automation: all branches written by a human
+function handleSupportTicket(ticket) {
+  sentiment = classifysentiment(ticket.message)     // AI call: classification
+  if (sentiment == "urgent"):
+    escalate(ticket, tier=2)
+  else if (sentiment == "billing"):
+    route(ticket, queue="billing")
+  else:
+    send_reply(ticket, template="standard_faq")
+}
+// The AI classifies. The human decides what every classification means.</code></pre>
+
+    <h3>Agentic Loops: Dynamic Decision-Making</h3>
+
+    <p>An agentic loop doesn't have predetermined branches. The agent reads the situation, decides what tool to call (if any), calls it, reads the result, and decides what to do next. The path through the problem space is determined at runtime by the model, not at design time by the engineer. This means the agent can handle situations the engineer never explicitly anticipated — which is its power, and its risk.</p>
+
+<pre class="code-block"><code>// Agentic loop: the model decides what to do next
+while goal_not_met:
+  observation = perceive(context)          // What do I know right now?
+  action = reason(observation, goal)       // What should I do next?
+
+  if action.type == "tool_call":
+    result = execute_tool(action.tool, action.params)
+    context.add(result)                    // Feed result back into context
+  elif action.type == "respond":
+    send_response(action.content)
+    break
+  elif action.type == "escalate":
+    hand_off_to_human(action.reason)
+    break
+
+  // The model chose which branch. Not the engineer.</code></pre>
+
+    <p>The loop continues until a stop condition is met — the goal is achieved, the agent decides to escalate, or a safety limit is reached. That stop condition is one of the most important things to design carefully. Agents without clear stop conditions can run indefinitely, burning tokens and sometimes causing damage in the process.</p>
+
+    <h3>State Management in Agentic Systems</h3>
+
+    <p>Linear automations typically pass state forward as a simple data object — each step reads and writes to a shared record. Agentic loops face a harder problem: the agent's state is its context window, which is finite. As the agent takes more steps and accumulates more observations, it has to make decisions about what to keep, what to summarize, and what to discard. This is the context engineering problem, and it's one of the primary reasons agents fail in practice. We cover it thoroughly in Module 3.</p>
+
+    <p>For now, understand the implication: the longer an agentic loop runs, the more important it becomes to manage what's in that loop's working memory. A well-designed agent doesn't just act intelligently — it curates its own context intelligently as it works.</p>
+
+    <div class="callout callout-insight">
+      <div class="callout-label">Key Insight</div>
+      <p>Goal-directed behavior is the defining characteristic of an agentic loop. The agent isn't executing a plan you wrote. It's pursuing a goal you specified, and choosing its own path. This shifts the engineering challenge from "write all the branches" to "specify the goal clearly, give the agent the right tools, and build the right guardrails."</p>
+    </div>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <!-- TOPIC 4 -->
+  <div class="topic-section" id="topic-4">
+    <div class="section-number">Topic 04</div>
+    <h2>The Role of Tools, Memory, and Planning</h2>
+
+    <p>Three capabilities elevate a language model from a text generator to a functioning agent: tools, memory, and planning. Understanding what each of these actually means at the architecture level — not just the marketing level — is essential for building systems that work.</p>
+
+    <h3>Tools: Real-World Effects</h3>
+
+    <p>A tool, in the technical sense, is any capability an agent can invoke that either has a real-world effect or returns information from outside the model. This covers a wide range: web search, code execution, database reads and writes, API calls to external services, file I/O, browser control, sending emails, issuing refunds. If it reaches outside the model's inference pass and touches the world, it's a tool.</p>
+
+    <p>This definition matters because it determines what an agent can actually do versus what it can only simulate. A model that's been told "you can issue refunds" but has no actual refund API to call is not an agent — it's a chatbot playing pretend. The tool is the mechanism that makes the action real.</p>
+
+    <p>At the architecture level, tool use works roughly like this: the model is given a list of available tools and their descriptions. When the model determines that invoking a tool is the right next step, it outputs a structured call — a tool name and its parameters. The system (not the model) executes the tool and returns the result. That result is fed back into the model's context, and the model continues. The model never directly executes anything. It only requests execution. This is a crucial safety boundary.</p>
+
+    <div class="callout callout-insight">
+      <div class="callout-label">Key Insight</div>
+      <p>The model requests tool calls; the runtime executes them. This indirection is where you insert control — you can validate parameters, enforce rate limits, require approval, or block calls that exceed permission boundaries, all before any tool ever executes. Every guardrail you'll build in Module 5 lives in this gap between "model requests" and "system executes."</p>
+    </div>
+
+    <p>Tool design is its own discipline (covered in Module 2), but the foundational principle is: tools should be well-named, narrowly scoped, and honest about their error surfaces. Vague or overly powerful tools lead to overly powerful — and unpredictable — agents.</p>
+
+    <h3>Memory: Four Types, Four Roles</h3>
+
+    <p>When people talk about "agent memory," they're actually describing several different things that are easy to conflate. Each has a different architecture and a different set of tradeoffs.</p>
+
+    <p><strong>In-context memory</strong> is everything in the active context window. It's fast to access and directly influences the model's reasoning, but it's finite and expensive. Everything the agent has done, seen, and concluded in the current session lives here — until you run out of space, at which point you have to make choices about what to keep.</p>
+
+    <p><strong>External memory</strong> is any persistent store outside the model: a database, a vector store, a file system. The agent retrieves from it explicitly, usually through a search or lookup tool. This allows agents to work with far more information than fits in context, but retrieval introduces latency and the risk of retrieving the wrong thing. This is the foundation of retrieval-augmented generation (RAG) for agents.</p>
+
+    <p><strong>Episodic memory</strong> stores records of past interactions and their outcomes. "Last time I tried this approach with this type of customer, it resulted in an escalation." This is currently underexplored in production agents but is an active area of development — agents that get better over sessions, not just within sessions.</p>
+
+    <p><strong>Semantic memory</strong> stores factual, structured knowledge — product catalogs, policy documents, ontologies. This is typically accessed via retrieval and injected into context at the right moment. The agent doesn't "know" this information inherently; it knows where to look it up.</p>
+
+    <h3>Planning: Deciding Before Acting</h3>
+
+    <p>Planning is the process by which an agent decides what to do before doing it. At the simplest level, every step of a ReAct loop is a tiny act of planning — the model reasons about the current situation and decides on one next action. More sophisticated planning involves generating a multi-step plan upfront, evaluating options, anticipating failure modes, and then executing against the plan while remaining open to revising it when observations don't match predictions.</p>
+
+    <p>The architecture for planning varies from minimal (generate one step at a time) to elaborate (generate a full plan, critique it, revise it, then execute). More planning is not always better — it costs tokens, introduces latency, and can lead to over-commitment to a plan that turns out to be wrong. The right level of planning depends on the task. Simple, well-defined tasks need minimal planning. Long-horizon tasks with many steps and significant uncertainty benefit from upfront structure. We explore the specific planning patterns — chain-of-thought, tree-of-thought, skeleton-of-thoughts — in Module 2.</p>
+
+    <div class="callout callout-mistake">
+      <div class="callout-label">Common Mistake</div>
+      <p>Treating planning as a one-time activity at the start of a task. Agents that generate a plan upfront and then execute it mechanically without checking whether the plan still makes sense are fragile. Real agentic systems re-plan when observations deviate from expectations. A plan is a hypothesis about how to reach a goal — it should be revised when the evidence says it's wrong.</p>
+    </div>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <!-- TOPIC 5 -->
+  <div class="topic-section" id="topic-5">
+    <div class="section-number">Topic 05</div>
+    <h2>Generative AI vs. Agentic AI</h2>
+
+    <p>Generative AI and agentic AI are not the same thing, and conflating them leads to a specific kind of confusion that's endemic in this field right now. Let's be precise.</p>
+
+    <p>Generative AI refers to AI systems that generate content — text, images, code, audio, video. The input is a prompt, the output is generated content. The interaction is fundamentally one-shot (or multi-turn within a conversation), stateless relative to the external world, and consequence-free in the sense that generating text doesn't inherently change anything outside the system. ChatGPT generating a draft email is generative AI. Midjourney creating an image is generative AI. GitHub Copilot suggesting the next line of code is generative AI.</p>
+
+    <p>Agentic AI refers to AI systems that pursue goals through action. The defining characteristics are the agentic loop, tool use with real-world effects, and the ability to take actions that have consequences beyond the conversation. An agent is not just generating content — it is doing things. It can read your email and draft a reply, or it can read your email, look up your calendar, check a policy database, draft a reply, send it, and update a CRM record. That's a fundamentally different category.</p>
+
+    <h3>The Consequences Distinction</h3>
+
+    <p>The most important difference between generative and agentic AI is the concept of real-world consequences. When a generative AI produces wrong output, a human reviews it and either uses it or discards it. The model's error doesn't propagate unless a human chooses to act on it. When an agentic AI takes a wrong action, the action has already happened. It may be reversible (update a record that can be updated again) or irreversible (send an email, execute a trade, delete a file). This is why agentic systems require a fundamentally different approach to safety and governance than generative systems.</p>
+
+    <div class="callout callout-insight">
+      <div class="callout-label">Key Insight</div>
+      <p>With generative AI, errors are in the output — a human is the last line of defense before anything happens in the world. With agentic AI, errors are in the actions — the system is the last line of defense, because the human may not see what happened until after the fact. This asymmetry drives every safety and governance decision in Module 5.</p>
+    </div>
+
+    <h3>The Scope of Effect</h3>
+
+    <p>Generative AI systems are, by design, disconnected from the world except through the human reading their output. This is not a bug — it's a safety property. Agentic systems deliberately give up that safety property in exchange for the ability to act. The question for any given use case is: is the gain in capability worth the gain in risk? For many enterprise applications in 2026, the answer is yes — but only when the right controls are in place.</p>
+
+    <p>One way to think about this: generative AI amplifies a human's ability to produce. Agentic AI partially replaces the human's role in a process. That's a much bigger claim, and it demands much higher standards for reliability, safety, and auditability. The best agentic systems are built by teams that internalize this distinction from the start.</p>
+
+    <div class="callout callout-mistake">
+      <div class="callout-label">Common Mistake</div>
+      <p>Evaluating an agentic system using generative AI metrics. Measuring an agent by the quality of its text output misses what actually matters — whether it completed the goal, whether it took the right actions, whether it stayed within its sanctioned boundaries, and at what cost. An agent can produce beautifully written reasoning and still do the wrong thing. Task completion rate, action accuracy, and escalation appropriateness are the right metrics.</p>
+    </div>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <!-- TOPIC 6 -->
+  <div class="topic-section" id="topic-6">
+    <div class="section-number">Topic 06</div>
+    <h2>Real-World Examples: What Is and Isn't an Agent</h2>
+
+    <p>Theory is useful. But the best way to internalize the distinctions we've built in this module is to look at real systems — or realistic analogs of them — and classify them honestly. This section does exactly that, across four domains: customer service, software development, research, and DevOps.</p>
+
+    <h3>Meet Aria: A Customer Success Agent</h3>
+
+    <p>Throughout this curriculum, we'll use a running example called Aria. Aria is a customer success agent deployed by a mid-size SaaS company to handle inbound support tickets. Her capabilities: read CRM data, query order history, look up product documentation, issue refunds up to $50, escalate to human agents with a context summary, and send templated and custom emails. She's not a hypothetical — she represents a class of agents that are being deployed right now in production.</p>
+
+    <p>Is Aria an agent? Yes. Here's how she maps to the four pillars. She perceives: she reads the incoming ticket, retrieves the customer's order history from the CRM, and looks up relevant documentation. She reasons: she assesses the issue, determines the appropriate resolution path, and decides whether she can handle it autonomously or needs to escalate. She acts: she issues refunds, sends emails, creates follow-up tasks, and escalates with structured summaries. She observes: if the email send fails, she sees the error and tries again or flags it. She loops: if the first resolution attempt doesn't resolve the customer's issue and they write back, she processes the new message, looks at the full conversation history, and tries again.</p>
+
+    <div class="callout callout-example">
+      <div class="callout-label">Example: Aria in Action</div>
+      <p>A customer writes: "My order hasn't arrived after 3 weeks and I want a refund." Aria's loop: (1) Perceive — read ticket, retrieve order record from CRM, see order was shipped 24 days ago and last tracking scan was 18 days ago. (2) Reason — this is a lost shipment, not a delay. Per policy, this qualifies for a refund or reship. Order total is $38, within her $50 autonomous refund authority. (3) Act — issue refund via payments API, send confirmation email with refund timeline. (4) Observe — payment API returns success code, email send returns 200. Goal met. Loop ends.</p>
+      <p>Notice what Aria didn't do: she didn't route to a human, she didn't ask clarifying questions she could answer herself by looking at the data, and she didn't generate a draft for a human to approve. She handled it — and only because her tools, her authority limits, and her goal were all clearly defined would this be safe to deploy.</p>
+    </div>
+
+    <h3>What's Not an Agent: Common Misclassifications</h3>
+
+    <p><strong>An LLM-powered chatbot with no tools</strong> is not an agent. It can have a sophisticated conversation about how to fix your order problem. It cannot fix the order problem. It lacks Pillar 3 (Act) entirely. This is the most common source of confusion — companies deploy chatbots with impressive-sounding AI capabilities, but they're still just generating text responses for a human to act on.</p>
+
+    <p><strong>A sentiment-based routing automation</strong> is not an agent. It uses AI for classification, but the routing logic is fully predetermined. The AI labels the input; the code decides what to do with the label. There's no agentic loop, no dynamic decision-making beyond the classification step. It's a Level 3 system on our spectrum — a useful one, but not an agent.</p>
+
+    <p><strong>A coding assistant that suggests the next line</strong> is not an agent. It's generative AI doing next-token prediction within a conversation. Add a tool that lets it write files, run tests, read the test output, and decide what to change — now you have an agent (like GitHub Copilot Workspace or similar systems).</p>
+
+    <h3>Coding Agents: The Software Development Domain</h3>
+
+    <p>Coding agents are among the most mature examples of agentic systems in 2026. A coding agent receives a task — "fix the failing tests in module X" — and then works through it: reads relevant source files, runs the test suite, examines the failure output, edits the code, runs tests again, examines the new failure output, edits again. The loop continues until tests pass or the agent hits a stop condition (e.g., five iterations without progress, at which point it files a detailed issue and escalates).</p>
+
+    <p>The key distinction between a coding agent and a "AI-assisted IDE" is exactly the four pillars. The AI-assisted IDE waits for you to invoke it; a coding agent operates on your behalf. The IDE suggests, you decide; the agent decides, implements, tests, and delivers. That's not better in every context — for code you're actively writing, the IDE experience is often preferable. But for background tasks, refactors, and maintenance work, the agentic approach multiplies what a developer can accomplish.</p>
+
+    <h3>Research Agents: The Information Domain</h3>
+
+    <p>A research agent receives a question — "Summarize the competitive landscape for enterprise CRM software, focusing on pricing models and recent product changes" — and autonomously searches the web, reads articles, extracts relevant information, cross-references claims, and produces a structured synthesis. The agent decides which searches to run, which sources to trust, when it has enough information, and how to structure the output.</p>
+
+    <p>What makes this agentic rather than just "a really good search"? The model is making decisions about research strategy: what to search for next, whether the results so far are sufficient, when to go deeper on a specific thread and when to move on. The tool set might include web search, reading URLs, running calculations, and writing to a document. The agentic loop is doing continuous synthesis — each round of search informs the next decision.</p>
+
+    <h3>DevOps Agents: The Infrastructure Domain</h3>
+
+    <p>DevOps agents are where the stakes get highest and the case for careful guardrails becomes most urgent. A DevOps agent might receive a task: "investigate why the API service is returning elevated error rates and remediate if possible." It can query metrics dashboards, read logs, restart services, modify configuration, deploy a rollback, and alert the on-call engineer.</p>
+
+    <p>This is a full-featured agent: it perceives (reads metrics and logs), reasons (diagnoses the likely cause), acts (restarts a service, adjusts a config), and observes (checks whether the error rate dropped). The loop may run through multiple remediation attempts. But notice the risk surface: restarting a service in production, modifying configuration, or deploying a rollback are all consequential actions. A DevOps agent needs explicit limits, clear escalation paths for situations outside its authority, and human-in-the-loop approval for high-impact actions. Done right, this is extremely powerful. Done without controls, it's how you get a $12,000 compute bill from an agent trying to fix a CI loop all night.</p>
+
+    <div class="callout callout-insight">
+      <div class="callout-label">Key Insight</div>
+      <p>The right question for any real-world agent deployment is not "can we build this?" but "what are the boundaries of its authority?" Every agent needs a clear answer to: what actions can it take without human approval, what actions require approval, and what situations require it to stop and escalate immediately. Aria can issue a $50 refund autonomously. She cannot issue a $500 refund — that requires a human. That limit is not a limitation; it's what makes her trustworthy enough to deploy at all.</p>
+    </div>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <!-- EXERCISE SECTION -->
+  <div class="exercise-section" id="exercise">
+    <div class="exercise-header">
+      <div class="exercise-label">Module 01 · Group Exercise</div>
+      <h2>Classify the Systems</h2>
+      <p>Below are 10 AI system descriptions. For each one, classify it on the autonomy spectrum (Level 1–5), identify which of the four pillars it has and which it's missing, and describe what you'd need to add to move it one level higher. Work individually first, then discuss as a group. The goal isn't to reach consensus on every answer — it's to practice the reasoning.</p>
+    </div>
+
+    <div class="exercise-body">
+
+      <div class="system-card">
+        <div class="system-number">System 01</div>
+        <div class="system-title">The Document Summarizer</div>
+        <div class="system-desc">A company has built an internal tool that takes any uploaded document and returns a bullet-point summary using an LLM. Employees paste in meeting transcripts, reports, or emails. The tool sends the text to the model with a fixed system prompt and returns the generated summary. There is no conversation history, no memory between sessions, and no connection to other systems.</div>
+        <div class="system-prompt">Consider: Which pillars does it have? What does it lack? Is it useful? Is it an agent?</div>
+      </div>
+
+      <div class="system-card">
+        <div class="system-number">System 02</div>
+        <div class="system-title">The FAQ Chatbot</div>
+        <div class="system-desc">A software company has deployed a chatbot on their support page. It can answer questions about their product based on a retrieval-augmented knowledge base of documentation. It maintains conversation history within a session, so it can handle follow-up questions. When it can't find an answer in its knowledge base, it tells the user to contact human support. It cannot take any actions: it cannot create tickets, check account status, or do anything but provide information.</div>
+        <div class="system-prompt">Consider: This system has retrieval (a kind of tool). Does that make it an agent? What's the critical missing capability?</div>
+      </div>
+
+      <div class="system-card">
+        <div class="system-number">System 03</div>
+        <div class="system-title">The Sentiment Router</div>
+        <div class="system-desc">An e-commerce company built an automated support pipeline. When a customer email arrives, an LLM classifies its sentiment and topic (positive, neutral, negative — and billing, shipping, product, other). Based on the classification, the system automatically routes the email to the appropriate queue and sends a templated acknowledgment. There are five queues, each with a predefined response template. No further AI processing happens after the initial classification.</div>
+        <div class="system-prompt">Consider: This system takes real actions (routing, sending emails). Does that make it an agent? Who's really deciding what happens?</div>
+      </div>
+
+      <div class="system-card">
+        <div class="system-number">System 04</div>
+        <div class="system-title">The Research Assistant</div>
+        <div class="system-desc">A market research firm built a system where a user types a research question. The system then autonomously runs multiple web searches (choosing the search queries itself), reads the top results from each search, decides whether it needs more information (and if so, runs additional searches), synthesizes what it found, and produces a structured report. The whole process takes 3–7 minutes and runs without any human interaction after the initial question is submitted.</div>
+        <div class="system-prompt">Consider: Map this explicitly to the agentic loop. How many iterations might the loop run? What are the stop conditions?</div>
+      </div>
+
+      <div class="system-card">
+        <div class="system-number">System 05</div>
+        <div class="system-title">The Code Reviewer</div>
+        <div class="system-desc">A software team has a bot that runs on every pull request. It reads the diff, generates a code review comment using an LLM, and posts the comment to GitHub. The comment may include suggestions for improvement, questions, or flags for potential bugs. The bot cannot approve or reject the PR, cannot modify the code, and cannot access any external systems beyond reading the PR diff and posting a comment.</div>
+        <div class="system-prompt">Consider: This system posts to GitHub — that's a real-world effect. But is "posting a review comment" what we mean by agentic action? What's the meaningful distinction?</div>
+      </div>
+
+      <div class="system-card">
+        <div class="system-number">System 06</div>
+        <div class="system-title">The Autonomous Bug Fixer</div>
+        <div class="system-desc">A development team uses an agent that can be assigned GitHub issues. The agent reads the issue, explores the relevant codebase (using file reading tools), writes a fix, creates a new branch, commits the changes, runs the test suite, reads the test output, iterates on the fix if tests fail (up to three times), and if tests pass, opens a pull request for human review. If it can't fix the issue within three iterations, it adds a comment to the issue explaining what it tried and what it found.</div>
+        <div class="system-prompt">Consider: This is clearly an agent. Map out its full tool set, its stop conditions, and its escalation path. Where are the appropriate human checkpoints?</div>
+      </div>
+
+      <div class="system-card">
+        <div class="system-number">System 07</div>
+        <div class="system-title">The Scheduled Report Generator</div>
+        <div class="system-desc">Every Monday at 9am, an automated system queries three databases (sales, support tickets, and web analytics), formats the data into a prompt, sends it to an LLM, and emails the generated weekly summary report to the leadership team. The queries are fixed. The prompt is fixed. The only thing the LLM does is generate prose from the structured data. The system never makes decisions based on what it finds.</div>
+        <div class="system-prompt">Consider: This system is fully automated and touches multiple systems. Does automation equal agency? What would need to change to make it agentic?</div>
+      </div>
+
+      <div class="system-card">
+        <div class="system-number">System 08</div>
+        <div class="system-title">The Customer Onboarding Agent</div>
+        <div class="system-desc">A B2B SaaS company has an agent that handles new customer onboarding. When a new account is created, the agent reviews the account details, sends a personalized welcome email (choosing from several templates based on the company size and industry it detects), schedules a kickoff call by checking both the customer's indicated availability and the team's calendar, creates an onboarding project in the project management tool, and assigns tasks based on the customer's product tier. If the customer hasn't completed setup steps after 48 hours, the agent sends a follow-up.</div>
+        <div class="system-prompt">Consider: How many distinct tools does this agent use? Does it have a meaningful loop, or is it a sophisticated linear automation? What would indicate it has genuine agency?</div>
+      </div>
+
+      <div class="system-card">
+        <div class="system-number">System 09</div>
+        <div class="system-title">The Competitive Intelligence Monitor</div>
+        <div class="system-desc">An agent runs nightly to monitor competitor activity. It searches the web for news about three named competitors, reads relevant articles, checks their public job postings (which indicate strategic investment areas), and compares current pricing pages to a stored baseline. If it detects significant changes — a major funding round, a new product launch, a significant pricing shift — it generates an alert with a structured summary and sends it to the strategy team's Slack channel. It also updates a persistent database with the new data for trend analysis.</div>
+        <div class="system-prompt">Consider: This agent runs on a schedule without human initiation. Does that affect its level of autonomy? How does the persistent database change the picture compared to a purely in-context memory approach?</div>
+      </div>
+
+      <div class="system-card">
+        <div class="system-number">System 10</div>
+        <div class="system-title">The Multi-Agent Procurement System</div>
+        <div class="system-desc">A large organization has a procurement system with three cooperating agents. A Procurement Planner agent receives purchase requests, decomposes them into sourcing tasks, and delegates to Supplier Research agents (which run in parallel, researching different potential vendors). The research agents return structured reports to the Planner, which synthesizes the findings, generates a recommendation, and sends it — along with all supporting evidence — to the Finance Compliance agent, which checks the recommendation against budget constraints and policy rules before either approving for human signature or flagging for human review.</div>
+        <div class="system-prompt">Consider: Identify the orchestrator and the subagents. What are the boundaries of each agent's authority? Where in this pipeline should human review be mandatory, regardless of what the agents recommend?</div>
+      </div>
+
+      <!-- Facilitation guide -->
+      <div class="facil-section">
+        <div class="facil-title">Facilitation Guide</div>
+        <ul class="facil-list">
+          <li>Start with individual work: give people 10–15 minutes to write down their classifications and reasoning before discussing. This prevents anchoring on the first person who speaks.</li>
+          <li>Systems 1, 2, and 7 are designed to provoke the "automation vs. agent" distinction. Expect disagreement on System 2 (the FAQ chatbot with retrieval) — use the disagreement to sharpen the definition of "agentic action."</li>
+          <li>System 5 (the code reviewer) is a useful edge case: it posts to GitHub (a real-world effect), but is that the kind of action that makes something agentic? Guide the discussion toward the idea that actions matter because of their consequences — and a code review comment is inherently advisory, not executable.</li>
+          <li>Systems 3 and 8 often generate the most debate about the automation/agent boundary. The key question: who is deciding what happens next — the model or the code? For System 8, probe whether the agent actually adapts its behavior based on what it finds, or just fills in a template.</li>
+          <li>System 6 is the clearest example of a genuine agent. Use it to anchor the group on what the four pillars look like in practice — have someone walk through each pillar explicitly.</li>
+          <li>System 10 is designed for a conversation about governance and human oversight. Resist letting the group optimize for efficiency; push them to think about where autonomy is appropriate and where it isn't, regardless of technical capability.</li>
+          <li>Close with this question: "For the systems you classified as not-yet-agents — is making them agentic actually the right move? What would you gain, and what new risks would you take on?" Not every system should be an agent.</li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- SUMMARY SECTION -->
+  <div class="summary-section" id="summary">
+    <h2>By the End of This Module, You Should Be Able To...</h2>
+    <ul class="summary-list">
+      <li>Define an agent precisely — not as "AI that does things" but as a system that perceives its environment, reasons about a goal, acts via tools, and observes the results in a loop.</li>
+      <li>Place any AI system correctly on the autonomy spectrum from LLM API call to agent network, and explain what capability each level adds.</li>
+      <li>Identify the four pillars of agency (Perceive, Reason, Act, Observe) in any system and recognize which pillar is missing when a system fails to behave agentically.</li>
+      <li>Explain the critical distinction between a linear automation (where a human pre-specifies all branches) and an agentic loop (where the model decides what to do next based on what it observes).</li>
+      <li>Articulate why tools are the mechanism that gives agents real-world effect, how memory functions in four different modes (in-context, external, episodic, semantic), and why planning is a hypothesis to be revised rather than a script to be followed.</li>
+      <li>Explain the consequences distinction between generative AI and agentic AI — and why that distinction drives every safety and governance decision in production.</li>
+      <li>Classify real-world AI systems correctly, using customer service (Aria), coding agents, research agents, and DevOps agents as reference examples.</li>
+      <li>Articulate why not every system should be an agent — and what criteria to use when deciding whether adding agency is worth the added risk and complexity.</li>
+    </ul>
+  </div>
+
+</div>
+</div>
+
+<!-- Footer -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer-inner">
+      <div class="footer-text">Agentic AI Curriculum · Module 01 · Foundation · Updated May 2026</div>
+      <a href="module-02.html" class="footer-next">Next: Module 02 — How Agents Are Built →</a>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

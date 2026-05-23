@@ -1,0 +1,962 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agentic AI: From Zero to Frontier — Curriculum</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;500&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #111118;
+    --surface2: #18181f;
+    --border: #2a2a3a;
+    --accent: #7c6af7;
+    --accent2: #f7c36a;
+    --accent3: #6af7d4;
+    --text: #e8e8f0;
+    --muted: #6b6b80;
+    --danger: #f76a6a;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 300;
+    line-height: 1.7;
+    min-height: 100vh;
+  }
+
+  /* Noise texture overlay */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.4;
+  }
+
+  .container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 2rem;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Hero */
+  .hero {
+    padding: 5rem 0 3rem;
+    border-bottom: 1px solid var(--border);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero::after {
+    content: '';
+    position: absolute;
+    top: -120px;
+    right: -200px;
+    width: 700px;
+    height: 700px;
+    background: radial-gradient(circle, rgba(124,106,247,0.12) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .hero-eyebrow {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.2em;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 1.2rem;
+  }
+
+  .hero h1 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: clamp(2.4rem, 5vw, 4rem);
+    line-height: 1.05;
+    margin-bottom: 1.5rem;
+    letter-spacing: -0.02em;
+  }
+
+  .hero h1 span {
+    color: var(--accent);
+  }
+
+  .hero-sub {
+    font-size: 1.1rem;
+    color: var(--muted);
+    max-width: 640px;
+    line-height: 1.8;
+    margin-bottom: 2.5rem;
+  }
+
+  .hero-meta {
+    display: flex;
+    gap: 2.5rem;
+    flex-wrap: wrap;
+  }
+
+  .meta-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+  }
+
+  .meta-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+
+  .meta-value {
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    font-size: 1.05rem;
+    color: var(--text);
+  }
+
+  /* Navigation rail */
+  .nav-rail {
+    display: flex;
+    gap: 0.5rem;
+    padding: 1.5rem 0;
+    border-bottom: 1px solid var(--border);
+    flex-wrap: wrap;
+    position: sticky;
+    top: 0;
+    background: rgba(10,10,15,0.92);
+    backdrop-filter: blur(12px);
+    z-index: 100;
+  }
+
+  .nav-pill {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.05em;
+    padding: 0.35rem 0.8rem;
+    border-radius: 100px;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.2s;
+    text-decoration: none;
+    white-space: nowrap;
+  }
+
+  .nav-pill:hover, .nav-pill.active {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: rgba(124,106,247,0.08);
+  }
+
+  /* Module layout */
+  .modules {
+    padding: 3rem 0 6rem;
+    display: flex;
+    flex-direction: column;
+    gap: 4rem;
+  }
+
+  .module {
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    gap: 3rem;
+    align-items: start;
+  }
+
+  @media (max-width: 780px) {
+    .module { grid-template-columns: 1fr; gap: 1.5rem; }
+  }
+
+  .module-sidebar {
+    position: sticky;
+    top: 80px;
+  }
+
+  .module-number {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 0.6rem;
+  }
+
+  .module-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 1.45rem;
+    line-height: 1.2;
+    margin-bottom: 0.8rem;
+    letter-spacing: -0.01em;
+  }
+
+  .module-badge {
+    display: inline-block;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.1em;
+    padding: 0.25rem 0.6rem;
+    border-radius: 4px;
+    margin-bottom: 1rem;
+  }
+
+  .badge-foundation { background: rgba(107, 107, 128, 0.2); color: var(--muted); border: 1px solid var(--border); }
+  .badge-core { background: rgba(124,106,247,0.15); color: var(--accent); border: 1px solid rgba(124,106,247,0.3); }
+  .badge-advanced { background: rgba(247,195,106,0.12); color: var(--accent2); border: 1px solid rgba(247,195,106,0.3); }
+  .badge-frontier { background: rgba(106,247,212,0.12); color: var(--accent3); border: 1px solid rgba(106,247,212,0.3); }
+
+  .module-duration {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.68rem;
+    color: var(--muted);
+  }
+
+  .module-body {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  .module-desc {
+    padding: 1.5rem 1.8rem;
+    font-size: 0.97rem;
+    color: #c0c0d0;
+    line-height: 1.75;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .topics-header {
+    padding: 1rem 1.8rem 0.5rem;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .topics-list {
+    list-style: none;
+    padding: 0 0 0.8rem;
+  }
+
+  .topic-item {
+    display: flex;
+    gap: 1rem;
+    align-items: baseline;
+    padding: 0.5rem 1.8rem;
+    transition: background 0.15s;
+    cursor: default;
+  }
+
+  .topic-item:hover {
+    background: var(--surface2);
+  }
+
+  .topic-dot {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    margin-top: 0.55rem;
+  }
+
+  .dot-foundation { background: var(--muted); }
+  .dot-core { background: var(--accent); }
+  .dot-advanced { background: var(--accent2); }
+  .dot-frontier { background: var(--accent3); }
+
+  .topic-text {
+    font-size: 0.92rem;
+    color: var(--text);
+    line-height: 1.5;
+  }
+
+  .topic-sub {
+    font-size: 0.79rem;
+    color: var(--muted);
+    display: block;
+    margin-top: 0.1rem;
+    font-family: 'IBM Plex Mono', monospace;
+  }
+
+  .lab-block {
+    margin: 0 1.8rem 1.5rem;
+    padding: 1rem 1.2rem;
+    background: var(--surface2);
+    border-left: 3px solid var(--accent);
+    border-radius: 0 8px 8px 0;
+  }
+
+  .lab-block.lab-advanced { border-left-color: var(--accent2); }
+  .lab-block.lab-frontier { border-left-color: var(--accent3); }
+
+  .lab-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.15em;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 0.4rem;
+  }
+
+  .lab-advanced .lab-label { color: var(--accent2); }
+  .lab-frontier .lab-label { color: var(--accent3); }
+
+  .lab-desc {
+    font-size: 0.88rem;
+    color: #b0b0c4;
+    line-height: 1.6;
+  }
+
+  /* Divider between modules */
+  .module-divider {
+    height: 1px;
+    background: linear-gradient(to right, transparent, var(--border) 20%, var(--border) 80%, transparent);
+  }
+
+  /* Principles sidebar callout */
+  .callout {
+    background: rgba(124,106,247,0.07);
+    border: 1px solid rgba(124,106,247,0.2);
+    border-radius: 10px;
+    padding: 1.2rem 1.5rem;
+    margin-top: 1.5rem;
+  }
+
+  .callout-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    font-size: 0.85rem;
+    color: var(--accent);
+    margin-bottom: 0.5rem;
+  }
+
+  .callout-text {
+    font-size: 0.82rem;
+    color: var(--muted);
+    line-height: 1.6;
+  }
+
+  /* Footer */
+  .footer {
+    border-top: 1px solid var(--border);
+    padding: 2.5rem 0;
+    text-align: center;
+  }
+
+  .footer-text {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+  }
+
+  /* Accent line on module */
+  .module-accent-line {
+    height: 2px;
+    background: linear-gradient(to right, var(--accent), transparent);
+    opacity: 0.4;
+  }
+
+  .module-accent-line.line-advanced {
+    background: linear-gradient(to right, var(--accent2), transparent);
+  }
+
+  .module-accent-line.line-frontier {
+    background: linear-gradient(to right, var(--accent3), transparent);
+  }
+
+  .module-accent-line.line-foundation {
+    background: linear-gradient(to right, var(--muted), transparent);
+    opacity: 0.3;
+  }
+
+  .module-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    margin-top: 1rem;
+    margin-bottom: 0.2rem;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.05em;
+    color: var(--accent);
+    text-decoration: none;
+    padding-bottom: 0.1rem;
+    border-bottom: 1px solid rgba(124,106,247,0.3);
+    transition: border-color 0.2s, gap 0.2s;
+  }
+
+  .module-link:hover {
+    border-color: var(--accent);
+    gap: 0.6rem;
+  }
+
+  .module-link.link-advanced { color: var(--accent2); border-bottom-color: rgba(247,195,106,0.3); }
+  .module-link.link-advanced:hover { border-color: var(--accent2); }
+
+  .module-link.link-frontier { color: var(--accent3); border-bottom-color: rgba(106,247,212,0.3); }
+  .module-link.link-frontier:hover { border-color: var(--accent3); }
+
+  .module-link.link-foundation { color: var(--muted); border-bottom-color: rgba(107,107,128,0.3); }
+  .module-link.link-foundation:hover { border-color: var(--muted); }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="container">
+    <div class="hero-eyebrow">Internal Training Curriculum · 2026 Edition</div>
+    <h1>Agentic AI<br><span>From Zero to Frontier</span></h1>
+    <p class="hero-sub">
+      A comprehensive curriculum for understanding, building, and staying ahead of agentic AI systems — covering the conceptual foundations, engineering patterns, production realities, and frontier practices that define the field in 2026.
+    </p>
+    <div class="hero-meta">
+      <div class="meta-item">
+        <span class="meta-label">Modules</span>
+        <span class="meta-value">7</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">Est. Duration</span>
+        <span class="meta-value">10–14 weeks</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">Audience</span>
+        <span class="meta-value">Mixed technical / non-technical</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">Last Updated</span>
+        <span class="meta-value">May 2026</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+  <nav class="nav-rail">
+    <a class="nav-pill active" href="#m1">01 · Foundations</a>
+    <a class="nav-pill" href="#m2">02 · Agent Architecture</a>
+    <a class="nav-pill" href="#m3">03 · Context Engineering</a>
+    <a class="nav-pill" href="#m4">04 · Multi-Agent Systems</a>
+    <a class="nav-pill" href="#m5">05 · Production & Safety</a>
+    <a class="nav-pill" href="#m6">06 · Frameworks & Tooling</a>
+    <a class="nav-pill" href="#m7">07 · Staying on the Frontier</a>
+  </nav>
+</div>
+
+<div class="container">
+<div class="modules">
+
+  <!-- MODULE 1 -->
+  <div class="module" id="m1">
+    <div class="module-sidebar">
+      <div class="module-number">Module 01</div>
+      <div class="module-title">What Makes Something Agentic?</div>
+      <span class="module-badge badge-foundation">FOUNDATION</span>
+      <div class="module-duration">⏱ 1–2 weeks</div>
+      <a href="module-01.html" class="module-link link-foundation">Open Module →</a>
+      <div class="callout">
+        <div class="callout-title">Why this matters</div>
+        <div class="callout-text">Most teams waste months building sophisticated-looking automations that are still just pipelines. This module draws the hard line between the two — so you build the right thing from day one.</div>
+      </div>
+    </div>
+    <div class="module-body">
+      <div class="module-accent-line line-foundation"></div>
+      <div class="module-desc">
+        We start with the question that trips up most people: what actually distinguishes an AI agent from a workflow or a chatbot? This module builds the mental model that everything else in the curriculum depends on. You'll leave able to look at any AI system and classify it correctly — and understand exactly what you'd need to add to make it agentic.
+      </div>
+      <div class="topics-header">Core Topics</div>
+      <ul class="topics-list">
+        <li class="topic-item">
+          <span class="topic-dot dot-foundation"></span>
+          <span class="topic-text">The spectrum from static AI to full autonomy
+            <span class="topic-sub">LLM API calls → chatbots → automations → agents → agent networks</span>
+          </span>
+        </li>
+        <li class="topic-item">
+          <span class="topic-dot dot-foundation"></span>
+          <span class="topic-text">The four pillars of agency: Perceive → Reason → Act → Learn
+            <span class="topic-sub">Why each component is necessary; what breaks when one is missing</span>
+          </span>
+        </li>
+        <li class="topic-item">
+          <span class="topic-dot dot-foundation"></span>
+          <span class="topic-text">Linear automations vs. agentic loops
+            <span class="topic-sub">Branching, tool use, state management, goal-directed behavior</span>
+          </span>
+        </li>
+        <li class="topic-item">
+          <span class="topic-dot dot-foundation"></span>
+          <span class="topic-text">The role of tools, memory, and planning
+            <span class="topic-sub">What "tool use" actually means at the architecture level</span>
+          </span>
+        </li>
+        <li class="topic-item">
+          <span class="topic-dot dot-foundation"></span>
+          <span class="topic-text">Generative AI vs. agentic AI — key distinctions
+            <span class="topic-sub">Content generation vs. goal-driven operation with real-world consequences</span>
+          </span>
+        </li>
+        <li class="topic-item">
+          <span class="topic-dot dot-foundation"></span>
+          <span class="topic-text">Real-world examples: what is and isn't an agent
+            <span class="topic-sub">Case studies: customer service, coding agents, research agents, DevOps</span>
+          </span>
+        </li>
+      </ul>
+      <div class="lab-block">
+        <div class="lab-label">Exercise</div>
+        <div class="lab-desc">Given 10 AI system descriptions, classify each on the autonomy spectrum and explain what would need to change to make each one more agentic. Discuss as a group.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="module-divider"></div>
+
+  <!-- MODULE 2 -->
+  <div class="module" id="m2">
+    <div class="module-sidebar">
+      <div class="module-number">Module 02</div>
+      <div class="module-title">How Agents Are Built: Architecture Patterns</div>
+      <span class="module-badge badge-core">CORE</span>
+      <div class="module-duration">⏱ 2 weeks</div>
+      <a href="module-02.html" class="module-link">Open Module →</a>
+      <div class="callout">
+        <div class="callout-title">Key insight</div>
+        <div class="callout-text">There is no single "agent architecture." There are design patterns — each with tradeoffs. The best engineers pick patterns based on task complexity, not hype.</div>
+      </div>
+    </div>
+    <div class="module-body">
+      <div class="module-accent-line"></div>
+      <div class="module-desc">
+        This module goes inside the machine. You'll learn the major architectural patterns used to build agents today — from the simplest ReAct loop to full orchestrator-subagent hierarchies — and understand when to reach for each one. Special attention is paid to the difference between single-agent and multi-agent designs, and why complexity should be justified by the task, not imported by default.
+      </div>
+      <div class="topics-header">Core Topics</div>
+      <ul class="topics-list">
+        <li class="topic-item">
+          <span class="topic-dot dot-core"></span>
+          <span class="topic-text">The ReAct pattern (Reason + Act) — the foundational loop
+            <span class="topic-sub">How agents interleave thinking and tool use; when this is enough</span>
+          </span>
+        </li>
+        <li class="topic-item">
+          <span class="topic-dot dot-core"></span>
+          <span class="topic-text">Tool design: what makes a good tool for an agent
+            <span class="topic-sub">Granularity, naming, error surfaces; the "fewer, sharper tools" principle</span>
+          </span>
+        </li>
+        <li class="topic-item">
+          <span class="topic-dot dot-core"></span>
+          <span class="topic-text">Memory architecture: in-context, external, episodic, semantic
+            <span class="topic-sub">Short-term context vs. long-term storage; retrieval strategies (RAG)</span>
+          </span>
+        </li>
+        <li class="topic-item">
+          <span class="topic-dot dot-core"></span>
+          <span class="topic-text">Planning patterns: chain-of-thought, tree-of-thought, skeleton-of-thoughts
+            <span class="topic-sub">When to use each; the tradeoff between latency and reasoning quality</span>
+          </span>
+        </li>
+        <li class="topic-item">
+          <span class="topic-dot dot-core"></span>
+          <span class="topic-text">Orchestrator vs. subagent roles
+            <span class="topic-sub">How to decompose complex tasks; delegation and result synthesis</span>
+          </span>
+        </li>
+        <li class="topic-item">
+          <span class="topic-dot dot-core"></span>
+          <span class="topic-text">When NOT to use agents — the case for simplicity
+            <span class="topic-sub">Latency, cost, and reliability tradeoffs; when a pipeline is the right call</span>
+          </span>
+        </li>
+        <li class="topic-item">
+          <span class="topic-dot dot-core"></span>
+          <span class="topic-text">The 12-Factor Agent principles
+            <span class="topic-sub">Emerging best-practice checklist for reliable LLM-based agent applications</span>
+          </span>
+        </li>
+      </ul>
+      <div class="lab-block">
+        <div class="lab-label">Hands-On Lab</div>
+        <div class="lab-desc">Build a minimal ReAct agent from scratch (no frameworks) — just an LLM, a tool loop, and a stop condition. Understand the mechanics before abstracting them away.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="module-divider"></div>
+
+  <!-- MODULE 3 -->
+  <div class="module" id="m3">
+    <div class="module-sidebar">
+      <div class="module-number">Module 03</div>
+      <div class="module-title">Context Engineering: The Skill That Replaced Prompt Engineering</div>
+      <span class="module-badge badge-core">CORE</span>
+      <div class="module-duration">⏱ 1.5 weeks</div>
+      <a href="module-03.html" class="module-link">Open Module →</a>
+      <div class="callout">
+        <div class="callout-title">The 2026 shift</div>
+        <div class="callout-text">"Prompt engineering is about what you say. Context engineering is about what the model sees." — The AI practitioner community (X, 2025–2026) reached consensus: context quality is the primary determinant of agent performance.</div>
+      </div>
+    </div>
+    <div class="module-body">
+      <div class="module-accent-line"></div>
+      <div class="module-desc">
+        The community consensus in 2026 is that prompt engineering, while still relevant, is no longer the bottleneck. Agents fail because their context is noisy, overloaded, or irrelevant — not because the prompt was poorly worded. This module teaches context as a finite, high-value resource to be engineered, not assumed.
+      </div>
+      <div class="topics-header">Core Topics</div>
+      <ul class="topics-list">
+        <li class="topic-item">
+          <span class="topic-dot dot-core"></span>
+          <span class="topic-text">What context engineering means — and what it isn't
+            <span class="topic-sub">Beyond prompts: everything the model sees at inference time</span>
+          </span>
+        </li>
+        <li class="topic-item">
+          <span class="topic-dot dot-core"></span>
+          <span class="topic-text">How long contexts fail: dilution, attention drift, reasoning fatigue
+            <span class="topic-sub">Why bigger context windows don't solve bad context design</span>
+          </span>
+        </li>
+        <li class="topic-item">
+          <span class="topic-dot dot-core"></span>
+          <span class="topic-text">Structuring agent context: system prompts, conversation history, injected state
+            <span class="topic-sub">Role of the system prompt; how to encode agent persona, goals, and constraints</span>
+          </span>
+        </li>
+        <li class="topic-item">
+          <span class="topic-dot dot-core"></span>
+          <span class="topic-text">Dynamic context management: what to include, compress, or evict
+            <span class="topic-sub">Summarization strategies; context pruning; prioritization techniques</span>
+          </span>
+        </li>
+        <li class="topic-item">
+          <span class="topic-dot dot-core"></span>
+          <span class="topic-text">RAG and retrieval-augmented agents — when it's right
+            <span class="topic-sub">Vector stores, semantic search, hybrid retrieval; RAG vs. fine-tuning decision</span>
+          </span>
+        </li>
+        <li class="topic-item">
+          <span class="topic-dot dot-core"></span>
+          <span class="topic-text">Few-shot examples and structured outputs in agent context
+            <span class="topic-sub">Using examples to anchor behavior; JSON mode and structured generation</span>
+          </span>
+        </li>
+      </ul>
+      <div class="lab-block">
+        <div class="lab-label">Hands-On Lab</div>
+        <div class="lab-desc">Take a failing long-horizon agent task and diagnose it as a context problem. Redesign the context architecture (what goes in, what gets summarized, what gets retrieved) and measure the improvement.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="module-divider"></div>
+
+  <!-- MODULE 4 -->
+  <div class="module" id="m4">
+    <div class="module-sidebar">
+      <div class="module-number">Module 04</div>
+      <div class="module-title">Multi-Agent Systems & Orchestration</div>
+      <span class="module-badge badge-advanced">ADVANCED</span>
+      <div class="module-duration">⏱ 2 weeks</div>
+      <a href="module-04.html" class="module-link link-advanced">Open Module →</a>
+      <div class="callout">
+        <div class="callout-title">2026 reality</div>
+        <div class="callout-text">The competitive moat is shifting from smarter individual agents to coordination layers that manage fleets of agents as unified systems. MCP downloads hit 97M/month by March 2026 — from ~2M at launch 16 months prior.</div>
+      </div>
+    </div>
+    <div class="module-body">
+      <div class="module-accent-line line-advanced"></div>
+      <div class="module-desc">
+        Single-agent systems have real ceilings. This module is about what happens when you break tasks across multiple specialized agents — and the new class of problems that creates. We'll cover the emerging protocol standards (MCP and A2A) that are becoming the plumbing of the agentic internet, and the orchestration patterns that make agent fleets reliable and governable.
+      </div>
+      <div class="topics-header">Core Topics</div>
+      <ul class="topics-list">
+        <li class="topic-item">
+          <span class="topic-dot dot-advanced"></span>
+          <span class="topic-text">Why multi-agent? Parallelism, specialization, error isolation
+            <span class="topic-sub">When complexity justifies the overhead; the selective-use principle</span>
+          </span>
+        </li>
+        <li class="topic-item">
+          <span class="topic-dot dot-advanced"></span>
+          <span class="topic-text">Orchestration topologies: hierarchical, peer-to-peer, market-based
+            <span class="topic-sub">Planner-executor patterns; role specialization (researcher, critic, executor, evaluator)</span>
+          </span>
+        </li>
+        <li class="topic-item">
+          <span class="topic-dot dot-advanced"></span>
+          <span class="topic-text">Model Context Protocol (MCP) — deep dive
+            <span class="topic-sub">Agent-to-tool communication standard by Anthropic; server/client architecture; why it matters</span>
+          </span>
+        </li>
+        <li class="topic-item">
+          <span class="topic-dot dot-advanced"></span>
+          <span class="topic-text">Agent-to-Agent (A2A) protocol — the interoperability standard
+            <span class="topic-sub">Agent Cards, Tasks, Messages, Artifacts; how A2A + MCP are complementary</span>
+          </span>
+        </li>
+        <li class="topic-item">
+          <span class="topic-dot dot-advanced"></span>
+          <span class="topic-text">Shared state, conflict resolution, and communication overload
+            <span class="topic-sub">Agents that contradict each other; cache coherence; message passing vs. shared environment</span>
+          </span>
+        </li>
+        <li class="topic-item">
+          <span class="topic-dot dot-advanced"></span>
+          <span class="topic-text">Coordination patterns that break at scale
+            <span class="topic-sub">Tail latency; cascading failures; the "agent swarm" anti-pattern</span>
+          </span>
+        </li>
+        <li class="topic-item">
+          <span class="topic-dot dot-advanced"></span>
+          <span class="topic-text">"Agent factories" — the emerging pattern for knowledge work
+            <span class="topic-sub">Coordinated production of complex deliverables; coding, research, and writing pipelines</span>
+          </span>
+        </li>
+      </ul>
+      <div class="lab-block lab-advanced">
+        <div class="lab-label">Hands-On Lab</div>
+        <div class="lab-desc">Build a 3-agent research pipeline: a Planner agent that decomposes a question, Researcher agents that work in parallel using MCP-connected tools, and a Synthesizer that assembles the final answer. Compare quality and latency vs. a single-agent approach.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="module-divider"></div>
+
+  <!-- MODULE 5 -->
+  <div class="module" id="m5">
+    <div class="module-sidebar">
+      <div class="module-number">Module 05</div>
+      <div class="module-title">Production, Safety & Governance</div>
+      <span class="module-badge badge-advanced">ADVANCED</span>
+      <div class="module-duration">⏱ 2 weeks</div>
+      <a href="module-05.html" class="module-link link-advanced">Open Module →</a>
+      <div class="callout">
+        <div class="callout-title">Why this can't be skipped</div>
+        <div class="callout-text">A retail agent bought 10,000 shoes — no purchase limit, no confirmation required. A DevOps agent racked up $12,000 in compute in one night fixing a CI loop. Production without controls isn't a demo — it's a liability.</div>
+      </div>
+    </div>
+    <div class="module-body">
+      <div class="module-accent-line line-advanced"></div>
+      <div class="module-desc">
+        Agents in production behave differently than agents in demos. This module covers the full stack of controls — guardrails, human-in-the-loop design, evaluation, observability, and regulatory compliance — that separate a polished demo from a system you can stake your reputation on.
+      </div>
+      <div class="topics-header">Core Topics</div>
+      <ul class="topics-list">
+        <li class="topic-item">
+          <span class="topic-dot dot-advanced"></span>
+          <span class="topic-text">Controlled autonomy: the HITL design philosophy
+            <span class="topic-sub">Human-in-the-loop is not about slowing agents — it's about deciding where autonomy is earned</span>
+          </span>
+        </li>
+        <li class="topic-item">
+          <span class="topic-dot dot-advanced"></span>
+          <span class="topic-text">Guardrail architecture: layered, parallelized, risk-matched
+            <span class="topic-sub">PII scanning, toxicity, jailbreak detection, budget limits, scope limits</span>
+          </span>
+        </li>
+        <li class="topic-item">
+          <span class="topic-dot dot-advanced"></span>
+          <span class="topic-text">Least-privilege tool access
+            <span class="topic-sub">Agents should only have the tools they need; scoped permissions; no arbitrary shell access</span>
+          </span>
+        </li>
+        <li class="topic-item">
+          <span class="topic-dot dot-advanced"></span>
+          <span class="topic-text">Confidence-based escalation
+            <span class="topic-sub">Setting thresholds; synchronous vs. async approval patterns; when to route to humans</span>
+          </span>
+        </li>
+        <li class="topic-item">
+          <span class="topic-dot dot-advanced"></span>
+          <span class="topic-text">Evals: how to measure agent quality
+            <span class="topic-sub">Task completion, faithfulness, hallucination rate, cost per task; building eval harnesses</span>
+          </span>
+        </li>
+        <li class="topic-item">
+          <span class="topic-dot dot-advanced"></span>
+          <span class="topic-text">Observability: traces, logs, replay
+            <span class="topic-sub">Agent traces as first-class artifacts; debugging non-deterministic systems</span>
+          </span>
+        </li>
+        <li class="topic-item">
+          <span class="topic-dot dot-advanced"></span>
+          <span class="topic-text">Regulatory landscape: EU AI Act (Article 14, Aug 2026 deadline), enterprise compliance
+            <span class="topic-sub">"I don't know why the AI did that" is now a legal risk; auditability requirements</span>
+          </span>
+        </li>
+        <li class="topic-item">
+          <span class="topic-dot dot-advanced"></span>
+          <span class="topic-text">Security: prompt injection, data exfiltration, adversarial inputs
+            <span class="topic-sub">The unique attack surface of agents that have real-world tool access</span>
+          </span>
+        </li>
+      </ul>
+      <div class="lab-block lab-advanced">
+        <div class="lab-label">Hands-On Lab</div>
+        <div class="lab-desc">Given a deliberately unsafe agent (no limits, no guardrails), identify the failure modes and systematically add guardrails: scope limits, HITL checkpoints, an eval harness, and a trace log. Document what broke during each red-teaming round.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="module-divider"></div>
+
+  <!-- MODULE 6 -->
+  <div class="module" id="m6">
+    <div class="module-sidebar">
+      <div class="module-number">Module 06</div>
+      <div class="module-title">Frameworks, Tooling & the Ecosystem</div>
+      <span class="module-badge badge-advanced">ADVANCED</span>
+      <div class="module-duration">⏱ 1.5 weeks</div>
+      <a href="module-06.html" class="module-link link-advanced">Open Module →</a>
+      <div class="callout">
+        <div class="callout-title">Choosing wisely</div>
+        <div class="callout-text">The framework landscape is crowded and noisy. This module helps you pick the right tool for the job — and understand when building without a framework is the better answer.</div>
+      </div>
+    </div>
+    <div class="module-body">
+      <div class="module-accent-line line-advanced"></div>
+      <div class="module-desc">
+        LangGraph, CrewAI, AutoGen, OpenAI Agents SDK, Salesforce Agentforce — the ecosystem has exploded. This module cuts through the noise, comparing frameworks on the axes that matter for production: control, observability, state management, governance fit, and production track record.
+      </div>
+      <div class="topics-header">Core Topics</div>
+      <ul class="topics-list">
+        <li class="topic-item">
+          <span class="topic-dot dot-advanced"></span>
+          <span class="topic-text">Framework comparison: LangGraph vs. CrewAI vs. OpenAI Agents SDK vs. AutoGen
+            <span class="topic-sub">Architecture tradeoffs; control vs. abstraction; when each shines</span>
+          </span>
+        </li>
+        <li class="topic-item">
+          <span class="topic-dot dot-advanced"></span>
+          <span class="topic-text">When to use a framework vs. build from scratch
+            <span class="topic-sub">Frameworks add abstraction — which is either leverage or a debugging nightmare</span>
+          </span>
+        </li>
+        <li class="topic-item">
+          <span class="topic-dot dot-advanced"></span>
+          <span class="topic-text">Building MCP servers: connecting agents to real tools
+            <span class="topic-sub">Server structure, tool definitions, authentication, deployment; the MCP ecosystem</span>
+          </span>
+        </li>
+        <li class="topic-item">
+          <span class="topic-dot dot-advanced"></span>
+          <span class="topic-text">Model selection: when to use big frontier models vs. smaller domain-specific ones
+            <span class="topic-sub">2026 trend: smaller, fine-tuned models for specific agent tasks; cost and latency tradeoffs</span>
+          </span>
+        </li>
+        <li class="topic-item">
+          <span class="topic-dot dot-advanced"></span>
+          <span class="topic-text">Deployment patterns: cloud, edge, local (e.g. MLX on Apple Silicon)
+            <span class="topic-sub">Infra tradeoffs; latency-sensitive agents; privacy-preserving local inference</span>
+          </span>
+        </li>
+        <li class="topic-item">
+          <span class="topic-dot dot-advanced"></span>
+          <span class="topic-text">Observability and eval tooling: Langfuse, Galileo, Braintrust, Phoenix
+            <span class="topic-sub">The emerging market for agent monitoring; what good tooling actually provides</span>
+          </span>
+        </li>
+      </ul>
+      <div class="lab-block lab-advanced">
+        <div class="lab-label">Hands-On Lab</div>
+        <div class="lab-desc">Build the same agent task using two different frameworks. Write a brief comparison: what did each framework make easier? Harder? What would you use in production and why?</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="module-divider"></div>
+
+  <!-- MODULE 7 -->
+  <div class="module" id="m7">
+    <div class="module-sidebar">
+      <div class="module-number">Module 07</div>
+      <div class="module-title">Staying on the Frontier</div>
+      <span class="module-badge badge-frontier">FRONTIER</span>
+      <div class="module-duration">⏱ Ongoing</div>
+      <a href="module-07.html" class="module-link link-frontier">Open Module →</a>
+      <div class="callout">
+        <div class="callout-title">The meta-skill</div>
+        <div class="callout-text">The field moves faster than any curriculum can. The goal of this final module is to make you dangerous at staying current — not just at following it, but at reading the field and knowing what's signal vs. noise.</div>
+      </div>
+    </div>
+    <div class="module-body">
+      <div class="module-accent-line line-frontier"></div>
+      <div class="module-desc">
+        This module is about the meta-skill: how to remain at the frontier of a field that is moving faster than any single person can fully track. We cover the information diet of leading practitioners, the emerging paradigms worth watching in 2026, and how to distinguish genuine capability jumps from rebranded hype.
+      </div>
+      <div class="topics-header">Core Topics</div>
+      <ul class="topics-list">
+        <li class="topic-item">
+          <span class="topic-dot dot-frontier"></span>
+          <span class="topic-text">Where the real information lives — and how to read it
+            <span class="topic-sub">X/Twitter practitioners vs. conference papers vs. vendor blogs; who to follow and why</span>
+          </span>
+        </li>
+        <li class="topic-item">
+          <span class="topic-dot dot-frontier"></span>
+          <span class="topic-text">Distinguishing signal from noise in a hype-driven field
+            <span class="topic-sub">Red flags: rebadged concepts, demos that don't work at scale, benchmark gaming</span>
+          </span>
+        </li>
+        <li class="topic-item">
+          <span class="topic-dot dot-frontier"></span>
+          <span class="topic-text">Emerging paradigms to watch: what 2026–2027 might bring
+            <span class="topic-sub">Long-horizon planning, agent self-improvement, AI-native "frontier firms," neuro-symbolic hybrids</span>
+          </span>
+        </li>
+        <li class="topic-item">
+          <span class="topic-dot dot-frontier"></span>
+          <span class="topic-text">The "agent factories" vision and knowledge work disruption
+            <span class="topic-sub">Coordinated agent fleets replacing multi-step knowledge workflows; implications for your organization</span>
+          </span>
+        </li>
+        <li class="topic-item">
+          <span class="topic-dot dot-frontier"></span>
+          <span class="topic-text">How to evaluate new models and capabilities quickly
+            <span class="topic-sub">Running your own evals; not trusting benchmarks alone; practical capability testing</span>
+          </span>
+        </li>
+        <li class="topic-item">
+          <span class="topic-dot dot-frontier"></span>
+          <span class="topic-text">Building a learning system: internal knowledge sharing, running experiments
+            <span class="topic-sub">How to create a culture of frontier awareness in your team</span>
+          </span>
+        </li>
+        <li class="topic-item">
+          <span class="topic-dot dot-frontier"></span>
+          <span class="topic-text">Recommended reading, accounts, and resources (curated 2026 list)
+            <span class="topic-sub">Karpathy, Anthropic Engineering Blog, LangChain blog, AI Engineer Summit, practitioner X accounts</span>
+          </span>
+        </li>
+      </ul>
+      <div class="lab-block lab-frontier">
+        <div class="lab-label">Ongoing Practice</div>
+        <div class="lab-desc">Weekly 20-minute team sync: one person brings a new capability, paper, or practitioner insight they found that week. The group evaluates: is this signal or noise? How would it change what we're building?</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<footer class="footer">
+  <div class="container">
+    <div class="footer-text">Agentic AI Curriculum · Internal Training Document · Updated May 2026 · v1.0</div>
+  </div>
+</footer>
+
+</body>
+</html>

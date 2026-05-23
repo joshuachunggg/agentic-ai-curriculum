@@ -1,0 +1,1350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Module 03: Context Engineering — Agentic AI Curriculum</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;500&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;500&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap');
+
+  :root {
+    --bg: #0a0a0f;
+    --surface: #111118;
+    --surface2: #18181f;
+    --border: #2a2a3a;
+    --accent: #7c6af7;
+    --accent2: #f7c36a;
+    --accent3: #6af7d4;
+    --text: #e8e8f0;
+    --muted: #6b6b80;
+    --danger: #f76a6a;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 300;
+    line-height: 1.7;
+    min-height: 100vh;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.4;
+  }
+
+  /* Sticky nav */
+  .top-nav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(10,10,15,0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .top-nav-inner {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 0 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 52px;
+    gap: 1rem;
+  }
+
+  .nav-back {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.05em;
+    color: var(--muted);
+    text-decoration: none;
+    transition: color 0.2s;
+    white-space: nowrap;
+  }
+
+  .nav-back:hover { color: var(--text); }
+
+  .nav-module-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    color: var(--muted);
+    text-transform: uppercase;
+    text-align: center;
+    flex: 1;
+  }
+
+  .nav-next {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.05em;
+    color: var(--muted);
+    text-decoration: none;
+    transition: color 0.2s;
+    white-space: nowrap;
+  }
+
+  .nav-next:hover { color: var(--accent); }
+
+  /* Container */
+  .container {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 0 2rem;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Hero */
+  .hero {
+    padding: 4.5rem 0 3.5rem;
+    border-bottom: 1px solid var(--border);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero::after {
+    content: '';
+    position: absolute;
+    top: -100px;
+    right: -200px;
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, rgba(124,106,247,0.12) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .hero-eyebrow {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.2em;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+  }
+
+  .module-badge {
+    display: inline-block;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.1em;
+    padding: 0.25rem 0.6rem;
+    border-radius: 4px;
+    margin-bottom: 1.2rem;
+    background: rgba(124, 106, 247, 0.15);
+    color: var(--accent);
+    border: 1px solid rgba(124, 106, 247, 0.35);
+  }
+
+  .hero h1 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: clamp(2rem, 4.5vw, 3.2rem);
+    line-height: 1.08;
+    margin-bottom: 1.4rem;
+    letter-spacing: -0.02em;
+  }
+
+  .hero-sub {
+    font-size: 1.05rem;
+    color: #a0a0b8;
+    max-width: 620px;
+    line-height: 1.8;
+    margin-bottom: 2rem;
+  }
+
+  .hero-meta {
+    display: flex;
+    gap: 2.5rem;
+    flex-wrap: wrap;
+  }
+
+  .meta-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+  }
+
+  .meta-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.15em;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+
+  .meta-value {
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    font-size: 1rem;
+    color: var(--text);
+  }
+
+  /* Main content */
+  .content {
+    padding: 4rem 0 6rem;
+  }
+
+  /* Topic sections */
+  .topic-section {
+    margin-bottom: 5rem;
+  }
+
+  .topic-section:last-child {
+    margin-bottom: 0;
+  }
+
+  .section-number {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+  }
+
+  .topic-section h2 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 1.65rem;
+    letter-spacing: -0.01em;
+    line-height: 1.2;
+    margin-bottom: 1.6rem;
+    color: var(--text);
+  }
+
+  .topic-section h3 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    font-size: 1.1rem;
+    letter-spacing: -0.01em;
+    margin-top: 2rem;
+    margin-bottom: 0.8rem;
+    color: var(--text);
+  }
+
+  .topic-section p {
+    font-size: 0.97rem;
+    color: #c8c8d8;
+    line-height: 1.8;
+    margin-bottom: 1.2rem;
+  }
+
+  .topic-section p:last-child {
+    margin-bottom: 0;
+  }
+
+  /* Section divider */
+  .section-divider {
+    height: 1px;
+    background: linear-gradient(to right, transparent, var(--border) 20%, var(--border) 80%, transparent);
+    margin: 4.5rem 0;
+  }
+
+  /* Callout boxes */
+  .callout {
+    border-radius: 10px;
+    padding: 1.3rem 1.6rem;
+    margin: 2rem 0;
+  }
+
+  .callout-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 0.6rem;
+    font-weight: 500;
+  }
+
+  .callout p {
+    font-size: 0.92rem;
+    line-height: 1.75;
+    margin-bottom: 0;
+  }
+
+  .callout p + p {
+    margin-top: 0.8rem;
+  }
+
+  .callout-insight {
+    background: rgba(124,106,247,0.07);
+    border: 1px solid rgba(124,106,247,0.25);
+  }
+
+  .callout-insight .callout-label {
+    color: var(--accent);
+  }
+
+  .callout-insight p {
+    color: #b8b0f0;
+  }
+
+  .callout-mistake {
+    background: rgba(247,106,106,0.07);
+    border: 1px solid rgba(247,106,106,0.25);
+  }
+
+  .callout-mistake .callout-label {
+    color: var(--danger);
+  }
+
+  .callout-mistake p {
+    color: #e0b0b0;
+  }
+
+  .callout-example {
+    background: rgba(106,247,212,0.06);
+    border: 1px solid rgba(106,247,212,0.2);
+  }
+
+  .callout-example .callout-label {
+    color: var(--accent3);
+  }
+
+  .callout-example p {
+    color: #a8e8d8;
+  }
+
+  /* Code blocks */
+  .code-block {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.4rem 1.6rem;
+    margin: 1.6rem 0;
+    overflow-x: auto;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.82rem;
+    line-height: 1.75;
+    color: #c0c0d8;
+  }
+
+  .code-block code {
+    font-family: inherit;
+  }
+
+  /* Comparison grid */
+  .compare-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin: 2rem 0;
+  }
+
+  @media (max-width: 580px) {
+    .compare-grid { grid-template-columns: 1fr; }
+  }
+
+  .compare-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.3rem 1.5rem;
+  }
+
+  .compare-card.danger-card {
+    border-color: rgba(247,106,106,0.3);
+  }
+
+  .compare-card.good-card {
+    border-color: rgba(106,247,212,0.25);
+  }
+
+  .compare-card-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 0.7rem;
+  }
+
+  .danger-card .compare-card-label { color: var(--danger); }
+  .good-card .compare-card-label { color: var(--accent3); }
+
+  .compare-card p {
+    font-size: 0.84rem;
+    color: #9898b0;
+    line-height: 1.65;
+    margin-bottom: 0;
+  }
+
+  /* Failure modes list */
+  .failure-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin: 1.8rem 0;
+  }
+
+  .failure-item {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--danger);
+    border-radius: 0 8px 8px 0;
+    padding: 1rem 1.4rem;
+  }
+
+  .failure-item-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    font-size: 0.92rem;
+    color: var(--text);
+    margin-bottom: 0.4rem;
+  }
+
+  .failure-item-desc {
+    font-size: 0.84rem;
+    color: #9898b0;
+    line-height: 1.65;
+  }
+
+  /* Technique cards */
+  .technique-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin: 2rem 0;
+  }
+
+  @media (max-width: 580px) {
+    .technique-grid { grid-template-columns: 1fr; }
+  }
+
+  .technique-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.3rem 1.5rem;
+  }
+
+  .technique-icon {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 0.5rem;
+  }
+
+  .technique-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: var(--text);
+    margin-bottom: 0.5rem;
+  }
+
+  .technique-desc {
+    font-size: 0.83rem;
+    color: #9898b0;
+    line-height: 1.65;
+  }
+
+  /* Lab / Exercise section */
+  .lab-section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 5rem;
+  }
+
+  .lab-header {
+    padding: 1.8rem 2rem;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface2);
+  }
+
+  .lab-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+  }
+
+  .lab-header h2 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 1.4rem;
+    color: var(--text);
+    margin-bottom: 0.6rem;
+  }
+
+  .lab-header p {
+    font-size: 0.92rem;
+    color: #9898b0;
+    line-height: 1.7;
+  }
+
+  .lab-body {
+    padding: 2rem;
+  }
+
+  .lab-body p {
+    font-size: 0.93rem;
+    color: #b0b0c8;
+    line-height: 1.8;
+    margin-bottom: 1.1rem;
+  }
+
+  .lab-body h3 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    font-size: 1rem;
+    color: var(--text);
+    margin-top: 1.8rem;
+    margin-bottom: 0.7rem;
+  }
+
+  .lab-step {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.3rem 1.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .lab-step-num {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 0.4rem;
+  }
+
+  .lab-step-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: var(--text);
+    margin-bottom: 0.5rem;
+  }
+
+  .lab-step-desc {
+    font-size: 0.85rem;
+    color: #9898b0;
+    line-height: 1.65;
+  }
+
+  /* Summary section */
+  .summary-section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 2rem 2.2rem;
+    margin-bottom: 4rem;
+  }
+
+  .summary-section h2 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 1.25rem;
+    margin-bottom: 1.3rem;
+    color: var(--text);
+  }
+
+  .summary-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.7rem;
+  }
+
+  .summary-list li {
+    font-size: 0.93rem;
+    color: #b0b0c8;
+    line-height: 1.7;
+    padding-left: 1.5rem;
+    position: relative;
+  }
+
+  .summary-list li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0.58rem;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+  }
+
+  /* Footer */
+  .footer {
+    border-top: 1px solid var(--border);
+    padding: 2.5rem 0;
+  }
+
+  .footer-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .footer-text {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.68rem;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+  }
+
+  .footer-prev {
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    font-size: 0.92rem;
+    color: var(--muted);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: color 0.2s;
+  }
+
+  .footer-prev:hover { color: var(--text); }
+
+  .footer-next {
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    font-size: 0.92rem;
+    color: var(--accent);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: gap 0.2s;
+  }
+
+  .footer-next:hover { gap: 0.8rem; }
+
+  /* Inline code */
+  code {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.82em;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    padding: 0.1em 0.35em;
+    color: var(--accent3);
+  }
+
+  strong {
+    font-weight: 500;
+    color: var(--text);
+  }
+
+  /* Decision table */
+  .decision-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1.8rem 0;
+    font-size: 0.86rem;
+  }
+
+  .decision-table th {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    text-align: left;
+    padding: 0.6rem 1rem;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface2);
+  }
+
+  .decision-table td {
+    padding: 0.8rem 1rem;
+    color: #b0b0c8;
+    border-bottom: 1px solid rgba(42,42,58,0.5);
+    line-height: 1.6;
+    vertical-align: top;
+  }
+
+  .decision-table tr:last-child td {
+    border-bottom: none;
+  }
+
+  .tag {
+    display: inline-block;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.1em;
+    padding: 0.15rem 0.45rem;
+    border-radius: 3px;
+    background: rgba(124,106,247,0.12);
+    color: var(--accent);
+    border: 1px solid rgba(124,106,247,0.25);
+  }
+
+  .tag-teal {
+    background: rgba(106,247,212,0.08);
+    color: var(--accent3);
+    border-color: rgba(106,247,212,0.2);
+  }
+</style>
+</head>
+<body>
+
+<!-- Sticky top nav -->
+<nav class="top-nav">
+  <div class="top-nav-inner">
+    <a href="agentic-ai-curriculum.html" class="nav-back">← Back to Curriculum</a>
+    <span class="nav-module-label">Module 03 · Context Engineering</span>
+    <a href="module-04.html" class="nav-next">Next: Module 04 →</a>
+  </div>
+</nav>
+
+<!-- Hero -->
+<div class="hero">
+  <div class="container">
+    <div class="hero-eyebrow">Module 03 · Core</div>
+    <div class="module-badge">CORE</div>
+    <h1>Context Engineering:<br>The Skill That Replaced<br>Prompt Engineering</h1>
+    <p class="hero-sub">
+      Prompt engineering is about what you say. Context engineering is about what the model sees. By 2025–2026, the AI practitioner community had reached consensus: context quality is the primary determinant of agent performance. This module teaches you to treat context as a finite, high-value resource to be designed — not assumed.
+    </p>
+    <div class="hero-meta">
+      <div class="meta-item">
+        <span class="meta-label">Duration</span>
+        <span class="meta-value">1.5 weeks</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">Level</span>
+        <span class="meta-value">Core</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">Prerequisites</span>
+        <span class="meta-value">Modules 01–02</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Main content -->
+<div class="content">
+  <div class="container">
+
+    <!-- Topic 1: What context engineering means -->
+    <div class="topic-section">
+      <div class="section-number">Topic 01</div>
+      <h2>What Context Engineering Means — and What It Isn't</h2>
+
+      <p>The community consensus in 2026 is clear: prompt engineering, while still relevant, is no longer the bottleneck. Agents fail because their context is noisy, overloaded, or irrelevant — not because the prompt was poorly worded. A brilliantly phrased instruction surrounded by 40,000 tokens of irrelevant conversation history will produce worse results than a plain instruction in a clean, well-structured context.</p>
+
+      <p>Prompt engineering asks: <em>how should I phrase this instruction?</em> Context engineering asks: <em>what information should the model be seeing at all, and in what form?</em> These are different questions. The first is about language. The second is about architecture.</p>
+
+      <h3>Beyond Prompts: Everything the Model Sees at Inference Time</h3>
+
+      <p>A model's context window is the totality of what it processes when generating a response. That includes your system prompt, yes — but also conversation history, retrieved documents, tool call results, injected agent state, few-shot examples, structured output schemas, and any other text that arrives before the model's generation starts. Everything the model sees is context. Everything the model does not see might as well not exist.</p>
+
+      <p>Context engineering is the practice of deciding what goes into that window: what to include, what to compress, what to retrieve on demand, and what to discard entirely. It requires you to think about information value per token — and to make deliberate tradeoffs. The model doesn't have a memory outside the context window. If something isn't in there, the model can't use it. If too much is in there, important information gets crowded out.</p>
+
+      <div class="callout callout-insight">
+        <div class="callout-label">Insight</div>
+        <p>Think of the context window as a whiteboard in a conference room. Every token you write on that whiteboard takes up space. When the board is full, you have to erase something before you can write anything new. The art is deciding what's worth keeping on the board and what can be summarized in a sticky note.</p>
+      </div>
+
+      <p>This shift in framing has real consequences. It means that the team responsible for agent quality is no longer just writing prompts — they are architecting information flows. They're deciding what gets stored, when it gets retrieved, how it gets formatted, and when it gets evicted. That's a fundamentally different skill than prompt writing, and it's where most of the performance gains are found in 2026.</p>
+    </div>
+
+    <div class="section-divider"></div>
+
+    <!-- Topic 2: How long contexts fail -->
+    <div class="topic-section">
+      <div class="section-number">Topic 02</div>
+      <h2>How Long Contexts Fail: Dilution, Attention Drift, Reasoning Fatigue</h2>
+
+      <p>When context window sizes expanded from 4K to 128K to 1M tokens, many practitioners assumed the context management problem was solved. It wasn't. A larger bucket doesn't fix a leaky bucket. Long contexts introduce failure modes that have nothing to do with running out of space — they have everything to do with how models attend to information.</p>
+
+      <p>Models don't read their context the way humans read a document. They assign attention weights to tokens, and those weights are not uniform. Research has repeatedly demonstrated that models pay more attention to tokens at the beginning and end of a context, and systematically less attention to tokens in the middle. This is called the <strong>lost-in-the-middle effect</strong>. If you bury a critical instruction or a key fact in the middle of a 60,000-token context, the model may effectively ignore it — not because it can't read it, but because its attention mechanism deprioritizes it relative to tokens at the edges.</p>
+
+      <ul class="failure-list">
+        <li class="failure-item">
+          <div class="failure-item-title">Lost-in-the-Middle</div>
+          <div class="failure-item-desc">Models attend more to the beginning and end of context than the middle. Critical information placed in the center of a long context gets systematically underweighted. In retrieval tasks, models perform significantly better when relevant content appears first or last in the retrieved set versus sandwiched in the middle.</div>
+        </li>
+        <li class="failure-item">
+          <div class="failure-item-title">Attention Dilution</div>
+          <div class="failure-item-desc">As context grows, signal-to-noise ratio drops. Every token competes for the model's attention. A relevant sentence surrounded by 50,000 tokens of irrelevant content gets a fraction of the attention it would receive in a clean, short context. More context doesn't help — it actively hurts when the signal is outweighed by noise.</div>
+        </li>
+        <li class="failure-item">
+          <div class="failure-item-title">Reasoning Fatigue</div>
+          <div class="failure-item-desc">Long chains of prior reasoning in context can anchor the model to earlier, possibly wrong, conclusions. If the model reasoned itself into a dead end in turn 12 of a 40-turn conversation and that reasoning is still visible in turn 40, it has a tendency to reference and extend that prior reasoning even when it's no longer correct. The solution isn't to reason less — it's to evict stale reasoning and replace it with updated conclusions.</div>
+        </li>
+      </ul>
+
+      <h3>Why Bigger Context Windows Don't Solve Bad Context Design</h3>
+
+      <p>A 1M-token context window is genuinely useful for document-level tasks: reasoning over an entire codebase, reading a book, analyzing a long legal contract. But for multi-turn agent tasks, the failure modes above scale with context length, not against it. An agent that dumps every tool result, every prior reasoning chain, and every conversation turn into a 500K-token context will perform worse than an agent that actively curates its context to the most relevant 15K tokens.</p>
+
+      <div class="callout callout-mistake">
+        <div class="callout-label">Common Mistake</div>
+        <p>The naive assumption: "I'll just use the largest context window available and never worry about context management." This leads to agents that degrade over time, produce inconsistent outputs as conversations lengthen, and are expensive to run. Context management isn't an optimization — it's a correctness requirement for long-horizon agents.</p>
+      </div>
+
+      <div class="callout callout-example">
+        <div class="callout-label">Example — Aria at Turn 40+</div>
+        <p>Aria, the customer success agent we've been tracking, has a problem at turn 40 of a long support conversation. Her context contains the full raw transcript: greetings, pleasantries, dead-end troubleshooting paths, tool results for queries that turned out to be irrelevant, and outdated assumptions about the customer's account state. By turn 40, the useful content — the actual account details, the current error state, the agreed-upon troubleshooting path — is buried in the middle of 35,000 tokens of noise. Aria starts giving inconsistent answers because the signal she needs is diluted. The fix is not a bigger context window. The fix is context engineering.</p>
+      </div>
+    </div>
+
+    <div class="section-divider"></div>
+
+    <!-- Topic 3: Structuring agent context -->
+    <div class="topic-section">
+      <div class="section-number">Topic 03</div>
+      <h2>Structuring Agent Context: System Prompts, Conversation History, Injected State</h2>
+
+      <p>A well-engineered agent context has structure. It isn't a flat dump of information — it's a set of distinct zones, each with a different purpose, each managed differently. Understanding these zones is the foundation of context architecture.</p>
+
+      <h3>The Role of the System Prompt</h3>
+
+      <p>The system prompt is your highest-leverage piece of real estate. It's read at every inference call, it's at the top of the context (maximum primacy), and the model treats it as persistent background knowledge. This is where you encode the agent's persona, goals, constraints, operational rules, and any invariants that should never be violated.</p>
+
+      <p>A good system prompt is dense with intent and sparse with verbosity. It answers four questions: Who is this agent? What is it trying to accomplish? What constraints apply in all situations? What format should outputs take? Everything beyond these four is likely noise. The system prompt is not the place for dynamic information — it's the place for stable information.</p>
+
+      <pre class="code-block"><code># Aria — Customer Success Agent
+## Identity
+You are Aria, a customer success agent for Acme SaaS.
+Your primary goal is customer resolution, not deflection.
+
+## Constraints
+- Never promise features not on the roadmap
+- Never share another customer's data
+- Escalate to a human agent when: billing disputes > $500,
+  legal threats, or 3+ failed resolution attempts
+
+## Output format
+Always respond in plain prose. No bullet lists unless
+listing steps. Confirm understanding before troubleshooting.
+
+## Current context (injected dynamically below)
+[AGENT_STATE_BLOCK]</code></pre>
+
+      <p>Notice the <code>[AGENT_STATE_BLOCK]</code> placeholder. This is where structured, dynamic information gets injected at each inference call. The system prompt itself stays stable — but it designates a slot for the context layer that does change.</p>
+
+      <h3>How to Encode Persona, Goals, and Constraints</h3>
+
+      <p>Persona should be stated once, concisely, and never repeated. "You are Aria, a customer success agent focused on resolution" is enough. Repeating it doesn't help — it wastes tokens. Goals should specify outcomes, not behaviors. "Your goal is to resolve the customer's issue" is better than "You should try to help customers and be nice to them and listen carefully." Constraints should be stated as hard rules with specific triggers, not as vague guidance.</p>
+
+      <h3>Conversation History and Injected State</h3>
+
+      <p>Conversation history is the most dynamic and most dangerous part of the context. Raw conversation history grows without bound, contains redundancy, and includes information that loses relevance over time. It should never be naively appended forever. We'll cover how to manage it in Topic 4.</p>
+
+      <p>Injected state is the bridge between your agent's external memory systems and the context window. This is where you place the output of a retrieval query, the current task progress, facts established earlier in the conversation, and any structured data the agent needs for the current step. Injected state is ephemeral — it changes every call — but it should be formatted consistently so the model knows exactly where to find it.</p>
+
+      <div class="callout callout-insight">
+        <div class="callout-label">Insight</div>
+        <p>The distinction between "always in context" (system prompt) and "injected per-call" (state block) is one of the highest-impact architectural decisions you can make. Information that belongs in the system prompt should be stable, universal, and identity-defining. Information that belongs in the state block is situational and changes with each step of the task.</p>
+      </div>
+
+      <pre class="code-block"><code># [AGENT_STATE_BLOCK] — injected each call
+## Customer Profile
+- Account: Acme Corp (Enterprise tier)
+- Open tickets: 2 (IDs: T-4421, T-4398)
+- Last login: 2026-05-21
+- Subscription status: Active
+
+## Current Issue
+Customer reports: "Dashboard not loading since yesterday"
+Confirmed: Browser logs show 403 on /api/v2/dashboard
+
+## Established Facts
+- Issue began after 2026-05-20 deploy (v4.2.1)
+- Customer is on Chrome 124, Windows 11
+- Basic auth confirmed working
+
+## Conversation Summary (turns 1–12)
+Customer contacted re: dashboard outage. Confirmed account
+active. Reproduced 403. Ruled out: cache, extensions,
+network. Likely server-side permission regression in v4.2.1.
+
+## Current Turn: 13</code></pre>
+
+      <p>This structure puts the most important information at the top (customer identity and current issue), followed by established facts, then a summary of prior reasoning. The raw turns 1–12 are gone — replaced by a 5-sentence synthesis. The model sees everything it needs and nothing it doesn't.</p>
+    </div>
+
+    <div class="section-divider"></div>
+
+    <!-- Topic 4: Dynamic context management -->
+    <div class="topic-section">
+      <div class="section-number">Topic 04</div>
+      <h2>Dynamic Context Management: What to Include, Compress, or Evict</h2>
+
+      <p>Static context design gets you started. Dynamic context management is what makes agents work over long horizons. Every step of an agentic loop produces new information: tool results, model outputs, updated task state. You can't keep all of it. You have to make active decisions about what survives each step and what gets transformed or discarded.</p>
+
+      <h3>Rolling Summarization</h3>
+
+      <p>The most common pattern is rolling summarization: when the raw conversation history exceeds a threshold (say, 8,000 tokens), a summarization step is triggered. The oldest N turns are compressed into a dense summary block. The raw turns are evicted. The summary replaces them at the same location in the context. The model continues from the compressed representation, not the raw transcript.</p>
+
+      <p>Good summarization is lossy in the right ways. It discards pleasantries, redundant confirmations, and failed approaches. It preserves conclusions, established facts, committed actions, and current task state. A summary that tries to preserve everything isn't compression — it's just rewriting.</p>
+
+      <pre class="code-block"><code># Rolling summarization trigger logic
+
+def should_summarize(context_tokens: int, threshold: int = 8000) -> bool:
+    return context_tokens > threshold
+
+def summarize_turns(turns: list[dict], llm) -> str:
+    """
+    Compress old turns into a dense summary.
+    Preserve: conclusions, facts, decisions, current state.
+    Discard: greetings, failed paths, redundant steps.
+    """
+    prompt = f"""
+You are summarizing a support conversation for agent memory.
+Extract only: established facts, agreed actions, current issue state.
+Maximum 200 words.
+
+Conversation to summarize:
+{format_turns(turns)}
+"""
+    return llm.complete(prompt)
+
+# In the agentic loop:
+if should_summarize(token_count(context)):
+    old_turns = history[:SUMMARIZE_WINDOW]
+    summary = summarize_turns(old_turns, llm)
+    history = [{"role": "summary", "content": summary}] + history[SUMMARIZE_WINDOW:]</code></pre>
+
+      <h3>Explicit Memory Slots</h3>
+
+      <p>Rather than letting your context grow as an undifferentiated stream, carve it into named sections. Each section has a purpose, a maximum size, and an update policy. The model learns (through system prompt instruction) that specific things live in specific places. This reduces the search space for each piece of information and makes the context more navigable.</p>
+
+      <div class="technique-grid">
+        <div class="technique-card">
+          <div class="technique-icon">Slot 01</div>
+          <div class="technique-title">Agent State</div>
+          <div class="technique-desc">Current mode, active task, subtasks in progress. Updated every step. Maximum ~500 tokens. Never grows unbounded.</div>
+        </div>
+        <div class="technique-card">
+          <div class="technique-icon">Slot 02</div>
+          <div class="technique-title">Established Facts</div>
+          <div class="technique-desc">Facts confirmed during the task that the agent must not re-derive. Append-only during task; reset between tasks. ~1,000 tokens max.</div>
+        </div>
+        <div class="technique-card">
+          <div class="technique-icon">Slot 03</div>
+          <div class="technique-title">Conversation Summary</div>
+          <div class="technique-desc">Rolling compressed representation of prior turns. Replaces raw history beyond a threshold. Updated by summarization step.</div>
+        </div>
+        <div class="technique-card">
+          <div class="technique-icon">Slot 04</div>
+          <div class="technique-title">Retrieved Context</div>
+          <div class="technique-desc">Output of retrieval queries — documents, knowledge base chunks, tool results. Freshly injected each call. Evicted when no longer relevant.</div>
+        </div>
+      </div>
+
+      <h3>Context Budget Tracking</h3>
+
+      <p>Treat tokens like a budget. Your total context window might be 128K tokens. Your system prompt costs 800. Your agent state block costs 600. Your conversation summary costs 1,200. Your retrieved chunks cost 4,000. That leaves roughly 120K for the current turn, tool results, and generation. When a tool returns a 40,000-token document, you can't just dump it in — you've blown your budget for retrieved context.</p>
+
+      <p>Budget-aware agents make this explicit. Before injecting any new content, they check the current token count against the budget. If the retrieved content exceeds the slot's budget, it gets truncated, summarized, or chunked. The generation itself is also budgeted — if you need the model to produce a 2,000-token structured output, you can't fill the context to 127,999 tokens and expect that to work.</p>
+
+      <h3>Priority Ordering and Primacy/Recency Effects</h3>
+
+      <p>Because models attend more to the beginning and end of context, put the most important information in those positions. System prompt goes first (primacy). The most recent, most relevant information goes last (recency). Supporting context, historical summaries, and reference material go in the middle — but keep them short, because middle content is systematically underweighted.</p>
+
+      <div class="callout callout-insight">
+        <div class="callout-label">Insight</div>
+        <p>A practical ordering rule: put constraints and identity at the top (system prompt), the immediate task and most relevant retrieved facts just before the current turn, and never put mission-critical instructions only in the middle of a long context. If something must be obeyed, it belongs in the system prompt — not in a long document buried 20,000 tokens in.</p>
+      </div>
+
+      <div class="callout callout-example">
+        <div class="callout-label">Example — Aria After Context Redesign</div>
+        <p>After turn 12, Aria's conversation is summarized into a 300-token block. Her context at turn 40 looks like this: system prompt (800 tokens) → agent state block (600 tokens) → conversation summary through turn 38 (400 tokens) → turns 39–40 raw (600 tokens) → retrieved knowledge base chunk for the specific error code (800 tokens). Total: under 3,200 tokens, perfectly structured, all signal. She resolves the case consistently and cheaply. The difference from the 35,000-token version isn't capability — it's architecture.</p>
+      </div>
+    </div>
+
+    <div class="section-divider"></div>
+
+    <!-- Topic 5: RAG -->
+    <div class="topic-section">
+      <div class="section-number">Topic 05</div>
+      <h2>RAG and Retrieval-Augmented Agents — When It's Right</h2>
+
+      <p>Retrieval-Augmented Generation is the pattern of fetching relevant information from an external store at inference time and injecting it into the context. It's not a new idea — but as agents became more prevalent, RAG became the default answer to the question "how does the agent know things it wasn't trained on?"</p>
+
+      <p>The intuition is straightforward. You can't fit a 500-page product documentation into a context window. You can't include every past customer case in Aria's context. But you can retrieve the three most relevant passages and inject those. The model gets the information it needs, when it needs it, without blowing its context budget on information it doesn't need right now.</p>
+
+      <h3>RAG vs. Fine-Tuning: The Right Decision</h3>
+
+      <p>The recurring confusion is between RAG and fine-tuning as solutions to the same problem. They're not solving the same problem. Use RAG when your knowledge is dynamic and changes frequently: product updates, customer records, current events, internal documentation that gets revised. RAG retrieves the current version at runtime, so your agent is always working with fresh information.</p>
+
+      <p>Use fine-tuning when you need to change the model's behavior, style, or reasoning patterns — not its knowledge. Fine-tuning is for teaching the model how to respond, not what to know. A model fine-tuned on your support ticket data will learn the tone and format of good support responses. It will not reliably "remember" specific ticket details — that's what RAG is for.</p>
+
+      <table class="decision-table">
+        <thead>
+          <tr>
+            <th>Situation</th>
+            <th>Use RAG</th>
+            <th>Use Fine-tuning</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Knowledge changes frequently</td>
+            <td><span class="tag">Yes</span></td>
+            <td>No — retraining is expensive</td>
+          </tr>
+          <tr>
+            <td>Need specific facts at runtime</td>
+            <td><span class="tag">Yes</span></td>
+            <td>No — models hallucinate memorized facts</td>
+          </tr>
+          <tr>
+            <td>Need consistent output format/style</td>
+            <td>No</td>
+            <td><span class="tag tag-teal">Yes</span></td>
+          </tr>
+          <tr>
+            <td>Need domain-specific reasoning patterns</td>
+            <td>No</td>
+            <td><span class="tag tag-teal">Yes</span></td>
+          </tr>
+          <tr>
+            <td>Knowledge base is &gt;1M tokens</td>
+            <td><span class="tag">Yes</span></td>
+            <td>Impractical to train on</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>Chunking Strategies</h3>
+
+      <p>RAG doesn't retrieve documents — it retrieves chunks. How you cut documents into chunks determines what the model sees. Fixed-size chunking is the simplest: split every document into 512-token blocks with some overlap. It's fast and predictable, but it can cut sentences mid-thought, severing context that the model needs.</p>
+
+      <p>Semantic chunking splits on meaningful boundaries: paragraphs, sections, sentences. The chunks vary in size but preserve coherent units of meaning. This generally outperforms fixed-size chunking on question-answering tasks because the retrieved chunks are self-contained. Hierarchical chunking takes this further: you index both summary-level chunks (section headings, paragraph summaries) and detailed chunks (the full text). Retrieval first finds the right section, then pulls the detailed passage. This is especially effective for long, structured documents like technical specifications.</p>
+
+      <h3>Hybrid Retrieval: Dense + Sparse</h3>
+
+      <p>Dense retrieval uses vector embeddings and semantic search. You embed the query and the chunks into the same vector space, then find the closest neighbors. It handles synonyms, paraphrases, and conceptual similarity well. It struggles with exact keyword matches — if a user asks about "Error Code 4421," dense retrieval may not return the chunk that literally contains "4421" if that string isn't well-represented in the embedding space.</p>
+
+      <p>Sparse retrieval (BM25 and its variants) is keyword-based. It's excellent at exact matches and technical terms. It fails on semantic similarity — "fix the login problem" won't match a document about "authentication resolution."</p>
+
+      <p>Hybrid retrieval combines both. Run both dense and sparse retrieval in parallel, then re-rank the combined results using a cross-encoder or a weighted fusion. The combined retriever consistently outperforms either alone, particularly for technical domains where users mix semantic queries with exact identifiers.</p>
+
+      <div class="callout callout-example">
+        <div class="callout-label">Example — COMPASS Synthesizer and RAG</div>
+        <p>COMPASS is the 3-agent competitive intelligence system from Module 2. Its Synthesizer agent takes research results from the Researcher and Analyst subagents and writes a synthesis report. The problem: those subagents collectively produce 80,000+ tokens of research notes — far more than the Synthesizer's budget for retrieved context. The Synthesizer can't hold all of it. Instead, it uses RAG. For each section of the report (market positioning, feature comparison, threat assessment), it queries the research notes vector store with a section-specific query and retrieves only the most relevant 4–6 chunks. The Synthesizer writes one section at a time, each with a fresh retrieval call. Total context per section: under 8,000 tokens. The final report is coherent and grounded — not because the Synthesizer read everything, but because it retrieved the right things at the right time.</p>
+      </div>
+
+      <h3>Retrieval Quality Is the Bottleneck</h3>
+
+      <p>This is the insight practitioners learn the hard way: retrieval quality is the primary determinant of RAG system quality. A frontier-level generation model paired with mediocre retrieval produces bad outputs. A medium-strength model paired with excellent retrieval produces good outputs. The generator can only work with what retrieval gives it. If retrieval returns the wrong chunks, no amount of generation quality compensates.</p>
+
+      <p>What degrades retrieval quality? Poor chunking that splits coherent content. Embeddings trained on different domains from your content. Insufficient metadata for filtering. No re-ranking step. Missing content in the index — the most common failure, where the answer simply isn't indexed. Retrieval evaluation should be its own workstream, with its own metrics (recall@k, MRR, NDCG) and its own test suite, separate from end-to-end generation quality.</p>
+
+      <div class="callout callout-mistake">
+        <div class="callout-label">Common Mistake</div>
+        <p>Treating RAG as a black box. Teams often embed their documents, spin up a vector store, and ship — then debug failures at the generation layer when the real problem is at the retrieval layer. If the model is producing wrong answers, the first thing to check is whether retrieval returned the right chunks. Print the retrieved context. Evaluate retrieval independently. Don't assume retrieval is working.</p>
+      </div>
+    </div>
+
+    <div class="section-divider"></div>
+
+    <!-- Topic 6: Few-shot examples and structured outputs -->
+    <div class="topic-section">
+      <div class="section-number">Topic 06</div>
+      <h2>Few-Shot Examples and Structured Outputs in Agent Context</h2>
+
+      <p>Few-shot examples — concrete input/output demonstrations placed in the model's context — are one of the oldest tricks in prompting. In the context engineering frame, they're better understood as behavioral anchors. They show the model not just what to do but what correct-looking output looks like in this specific context. That's different from instruction.</p>
+
+      <h3>Static vs. Dynamic Few-Shot</h3>
+
+      <p>Static few-shot examples live in the system prompt. You write them once, they're always present, and they consume tokens at every call. They're appropriate when your task is uniform: every call has the same structure, the same output format, the same type of input. Three or four carefully chosen examples in the system prompt can dramatically anchor the model's behavior.</p>
+
+      <p>Dynamic few-shot retrieves examples at runtime based on the current input. You maintain a library of high-quality input/output pairs, embed them, and at inference time retrieve the examples most similar to the current query. The model sees examples that are semantically close to what it's being asked to do right now. This outperforms static few-shot on diverse tasks because the examples are always relevant — but it requires an example library, an embedding index, and a retrieval step.</p>
+
+      <pre class="code-block"><code># Static few-shot in system prompt (appropriate for uniform tasks)
+SYSTEM:
+You are Aria, customer success agent.
+Respond to issues using this format:
+
+---EXAMPLE 1---
+Customer: "I can't log in"
+Response: "Let me help with that. Can you tell me
+what happens when you try to log in — error message,
+or just nothing?"
+
+---EXAMPLE 2---
+Customer: "My export is stuck at 0%"
+Response: "That's a known issue with large exports.
+Let me check if there's an active job in your queue.
+One moment."
+---END EXAMPLES---
+
+
+# Dynamic few-shot (appropriate for diverse tasks)
+def retrieve_examples(query: str, k: int = 3) -> list[dict]:
+    """Retrieve k most relevant examples for this query."""
+    query_embedding = embed(query)
+    return example_store.search(query_embedding, k=k)
+
+def build_context(query: str) -> str:
+    examples = retrieve_examples(query)
+    example_text = format_examples(examples)
+    return system_prompt + "\n\n" + example_text + "\n\n" + query</code></pre>
+
+      <h3>The Few-Shot Tradeoff</h3>
+
+      <p>More examples produce better behavioral anchoring. The model has more signal about what correct output looks like, which reduces variance and reduces format errors. But more examples cost tokens — tokens that could otherwise be used for reasoning, for retrieved context, or for the current task itself. Each example you add to the system prompt is a fixed cost on every single call.</p>
+
+      <p>The practical rule: start with three examples. Evaluate whether errors are format errors (the model produces the wrong structure) or reasoning errors (the model produces the wrong answer in the right structure). Format errors benefit from more examples. Reasoning errors do not — they require better context, better tool design, or better retrieval, not more behavioral anchoring.</p>
+
+      <h3>Structured Outputs and JSON Mode</h3>
+
+      <p>Structured generation — constraining the model to produce valid JSON, XML, or any other schema-conformant output — is one of the highest-ROI context engineering techniques for agents. When an agent needs to call a tool, update its state, or produce a machine-readable output, free-form text is fragile. Parsing errors cascade. A misplaced bracket in a JSON tool call means the tool doesn't get called, the agentic loop breaks, and you have an error to handle.</p>
+
+      <p>JSON mode (or structured generation using a schema) constrains the model's output space at the decoding layer. The model cannot produce invalid JSON if constrained to produce valid JSON. This dramatically reduces format errors without requiring examples to demonstrate format. The model doesn't need five examples of "always produce valid JSON" if the decoding is constrained to guarantee it.</p>
+
+      <pre class="code-block"><code># Structured output with schema constraint
+from anthropic import Anthropic
+
+client = Anthropic()
+
+response = client.messages.create(
+    model="claude-sonnet-4-5",
+    max_tokens=1024,
+    system="""You are Aria. When escalating a ticket,
+produce a structured escalation record.""",
+    messages=[{"role": "user", "content": user_message}],
+    tools=[{
+        "name": "create_escalation",
+        "description": "Create a structured escalation record",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "severity": {
+                    "type": "string",
+                    "enum": ["low", "medium", "high", "critical"]
+                },
+                "reason": {"type": "string"},
+                "customer_id": {"type": "string"},
+                "assigned_team": {"type": "string"}
+            },
+            "required": ["severity", "reason", "customer_id"]
+        }
+    }]
+)
+
+# Tool input is guaranteed valid against the schema
+escalation = response.content[0].input</code></pre>
+
+      <p>Structured outputs also reduce the cognitive load on the model. When the output format is locked by a schema, the model doesn't have to reason about how to format its response — it only has to reason about content. This frees up reasoning capacity for the actual task. The few-shot tradeoff applies here too: when you use structured generation, you need fewer examples to demonstrate format, because the format is enforced. You can redirect those tokens to reasoning or retrieval.</p>
+
+      <div class="callout callout-insight">
+        <div class="callout-label">Insight</div>
+        <p>Use structured outputs for everything that will be parsed by code. Use free-form text only for outputs that will be read by humans. If an agent's output goes back into the system — as a tool input, a state update, a database write — it should be structured. Structured outputs are not just an aesthetic choice; they're a reliability requirement for agentic systems.</p>
+      </div>
+    </div>
+
+    <div class="section-divider"></div>
+
+    <!-- Lab section -->
+    <div class="lab-section">
+      <div class="lab-header">
+        <div class="lab-label">Lab — Module 03</div>
+        <h2>Diagnose and Repair a Failing Long-Horizon Agent</h2>
+        <p>Take a broken agent context — noisy, overloaded, and irrelevant — diagnose the specific failure modes, redesign the context architecture, and observe the improvement.</p>
+      </div>
+      <div class="lab-body">
+        <p>Below is the actual context being passed to a customer support agent at turn 35 of a long conversation. Read it, identify the specific context engineering failures, then redesign it using what you've learned.</p>
+
+        <h3>The Broken Context (Before)</h3>
+
+        <pre class="code-block"><code>SYSTEM: You are a helpful customer support agent. Always be polite and helpful.
+Try your best to solve customer problems. If you can't solve the problem, escalate.
+Be professional at all times. Remember to follow company policies.
+
+TOOL_RESULT (turn 2): {"status": "ok", "account": {"id": "C-8821", "plan": "starter",
+"created": "2024-01-15", "mrr": 49, "seats": 3}}
+
+USER (turn 1): Hi, I'm having trouble with my account
+ASSISTANT (turn 1): Hello! I'd be happy to help you with your account.
+Could you tell me more about what issue you're experiencing?
+
+USER (turn 2): My dashboard won't load
+ASSISTANT (turn 2): I'm sorry to hear your dashboard isn't loading.
+Let me look into that for you. [tool call: get_account]
+
+USER (turn 3): It just shows a spinning spinner
+ASSISTANT (turn 3): That's frustrating! A spinning spinner usually indicates
+the page is trying to load but something is blocking it...
+
+[turns 4-18 omitted for brevity — raw transcript of troubleshooting
+including 6 failed approaches, repeated account lookups, redundant
+confirmations of browser type, customer re-explaining the issue 3 times]
+
+TOOL_RESULT (turn 19): {"logs": "... [4,200 tokens of raw server logs] ..."}
+
+USER (turn 20): So what did the logs show?
+ASSISTANT (turn 20): Looking at the logs, I can see several entries...
+[3 paragraph analysis of logs, most of which was inconclusive]
+
+TOOL_RESULT (turn 22): {"kb_search": "dashboard loading issues", "results":
+[{"title": "Dashboard FAQ", "content": "... [800 tokens of generic FAQ] ..."},
+ {"title": "Browser Compat", "content": "... [600 tokens] ..."},
+ {"title": "Known Issues", "content": "... [1200 tokens, mix of relevant and not] ..."}]}
+
+[turns 23-35: continued back-and-forth, some progress made, most context
+now is stale troubleshooting, outdated tool results, repeated pleasantries]
+
+USER (turn 35): Okay so we've ruled out the browser. What's next?</code></pre>
+
+        <p>This context is broken in at least four specific ways. Before reading the diagnosis, try to identify them yourself.</p>
+
+        <h3>Diagnosis</h3>
+
+        <div class="lab-step">
+          <div class="lab-step-num">Failure 01</div>
+          <div class="lab-step-title">Vacuous System Prompt</div>
+          <div class="lab-step-desc">The system prompt contains only generic platitudes ("be helpful," "be professional") with no agent identity, no constraints, no output format, no injected state slot. It consumes ~60 tokens and adds zero signal. The model has no structured anchor for behavior.</div>
+        </div>
+
+        <div class="lab-step">
+          <div class="lab-step-num">Failure 02</div>
+          <div class="lab-step-title">Raw Transcript Growth Without Bound</div>
+          <div class="lab-step-desc">35 turns of raw conversation, including 6 failed troubleshooting paths, repeated pleasantries, and three instances of the customer re-explaining the same problem. The signal — "browser ruled out, dashboard 403, v4.2.1 regression likely" — is buried in the middle of the context where attention dilution will underweight it.</div>
+        </div>
+
+        <div class="lab-step">
+          <div class="lab-step-num">Failure 03</div>
+          <div class="lab-step-title">Unfiltered Tool Results</div>
+          <div class="lab-step-desc">4,200 tokens of raw server logs were injected at turn 19. The analysis at turn 20 was inconclusive, meaning those logs are now stale and wrong — but they're still in context, consuming tokens and potentially anchoring the model to outdated interpretations.</div>
+        </div>
+
+        <div class="lab-step">
+          <div class="lab-step-num">Failure 04</div>
+          <div class="lab-step-title">Bulk Knowledge Base Dumps</div>
+          <div class="lab-step-desc">The KB retrieval at turn 22 returned 2,600 tokens of mixed-relevance content, most of it generic FAQ material. The actually relevant passage (the Known Issues entry about v4.2.1) is buried in the middle of low-relevance content — lost-in-the-middle in miniature.</div>
+        </div>
+
+        <h3>The Fixed Context (After)</h3>
+
+        <pre class="code-block"><code">SYSTEM:
+# Aria — Customer Success Agent
+## Identity
+You are Aria, customer success agent for Acme SaaS.
+Goal: first-contact resolution. Never deflect; always diagnose.
+
+## Hard Constraints
+- Do not re-ask questions already answered in session
+- Escalate to Tier 2 after 3 failed resolution attempts
+- Never share raw server logs with the customer
+
+## Output Format
+Prose only. One clear next step per turn. Confirm before acting.
+
+## [AGENT_STATE]
+Customer: Acme Starter (C-8821) | MRR: $49 | Seats: 3
+Issue: Dashboard not loading (spinner). Started: 2026-05-20.
+Current status: Active — troubleshooting in progress.
+
+## [ESTABLISHED_FACTS]
+- 403 error on /api/v2/dashboard (confirmed via browser console)
+- Issue began after v4.2.1 deploy (2026-05-20 21:00 UTC)
+- Browser: ruled out (tested Chrome 124 + Firefox 125, both affected)
+- Auth: working (API calls succeed, only dashboard 403s)
+- Root cause hypothesis: server-side permission regression in v4.2.1
+
+## [CONVERSATION_SUMMARY — turns 1-33]
+Customer reported dashboard spinner. Confirmed account active.
+Identified 403 on dashboard API endpoint. Reproduced across
+browsers (ruled out client-side). Checked auth — working.
+Timeline correlates with v4.2.1 deploy. 3 KB articles checked,
+none resolved. Server logs inconclusive for direct fix.
+Current hypothesis: permission regression in v4.2.1 affecting
+Starter plan dashboard access.
+
+## [RETRIEVED — relevant to next step]
+Known Issue KB-4421: "v4.2.1 introduced a permission check
+regression affecting dashboard API for Starter-tier accounts.
+Fix deployed in v4.2.2 (2026-05-22). Workaround: re-authorize
+the dashboard scope via Settings > Integrations > Re-authorize."
+
+---
+USER (turn 34): Okay so we've ruled out the browser. What's next?</code></pre>
+
+        <p>The fixed context is under 4,000 tokens at turn 35. The broken context was over 12,000 tokens and growing. More importantly, the signal-to-noise ratio is transformed. The established facts block gives the model the conclusions of 34 turns of work without forcing it to re-read or re-derive them. The retrieved chunk is exactly the KB article relevant to the next step — not a bulk dump of tangentially related content. The system prompt gives the model a clear identity, hard constraints, and output format guidance.</p>
+
+        <h3>Lab Steps</h3>
+
+        <div class="lab-step">
+          <div class="lab-step-num">Step 01</div>
+          <div class="lab-step-title">Reproduce the Failure</div>
+          <div class="lab-step-desc">Build a minimal agent loop (any framework or raw API calls). Give it the broken context above and ask it to respond to turn 35. Log the response. Note: inconsistency, re-asking questions already answered, failing to synthesize the established troubleshooting history.</div>
+        </div>
+
+        <div class="lab-step">
+          <div class="lab-step-num">Step 02</div>
+          <div class="lab-step-title">Apply the Fixed Context</div>
+          <div class="lab-step-desc">Replace the context with the redesigned version. Ask the same question. The model should immediately reference the known issue, propose the re-authorize workaround, and not ask any questions that were already answered. Compare outputs directly.</div>
+        </div>
+
+        <div class="lab-step">
+          <div class="lab-step-num">Step 03</div>
+          <div class="lab-step-title">Implement Rolling Summarization</div>
+          <div class="lab-step-desc">Add a summarization step to your loop. When context exceeds 6,000 tokens, trigger a summarize() call over the oldest 10 turns and replace them with the summary. Run a 40-turn simulation and verify that context stays bounded and response quality holds.</div>
+        </div>
+
+        <div class="lab-step">
+          <div class="lab-step-num">Step 04</div>
+          <div class="lab-step-title">Add a Retrieval Step</div>
+          <div class="lab-step-desc">Build a minimal vector store with 20 KB articles. Before each agent turn, run a retrieval query against the current established facts and user message. Inject only the top-2 retrieved chunks. Measure retrieval quality (does the right article come back?) separate from generation quality (does the agent use it correctly?).</div>
+        </div>
+
+        <div class="lab-step">
+          <div class="lab-step-num">Step 05</div>
+          <div class="lab-step-title">Measure and Reflect</div>
+          <div class="lab-step-desc">Compare: average tokens per call before vs. after. Count re-asked questions per 10-turn session. Count correct resolutions in 5 test scenarios. Identify which context engineering change had the largest per-token impact on resolution quality.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Summary -->
+    <div class="summary-section">
+      <h2>Module 03 Summary</h2>
+      <ul class="summary-list">
+        <li>Context engineering is the practice of deciding what the model sees at inference time — not just what you say to it. It's a fundamentally different skill from prompt engineering, and in 2026 it's the primary determinant of agent performance.</li>
+        <li>Long contexts fail in specific, predictable ways: lost-in-the-middle attention drift, signal dilution as noise accumulates, and reasoning fatigue from stale prior conclusions. Larger context windows don't solve these problems — they scale them.</li>
+        <li>Structure your agent context into distinct zones: system prompt (stable, identity-defining), injected state block (dynamic, per-call), conversation summary (compressed history), and retrieved context (on-demand, evicted when stale).</li>
+        <li>Manage context dynamically using rolling summarization, explicit memory slots with size budgets, token budget tracking, and priority ordering that puts critical information at primacy and recency positions.</li>
+        <li>RAG is the right pattern for dynamic, changing knowledge at runtime. Fine-tuning is the right pattern for stable behavior, style, and reasoning patterns. Use retrieval quality as the primary lever — a great generator with bad retrieval still fails.</li>
+        <li>Few-shot examples anchor model behavior and reduce format errors; dynamic few-shot (retrieval-based) outperforms static examples on diverse tasks. Structured outputs constrain the decoding layer, eliminating format errors entirely for machine-read outputs without spending tokens on demonstrations.</li>
+        <li>When debugging an agent, check the context first. Print what the model actually sees. Most failures are context failures — wrong information, missing information, or too much information drowning the signal.</li>
+      </ul>
+    </div>
+
+  </div>
+</div>
+
+<!-- Footer -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer-inner">
+      <a href="module-02.html" class="footer-prev">← Module 02</a>
+      <span class="footer-text">Module 03 of 07 · Agentic AI Curriculum</span>
+      <a href="module-04.html" class="footer-next">Next: Module 04 →</a>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,1537 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Module 07: Staying on the Frontier — Agentic AI Curriculum</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;500&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;500&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap');
+
+  :root {
+    --bg: #0a0a0f;
+    --surface: #111118;
+    --surface2: #18181f;
+    --border: #2a2a3a;
+    --accent: #7c6af7;
+    --accent2: #f7c36a;
+    --accent3: #6af7d4;
+    --text: #e8e8f0;
+    --muted: #6b6b80;
+    --danger: #f76a6a;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 300;
+    line-height: 1.7;
+    min-height: 100vh;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.4;
+  }
+
+  /* Sticky nav */
+  .top-nav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(10,10,15,0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .top-nav-inner {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 0 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 52px;
+    gap: 1rem;
+  }
+
+  .nav-back {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.05em;
+    color: var(--muted);
+    text-decoration: none;
+    transition: color 0.2s;
+    white-space: nowrap;
+  }
+
+  .nav-back:hover { color: var(--text); }
+
+  .nav-module-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    color: var(--muted);
+    text-transform: uppercase;
+    text-align: center;
+    flex: 1;
+  }
+
+  .nav-end-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    color: var(--accent3);
+    text-transform: uppercase;
+    white-space: nowrap;
+    opacity: 0.7;
+  }
+
+  /* Container */
+  .container {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 0 2rem;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Hero */
+  .hero {
+    padding: 4.5rem 0 3.5rem;
+    border-bottom: 1px solid var(--border);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero::after {
+    content: '';
+    position: absolute;
+    top: -100px;
+    right: -200px;
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, rgba(106,247,212,0.09) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .hero-eyebrow {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.2em;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+  }
+
+  .module-badge {
+    display: inline-block;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.1em;
+    padding: 0.25rem 0.6rem;
+    border-radius: 4px;
+    margin-bottom: 1.2rem;
+  }
+
+  .badge-frontier {
+    background: rgba(106,247,212,0.12);
+    color: var(--accent3);
+    border: 1px solid rgba(106,247,212,0.3);
+  }
+
+  .hero h1 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: clamp(2rem, 4.5vw, 3.2rem);
+    line-height: 1.08;
+    margin-bottom: 1.4rem;
+    letter-spacing: -0.02em;
+  }
+
+  .hero-sub {
+    font-size: 1.05rem;
+    color: #a0a0b8;
+    max-width: 620px;
+    line-height: 1.8;
+    margin-bottom: 2rem;
+  }
+
+  .hero-meta {
+    display: flex;
+    gap: 2.5rem;
+    flex-wrap: wrap;
+  }
+
+  .meta-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+  }
+
+  .meta-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.15em;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+
+  .meta-value {
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    font-size: 1rem;
+    color: var(--text);
+  }
+
+  /* Main content */
+  .content {
+    padding: 4rem 0 6rem;
+  }
+
+  /* Topic sections */
+  .topic-section {
+    margin-bottom: 5rem;
+  }
+
+  .topic-section:last-child {
+    margin-bottom: 0;
+  }
+
+  .section-number {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+  }
+
+  .topic-section h2 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 1.65rem;
+    letter-spacing: -0.01em;
+    line-height: 1.2;
+    margin-bottom: 1.6rem;
+    color: var(--text);
+  }
+
+  .topic-section h3 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    font-size: 1.05rem;
+    letter-spacing: -0.01em;
+    margin-top: 2rem;
+    margin-bottom: 0.8rem;
+    color: var(--text);
+  }
+
+  .topic-section p {
+    font-size: 0.97rem;
+    color: #c8c8d8;
+    line-height: 1.8;
+    margin-bottom: 1.2rem;
+  }
+
+  .topic-section p:last-child {
+    margin-bottom: 0;
+  }
+
+  /* Section divider */
+  .section-divider {
+    height: 1px;
+    background: linear-gradient(to right, transparent, var(--border) 20%, var(--border) 80%, transparent);
+    margin: 4.5rem 0;
+  }
+
+  /* Callout boxes */
+  .callout {
+    border-radius: 10px;
+    padding: 1.3rem 1.6rem;
+    margin: 2rem 0;
+  }
+
+  .callout-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 0.6rem;
+    font-weight: 500;
+  }
+
+  .callout p {
+    font-size: 0.92rem;
+    line-height: 1.75;
+    margin-bottom: 0;
+  }
+
+  .callout p + p {
+    margin-top: 0.8rem;
+  }
+
+  .callout-insight {
+    background: rgba(124,106,247,0.07);
+    border: 1px solid rgba(124,106,247,0.25);
+  }
+
+  .callout-insight .callout-label {
+    color: var(--accent);
+  }
+
+  .callout-insight p {
+    color: #b8b0f0;
+  }
+
+  .callout-mistake {
+    background: rgba(247,106,106,0.07);
+    border: 1px solid rgba(247,106,106,0.25);
+  }
+
+  .callout-mistake .callout-label {
+    color: var(--danger);
+  }
+
+  .callout-mistake p {
+    color: #e0b0b0;
+  }
+
+  .callout-example {
+    background: rgba(106,247,212,0.06);
+    border: 1px solid rgba(106,247,212,0.2);
+  }
+
+  .callout-example .callout-label {
+    color: var(--accent3);
+  }
+
+  .callout-example p {
+    color: #a8e8d8;
+  }
+
+  /* Tier list */
+  .tier-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    margin: 2rem 0;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+
+  .tier-item {
+    display: grid;
+    grid-template-columns: 2.5rem 1fr;
+    gap: 1.2rem;
+    align-items: start;
+    padding: 1.1rem 1.4rem;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface);
+  }
+
+  .tier-item:last-child {
+    border-bottom: none;
+  }
+
+  .tier-rank {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    padding: 0.2rem 0.3rem;
+    border-radius: 4px;
+    text-align: center;
+    margin-top: 0.1rem;
+    flex-shrink: 0;
+  }
+
+  .rank-1 { background: rgba(106,247,212,0.15); color: var(--accent3); border: 1px solid rgba(106,247,212,0.3); }
+  .rank-2 { background: rgba(124,106,247,0.12); color: var(--accent); border: 1px solid rgba(124,106,247,0.25); }
+  .rank-3 { background: rgba(247,195,106,0.10); color: var(--accent2); border: 1px solid rgba(247,195,106,0.22); }
+  .rank-4 { background: rgba(200,200,220,0.07); color: var(--muted); border: 1px solid var(--border); }
+  .rank-5 { background: rgba(247,106,106,0.07); color: var(--danger); border: 1px solid rgba(247,106,106,0.2); }
+
+  .tier-content {}
+
+  .tier-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: var(--text);
+    margin-bottom: 0.3rem;
+  }
+
+  .tier-desc {
+    font-size: 0.83rem;
+    color: #9898b0;
+    line-height: 1.6;
+  }
+
+  /* Flag grid */
+  .flag-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin: 2rem 0;
+  }
+
+  @media (max-width: 580px) {
+    .flag-grid { grid-template-columns: 1fr; }
+  }
+
+  .flag-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.2rem 1.4rem;
+  }
+
+  .flag-card.red-flag {
+    border-color: rgba(247,106,106,0.3);
+    border-top: 3px solid var(--danger);
+  }
+
+  .flag-card.green-flag {
+    border-color: rgba(106,247,212,0.25);
+    border-top: 3px solid var(--accent3);
+  }
+
+  .flag-type {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+  }
+
+  .red-flag .flag-type { color: var(--danger); }
+  .green-flag .flag-type { color: var(--accent3); }
+
+  .flag-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    font-size: 0.92rem;
+    color: var(--text);
+    margin-bottom: 0.4rem;
+  }
+
+  .flag-desc {
+    font-size: 0.82rem;
+    color: #9898b0;
+    line-height: 1.6;
+  }
+
+  /* Paradigm cards */
+  .paradigm-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    margin: 2rem 0;
+  }
+
+  .paradigm-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.4rem 1.6rem;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 1rem;
+    align-items: start;
+  }
+
+  .paradigm-name {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 1rem;
+    color: var(--text);
+    margin-bottom: 0.4rem;
+  }
+
+  .paradigm-desc {
+    font-size: 0.85rem;
+    color: #9898b0;
+    line-height: 1.65;
+  }
+
+  .paradigm-status {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.1em;
+    padding: 0.2rem 0.55rem;
+    border-radius: 4px;
+    white-space: nowrap;
+    text-transform: uppercase;
+  }
+
+  .status-watch { background: rgba(247,195,106,0.10); color: var(--accent2); border: 1px solid rgba(247,195,106,0.22); }
+  .status-emerging { background: rgba(124,106,247,0.12); color: var(--accent); border: 1px solid rgba(124,106,247,0.25); }
+  .status-now { background: rgba(106,247,212,0.10); color: var(--accent3); border: 1px solid rgba(106,247,212,0.25); }
+
+  /* Timeline */
+  .timeline {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    margin: 2rem 0;
+    position: relative;
+  }
+
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 3.5rem;
+    top: 0;
+    bottom: 0;
+    width: 1px;
+    background: var(--border);
+  }
+
+  .timeline-item {
+    display: grid;
+    grid-template-columns: 7rem 1fr;
+    gap: 1.5rem;
+    padding: 1.3rem 0;
+    position: relative;
+  }
+
+  .timeline-item + .timeline-item {
+    border-top: 1px solid var(--border);
+  }
+
+  .timeline-period {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.68rem;
+    letter-spacing: 0.08em;
+    color: var(--accent3);
+    padding-top: 0.1rem;
+    text-align: right;
+    padding-right: 1.5rem;
+  }
+
+  .timeline-content {}
+
+  .timeline-head {
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: var(--text);
+    margin-bottom: 0.35rem;
+  }
+
+  .timeline-body {
+    font-size: 0.84rem;
+    color: #9898b0;
+    line-height: 1.65;
+  }
+
+  /* Eval protocol */
+  .protocol-steps {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    margin: 2rem 0;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+
+  .protocol-step {
+    display: grid;
+    grid-template-columns: 2.5rem 1fr;
+    gap: 1rem;
+    padding: 1rem 1.4rem;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface);
+    align-items: start;
+  }
+
+  .protocol-step:last-child {
+    border-bottom: none;
+  }
+
+  .step-num {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.7rem;
+    font-weight: 500;
+    color: var(--accent);
+    background: rgba(124,106,247,0.1);
+    border: 1px solid rgba(124,106,247,0.2);
+    border-radius: 4px;
+    width: 2rem;
+    height: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-top: 0.1rem;
+  }
+
+  .step-content {}
+
+  .step-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: var(--text);
+    margin-bottom: 0.25rem;
+  }
+
+  .step-desc {
+    font-size: 0.83rem;
+    color: #9898b0;
+    line-height: 1.6;
+  }
+
+  /* Practice grid */
+  .practice-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin: 2rem 0;
+  }
+
+  @media (max-width: 580px) {
+    .practice-grid { grid-template-columns: 1fr; }
+  }
+
+  .practice-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.3rem 1.5rem;
+  }
+
+  .practice-card.works {
+    border-top: 3px solid var(--accent3);
+  }
+
+  .practice-card.doesnt {
+    border-top: 3px solid var(--danger);
+  }
+
+  .practice-card-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 0.8rem;
+  }
+
+  .works .practice-card-label { color: var(--accent3); }
+  .doesnt .practice-card-label { color: var(--danger); }
+
+  .practice-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .practice-list li {
+    font-size: 0.84rem;
+    color: #9898b0;
+    line-height: 1.55;
+    padding-left: 1rem;
+    position: relative;
+  }
+
+  .practice-list li::before {
+    content: '–';
+    position: absolute;
+    left: 0;
+    color: var(--muted);
+  }
+
+  /* Resource cards */
+  .resource-section-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin: 2rem 0 0.8rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .resource-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+    margin-bottom: 0.5rem;
+  }
+
+  @media (max-width: 580px) {
+    .resource-grid { grid-template-columns: 1fr; }
+  }
+
+  .resource-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.1rem 1.3rem;
+    transition: border-color 0.2s;
+  }
+
+  .resource-card:hover {
+    border-color: rgba(106,247,212,0.3);
+  }
+
+  .resource-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 0.8rem;
+    margin-bottom: 0.45rem;
+  }
+
+  .resource-name {
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: var(--text);
+  }
+
+  .resource-type {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.58rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 0.18rem 0.45rem;
+    border-radius: 3px;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .type-account { background: rgba(124,106,247,0.1); color: var(--accent); border: 1px solid rgba(124,106,247,0.2); }
+  .type-blog { background: rgba(247,195,106,0.09); color: var(--accent2); border: 1px solid rgba(247,195,106,0.2); }
+  .type-conference { background: rgba(106,247,212,0.08); color: var(--accent3); border: 1px solid rgba(106,247,212,0.2); }
+  .type-paper { background: rgba(247,106,106,0.07); color: var(--danger); border: 1px solid rgba(247,106,106,0.18); }
+
+  .resource-desc {
+    font-size: 0.81rem;
+    color: #9898b0;
+    line-height: 1.55;
+  }
+
+  /* Weekly sync box */
+  .sync-box {
+    background: var(--surface);
+    border: 1px solid rgba(106,247,212,0.25);
+    border-radius: 12px;
+    padding: 2rem 2.2rem;
+    margin: 2rem 0;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .sync-box::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(to right, var(--accent3), transparent 80%);
+  }
+
+  .sync-box-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.18em;
+    color: var(--accent3);
+    text-transform: uppercase;
+    margin-bottom: 0.8rem;
+  }
+
+  .sync-box h3 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 1.15rem;
+    color: var(--text);
+    margin-bottom: 0.9rem;
+  }
+
+  .sync-box p {
+    font-size: 0.92rem;
+    color: #a0a8c0;
+    line-height: 1.75;
+    margin-bottom: 1rem;
+  }
+
+  .sync-box p:last-child {
+    margin-bottom: 0;
+  }
+
+  .sync-agenda {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.55rem;
+    margin: 1rem 0;
+  }
+
+  .sync-agenda li {
+    display: grid;
+    grid-template-columns: 3.5rem 1fr;
+    gap: 0.8rem;
+    font-size: 0.86rem;
+  }
+
+  .sync-time {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--accent3);
+    padding-top: 0.05rem;
+  }
+
+  .sync-item {
+    color: #a8b0c8;
+    line-height: 1.5;
+  }
+
+  /* Summary / closing */
+  .summary-section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 2.5rem 2.8rem;
+    margin: 3rem 0;
+  }
+
+  .summary-section h2 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 1.5rem;
+    letter-spacing: -0.02em;
+    color: var(--text);
+    margin-bottom: 1.4rem;
+  }
+
+  .capability-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-bottom: 1.6rem;
+  }
+
+  .capability-item {
+    display: grid;
+    grid-template-columns: 1.6rem 1fr;
+    gap: 0.8rem;
+    align-items: start;
+    font-size: 0.9rem;
+    color: #c0c0d8;
+    line-height: 1.6;
+  }
+
+  .capability-check {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--accent3);
+    margin-top: 0.15rem;
+  }
+
+  /* Closing section */
+  .closing-section {
+    padding: 3rem 0 2rem;
+    border-top: 1px solid var(--border);
+    margin-top: 4rem;
+  }
+
+  .closing-section h2 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 1.4rem;
+    letter-spacing: -0.01em;
+    color: var(--text);
+    margin-bottom: 1.2rem;
+  }
+
+  .closing-section p {
+    font-size: 0.97rem;
+    color: #a0a0b8;
+    line-height: 1.85;
+    max-width: 680px;
+    margin-bottom: 1.2rem;
+  }
+
+  /* Footer */
+  .footer {
+    border-top: 1px solid var(--border);
+    padding: 2.5rem 0;
+    margin-top: 2rem;
+  }
+
+  .footer-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+
+  .footer-nav-link {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.05em;
+    color: var(--muted);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+
+  .footer-nav-link:hover { color: var(--text); }
+
+  .footer-badge {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--accent3);
+    opacity: 0.5;
+  }
+
+  /* Utilities */
+  ul.plain-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin: 1.2rem 0;
+  }
+
+  ul.plain-list li {
+    font-size: 0.9rem;
+    color: #b8b8d0;
+    padding-left: 1.1rem;
+    position: relative;
+    line-height: 1.65;
+  }
+
+  ul.plain-list li::before {
+    content: '–';
+    position: absolute;
+    left: 0;
+    color: var(--muted);
+  }
+
+  strong {
+    font-weight: 500;
+    color: var(--text);
+  }
+
+  @media (max-width: 640px) {
+    .hero { padding: 3rem 0 2.5rem; }
+    .container { padding: 0 1.2rem; }
+    .summary-section { padding: 1.8rem 1.6rem; }
+    .sync-box { padding: 1.5rem 1.6rem; }
+    .timeline::before { display: none; }
+    .timeline-item { grid-template-columns: 1fr; gap: 0.4rem; }
+    .timeline-period { text-align: left; padding-right: 0; }
+    .paradigm-card { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Sticky nav -->
+<nav class="top-nav">
+  <div class="top-nav-inner">
+    <a href="agentic-ai-curriculum.html" class="nav-back">← Back to Curriculum</a>
+    <span class="nav-module-label">Module 07 of 07</span>
+    <span class="nav-end-label">Final Module</span>
+  </div>
+</nav>
+
+<!-- Hero -->
+<div class="container">
+  <section class="hero">
+    <div class="hero-eyebrow">Agentic AI Curriculum</div>
+    <div class="module-badge badge-frontier">FRONTIER</div>
+    <h1>Staying on the Frontier</h1>
+    <p class="hero-sub">The field moves faster than any curriculum can. This final module is about the meta-skill: how to remain current in a space that is actively rewriting itself — not just following the news, but reading the field and knowing what matters.</p>
+    <div class="hero-meta">
+      <div class="meta-item">
+        <span class="meta-label">Module</span>
+        <span class="meta-value">07</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">Duration</span>
+        <span class="meta-value">Ongoing</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">Badge</span>
+        <span class="meta-value" style="color: var(--accent3);">Frontier</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">Prerequisite</span>
+        <span class="meta-value">Modules 01–06</span>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- Main content -->
+<div class="container">
+  <div class="content">
+
+    <!-- Topic 1: Where the real information lives -->
+    <section class="topic-section">
+      <div class="section-number">Topic 01</div>
+      <h2>Where the Real Information Lives</h2>
+
+      <p>Most practitioners consume too much low-signal content and not enough high-signal content. This is not because good sources are hard to find. It is because low-signal content is optimized for reach and low-signal content spreads faster. You need a deliberate information diet.</p>
+
+      <p>Here is how we rank sources, from highest to lowest signal quality for practitioners building agentic systems:</p>
+
+      <div class="tier-list">
+        <div class="tier-item">
+          <div class="tier-rank rank-1">01</div>
+          <div class="tier-content">
+            <div class="tier-title">Primary sources: model and lab release notes</div>
+            <div class="tier-desc">Anthropic, OpenAI, Google DeepMind, Meta AI — read the actual system cards and technical reports, not the blog summaries. Technical reports contain capability details and limitation admissions that never make it into press releases. This is where you learn what a model actually can and cannot do.</div>
+          </div>
+        </div>
+        <div class="tier-item">
+          <div class="tier-rank rank-2">02</div>
+          <div class="tier-content">
+            <div class="tier-title">Working practitioners on X/Twitter</div>
+            <div class="tier-desc">People building with these tools daily surface real limitations faster than anyone. They share what breaks, what surprises them, what changed their workflow. High signal but noisy — follow selectively. Key accounts as of 2026: Andrej Karpathy, Simon Willison, swyx, Hamel Husain, Jason Liu, Shreya Shankar, Harrison Chase, Brandon Hancock.</div>
+          </div>
+        </div>
+        <div class="tier-item">
+          <div class="tier-rank rank-3">03</div>
+          <div class="tier-content">
+            <div class="tier-title">Conference talks — AI Engineer Summit, NeurIPS, ICLR</div>
+            <div class="tier-desc">AI Engineer Summit is the best practitioner-focused conference for people building AI products. NeurIPS and ICLR are for research. Watch talks, not just read abstracts. Talks contain the reasoning behind decisions; abstracts contain only the conclusion.</div>
+          </div>
+        </div>
+        <div class="tier-item">
+          <div class="tier-rank rank-4">04</div>
+          <div class="tier-content">
+            <div class="tier-title">Vendor and framework blogs</div>
+            <div class="tier-desc">LangChain blog, Anthropic Engineering Blog, OpenAI research blog. Good for announcements, inherently promotional. Read them, but cross-reference with practitioner reactions before drawing conclusions about real-world performance.</div>
+          </div>
+        </div>
+        <div class="tier-item">
+          <div class="tier-rank rank-5">05</div>
+          <div class="tier-content">
+            <div class="tier-title">General tech media and LinkedIn</div>
+            <div class="tier-desc">TechCrunch, Wired, LinkedIn. Useful for understanding business context and public perception. Do not use these to make technical decisions. LinkedIn is especially filtered toward positive framing — almost never the first place real discoveries surface.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout callout-insight">
+        <div class="callout-label">How to read a paper quickly</div>
+        <p>Read the abstract and conclusion first. If both are interesting, read the experiments section. Read related work only if you need context. Skip the rest unless the specific finding requires it. Most papers contain one key finding. Read for that finding, not for completeness.</p>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- Topic 2: Signal vs noise -->
+    <section class="topic-section">
+      <div class="section-number">Topic 02</div>
+      <h2>Distinguishing Signal from Noise</h2>
+
+      <p>The agentic AI space has a hype problem. Not because people are lying — most claims are technically defensible in the right narrow context. The problem is that demos are curated, benchmarks can be gamed, and terminology gets recycled to make old ideas sound new. You need pattern recognition for this.</p>
+
+      <div class="flag-grid">
+        <div class="flag-card red-flag">
+          <div class="flag-type">Red Flag</div>
+          <div class="flag-title">Benchmark gaming</div>
+          <div class="flag-desc">A model achieves SOTA on a benchmark but practitioners report it underperforms on real tasks. Ask: does this benchmark reflect your actual use case? Benchmarks are easy to saturate once labs optimize for them.</div>
+        </div>
+        <div class="flag-card red-flag">
+          <div class="flag-type">Red Flag</div>
+          <div class="flag-title">Rebadged concepts</div>
+          <div class="flag-desc">"Agentic AI" was "AI assistants" was "intelligent agents" was "expert systems." When a new term explodes, ask: what is actually new here versus what is new branding on existing ideas?</div>
+        </div>
+        <div class="flag-card red-flag">
+          <div class="flag-type">Red Flag</div>
+          <div class="flag-title">Demo-to-production gap</div>
+          <div class="flag-desc">Demos show the best case. Ask: what does this system do when input is ambiguous, incomplete, or adversarial? If you cannot get a clear answer, assume the gap is large.</div>
+        </div>
+        <div class="flag-card red-flag">
+          <div class="flag-type">Red Flag</div>
+          <div class="flag-title">Capability claims without evals</div>
+          <div class="flag-desc">"Our model is 40% better" — at what, measured how, compared to what baseline, on what distribution of inputs? Claims without specific eval methodology are not evidence.</div>
+        </div>
+        <div class="flag-card green-flag">
+          <div class="flag-type">Signal</div>
+          <div class="flag-title">Independent practitioner agreement</div>
+          <div class="flag-desc">When multiple practitioners running production systems independently report the same improvement without coordinating, that is a strong signal. One report is anecdote. Five independent reports are evidence.</div>
+        </div>
+        <div class="flag-card green-flag">
+          <div class="flag-type">Signal</div>
+          <div class="flag-title">Honest failure mode disclosure</div>
+          <div class="flag-desc">When a lab or practitioner names the limitations alongside the wins, the wins are more credible. Honest failure disclosure is a positive signal, not a negative one.</div>
+        </div>
+        <div class="flag-card green-flag">
+          <div class="flag-type">Signal</div>
+          <div class="flag-title">Replicable in your environment</div>
+          <div class="flag-desc">The most reliable signal: you ran it yourself on your eval set and it beat your baseline. Nothing substitutes for this. Build the eval infrastructure to make this fast.</div>
+        </div>
+        <div class="flag-card green-flag">
+          <div class="flag-type">Signal</div>
+          <div class="flag-title">Multiple independent evals</div>
+          <div class="flag-desc">A capability that shows up across multiple independent benchmarks — not just the lab's own — with consistent results. Cross-source validation is hard to fake.</div>
+        </div>
+      </div>
+
+      <div class="callout callout-mistake">
+        <div class="callout-label">The hype cycle pattern</div>
+        <p>Every 6–12 months, a new paradigm is announced as "the end of X" or "the beginning of AGI." Track which predictions were accurate 12 months later. Most are not. This is not because the field is dishonest — it is because genuine capability improvements exist but the timeline and magnitude of real-world impact are consistently overestimated. Build institutional memory by noting predictions with dates.</p>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- Topic 3: Emerging paradigms -->
+    <section class="topic-section">
+      <div class="section-number">Topic 03</div>
+      <h2>Emerging Paradigms to Watch in 2026–2027</h2>
+
+      <p>Several directions are moving from research into early production. We are not saying these will all arrive on schedule — predictions about AI timelines are historically overconfident. We are saying these are the directions where the research is credible and the production use cases are beginning to emerge.</p>
+
+      <div class="paradigm-grid">
+        <div class="paradigm-card">
+          <div>
+            <div class="paradigm-name">Long-Horizon Planning</div>
+            <div class="paradigm-desc">Current agents struggle with tasks that span days or weeks. Research direction: agents that set sub-goals, track progress across sessions, and recover from failures over long horizons. The unsolved problems are persistent state management, goal drift, and failure recovery that doesn't require starting from scratch. This is the limiting factor for truly autonomous knowledge work agents.</div>
+          </div>
+          <div class="paradigm-status status-watch">Watch</div>
+        </div>
+        <div class="paradigm-card">
+          <div>
+            <div class="paradigm-name">Agent Self-Improvement</div>
+            <div class="paradigm-desc">Agents that evaluate their own outputs and iteratively improve them. Limited forms of this exist today — reflection loops, self-critique prompting. The research direction extends to agents that fine-tune themselves on their own successful trajectories. Concern: reward hacking and goal misalignment at scale. This is the direction that carries the most both promise and risk.</div>
+          </div>
+          <div class="paradigm-status status-emerging">Emerging</div>
+        </div>
+        <div class="paradigm-card">
+          <div>
+            <div class="paradigm-name">Neuro-Symbolic Hybrids</div>
+            <div class="paradigm-desc">Combining LLMs with symbolic reasoning systems — logic engines, formal verifiers. Useful for domains requiring guaranteed correctness: legal reasoning, mathematical proofs, safety-critical code. Mostly research in 2026, but watch for production deployments in regulated industries where correctness is non-negotiable and "usually right" is not enough.</div>
+          </div>
+          <div class="paradigm-status status-emerging">Emerging</div>
+        </div>
+        <div class="paradigm-card">
+          <div>
+            <div class="paradigm-name">Multimodal Agents</div>
+            <div class="paradigm-desc">Agents that natively perceive and act on images, audio, and video — not just text. Frontier models already have multimodal capabilities; the infrastructure for reliable multimodal tool use in agents is maturing fast. Near-term applications: agents that can see UIs, interpret charts, generate and edit media. The main gap is reliable structured output from visual inputs.</div>
+          </div>
+          <div class="paradigm-status status-now">Maturing</div>
+        </div>
+        <div class="paradigm-card">
+          <div>
+            <div class="paradigm-name">AI-Native Frontier Firms</div>
+            <div class="paradigm-desc">Organizations where agents handle the majority of knowledge work production — not assisting humans but operating as the primary production workforce, with humans in oversight and strategy roles. Already happening in narrow domains: coding, research summarization, customer support. The organizational design question: how do you manage, evaluate, and govern an agent workforce at scale?</div>
+          </div>
+          <div class="paradigm-status status-watch">Watch</div>
+        </div>
+      </div>
+
+      <div class="callout callout-example">
+        <div class="callout-label">Using Aria and COMPASS as benchmarks</div>
+        <p>You have now built or studied two concrete systems: Aria (a production customer success agent) and COMPASS (a 3-agent research pipeline). Use these as evaluation benchmarks when you encounter new frameworks, paradigms, or capability claims. Ask: would this capability meaningfully improve Aria's task completion rate or COMPASS's research quality? If the answer is unclear, the capability is probably not mature enough for adoption.</p>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- Topic 4: Agent factories -->
+    <section class="topic-section">
+      <div class="section-number">Topic 04</div>
+      <h2>The Agent Factory Vision and Knowledge Work</h2>
+
+      <p>The "agent factory" pattern — entire workflows run by coordinated agent pipelines with humans in oversight roles — is moving from architectural thought experiment to organizational reality. We covered the technical architecture in Module 4. Here we address the organizational implications.</p>
+
+      <div class="timeline">
+        <div class="timeline-item">
+          <div class="timeline-period">Now — 12 mo</div>
+          <div class="timeline-content">
+            <div class="timeline-head">Agents accelerate individual contributors</div>
+            <div class="timeline-body">A researcher with a COMPASS-style system produces 3–5x more synthesized output per day. A developer with a coding agent reviews more PRs and writes more tests. The primary organizational change is productivity multipliers for existing roles — not role elimination. The people who learn to work with agents effectively pull ahead of those who don't.</div>
+          </div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-period">2–3 years</div>
+          <div class="timeline-content">
+            <div class="timeline-head">Team structures begin shifting</div>
+            <div class="timeline-body">Teams need fewer people doing execution work and more people who can specify, evaluate, and govern agent systems. The skills that become more valuable: eval design, observability, prompt engineering at scale, agent orchestration architecture. The skills that become less valuable: rote data processing, templated content production, routine research synthesis.</div>
+          </div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-period">Strategic</div>
+          <div class="timeline-content">
+            <div class="timeline-head">Durable advantage comes from institutional knowledge</div>
+            <div class="timeline-body">The bottleneck will not be access to models — frontier models are widely available. The bottleneck will be knowing how to run agents reliably at scale. Teams that invest now in eval infrastructure, observability, and agent governance build compounding institutional knowledge. That knowledge is harder to replicate than model access.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout callout-insight">
+        <div class="callout-label">The honest caveat on predictions</div>
+        <p>Predictions about AI timelines are historically overconfident. The near-term productivity claims in this section are grounded in current production deployments we can observe. The medium-term predictions carry significant uncertainty. Build for optionality — systems that can absorb new capabilities without being rebuilt from scratch — rather than betting on a specific future timeline.</p>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- Topic 5: Evaluating new models -->
+    <section class="topic-section">
+      <div class="section-number">Topic 05</div>
+      <h2>Evaluating New Models and Capabilities Quickly</h2>
+
+      <p>New model releases happen frequently. You cannot do a full evaluation of every one. But you also cannot rely on published benchmarks alone — they measure the lab's priorities, not yours. You need a fast, repeatable evaluation protocol that gives you an honest answer about whether a new model or capability is worth deeper integration.</p>
+
+      <div class="protocol-steps">
+        <div class="protocol-step">
+          <div class="step-num">01</div>
+          <div class="step-content">
+            <div class="step-title">Take 20–30 representative inputs from your actual use case</div>
+            <div class="step-desc">Not cherry-picked successes. Draw from your existing eval set — the same inputs you used to validate your current system. If you don't have an eval set, this is the first thing to build.</div>
+          </div>
+        </div>
+        <div class="protocol-step">
+          <div class="step-num">02</div>
+          <div class="step-content">
+            <div class="step-title">Run the new model or capability on all inputs</div>
+            <div class="step-desc">Same prompts, same tool definitions, same context structure. Control everything except the variable you are testing. If you change multiple things, you won't know what caused any difference.</div>
+          </div>
+        </div>
+        <div class="protocol-step">
+          <div class="step-num">03</div>
+          <div class="step-content">
+            <div class="step-title">Score against your existing eval criteria</div>
+            <div class="step-desc">Task completion rate, faithfulness to source material, cost per call, latency. Use the same rubric you used to evaluate your current system. If your criteria have changed, re-run your baseline first.</div>
+          </div>
+        </div>
+        <div class="protocol-step">
+          <div class="step-num">04</div>
+          <div class="step-content">
+            <div class="step-title">Compare to your current baseline</div>
+            <div class="step-desc">Is the new model better, worse, or roughly equal on your specific inputs? By how much? A 3% improvement that costs 40% more is not an upgrade. A 15% improvement in task completion on your hardest cases almost certainly is.</div>
+          </div>
+        </div>
+        <div class="protocol-step">
+          <div class="step-num">05</div>
+          <div class="step-content">
+            <div class="step-title">Catalog failure modes explicitly</div>
+            <div class="step-desc">What categories of inputs does the new model struggle with that your current model handles? New models introduce new failure modes even while fixing old ones. Name them before adopting.</div>
+          </div>
+        </div>
+        <div class="protocol-step">
+          <div class="step-num">06</div>
+          <div class="step-content">
+            <div class="step-title">Decide on integration</div>
+            <div class="step-desc">Only then decide if the new model or capability is worth deeper integration. The question is not "is this impressive?" but "does this improve my specific agent's performance on my eval set?"</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout callout-mistake">
+        <div class="callout-label">Red flags in model releases</div>
+        <p>Safety evaluations only on curated prompt sets. Benchmark results without confidence intervals. No mention of failure modes or regressions from the previous version. No independent replication of key capability claims. Any of these should make you cautious about the results — not dismissive, but cautious. Run your own eval before drawing conclusions.</p>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- Topic 6: Building a learning system -->
+    <section class="topic-section">
+      <div class="section-number">Topic 06</div>
+      <h2>Building a Learning System for Your Team</h2>
+
+      <p>Individual learning is necessary but not sufficient. One person staying current creates a single point of knowledge failure. You need a shared learning system — a set of practices that distributes frontier awareness across the team and converts raw information into institutional knowledge.</p>
+
+      <div class="practice-grid">
+        <div class="practice-card works">
+          <div class="practice-card-label">What works</div>
+          <ul class="practice-list">
+            <li>Weekly frontier sync — 20 minutes, one person brings one finding, group evaluates signal vs. noise</li>
+            <li>Shared experiment log — record attempts and failures, not just successes</li>
+            <li>"Build it to understand it" — 2–4 hour budget for frontier exploration before committing to evaluation</li>
+            <li>Eval-first adoption — any new capability must pass your eval harness before production consideration</li>
+            <li>Quarterly 30-minute internal talks — one person presents what they learned, forces synthesis</li>
+          </ul>
+        </div>
+        <div class="practice-card doesnt">
+          <div class="practice-card-label">What doesn't work</div>
+          <ul class="practice-list">
+            <li>Reading newsletters without building anything — content without context doesn't transfer</li>
+            <li>Tracking every model release without a framework for evaluation — you'll be perpetually reactive</li>
+            <li>Assigning frontier awareness to one person — creates a knowledge silo that leaves when they do</li>
+            <li>Evaluating in weeks what you could test in hours — prototypes are faster than debates</li>
+            <li>Only sharing what worked — failure logs are more valuable than success stories</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="callout callout-example">
+        <div class="callout-label">The experiment log</div>
+        <p>A shared document where anyone on the team can record: "We tried X. Here's what we expected. Here's what happened. Here's what we think it means." Failures are especially valuable — they prevent the team from re-running the same experiment six months later. The discipline of writing it down also forces the author to think through what they actually learned.</p>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- Topic 7: Resources -->
+    <section class="topic-section">
+      <div class="section-number">Topic 07</div>
+      <h2>Recommended Resources — Curated 2026</h2>
+
+      <p>This is a curated list, not an exhaustive one. The signal-to-noise ratio matters more than coverage. Each resource below made this list because it consistently surfaces real practitioner insight, honest limitation disclosure, or research that has held up in production.</p>
+
+      <div class="resource-section-label">Practitioner Accounts</div>
+      <div class="resource-grid">
+        <div class="resource-card">
+          <div class="resource-header">
+            <div class="resource-name">Andrej Karpathy</div>
+            <span class="resource-type type-account">Account</span>
+          </div>
+          <div class="resource-desc">Deep technical insight on LLM fundamentals and architecture. Follow when you want to understand why something works, not just that it works.</div>
+        </div>
+        <div class="resource-card">
+          <div class="resource-header">
+            <div class="resource-name">Simon Willison</div>
+            <span class="resource-type type-account">Account</span>
+          </div>
+          <div class="resource-desc">Practical LLM use, tool building, and unusually honest capability assessments. Posts daily experiments. High signal-to-noise ratio.</div>
+        </div>
+        <div class="resource-card">
+          <div class="resource-header">
+            <div class="resource-name">swyx (Shawn Wang)</div>
+            <span class="resource-type type-account">Account</span>
+          </div>
+          <div class="resource-desc">AI engineer community synthesis and trend analysis. Good for understanding where the practitioner community is moving and why.</div>
+        </div>
+        <div class="resource-card">
+          <div class="resource-header">
+            <div class="resource-name">Hamel Husain</div>
+            <span class="resource-type type-account">Account</span>
+          </div>
+          <div class="resource-desc">Evals, fine-tuning, and practical ML engineering. One of the clearest practitioners on what production AI systems actually require vs. what gets discussed.</div>
+        </div>
+        <div class="resource-card">
+          <div class="resource-header">
+            <div class="resource-name">Jason Liu</div>
+            <span class="resource-type type-account">Account</span>
+          </div>
+          <div class="resource-desc">Structured outputs, the Instructor library, and production LLM patterns. Particularly strong on the gap between what models can do and what they do reliably.</div>
+        </div>
+        <div class="resource-card">
+          <div class="resource-header">
+            <div class="resource-name">Shreya Shankar</div>
+            <span class="resource-type type-account">Account</span>
+          </div>
+          <div class="resource-desc">Evals research and data-centric AI. If you want to take your eval infrastructure seriously, follow her work before reading anything else on the topic.</div>
+        </div>
+      </div>
+
+      <div class="resource-section-label">Blogs and Newsletters</div>
+      <div class="resource-grid">
+        <div class="resource-card">
+          <div class="resource-header">
+            <div class="resource-name">Anthropic Engineering Blog</div>
+            <span class="resource-type type-blog">Blog</span>
+          </div>
+          <div class="resource-desc">Technical depth on model capabilities and safety research. Read alongside the model cards for a complete picture of what Claude can and cannot do.</div>
+        </div>
+        <div class="resource-card">
+          <div class="resource-header">
+            <div class="resource-name">Simon Willison's Weblog</div>
+            <span class="resource-type type-blog">Blog</span>
+          </div>
+          <div class="resource-desc">simonwillison.net — daily practical LLM notes. One of the most consistent sources of real-world findings. The search archive alone is worth bookmarking.</div>
+        </div>
+        <div class="resource-card">
+          <div class="resource-header">
+            <div class="resource-name">The Batch</div>
+            <span class="resource-type type-blog">Newsletter</span>
+          </div>
+          <div class="resource-desc">deeplearning.ai's weekly synthesis. Good overall signal-to-noise ratio. Useful for staying oriented on multiple subfields without reading everything yourself.</div>
+        </div>
+        <div class="resource-card">
+          <div class="resource-header">
+            <div class="resource-name">AI Engineer Newsletter</div>
+            <span class="resource-type type-blog">Newsletter</span>
+          </div>
+          <div class="resource-desc">Practitioner-focused community newsletter from the team behind AI Engineer Summit. Consistently surfaces real production patterns before they become mainstream.</div>
+        </div>
+      </div>
+
+      <div class="resource-section-label">Conferences and Video</div>
+      <div class="resource-grid">
+        <div class="resource-card">
+          <div class="resource-header">
+            <div class="resource-name">AI Engineer Summit</div>
+            <span class="resource-type type-conference">Conference</span>
+          </div>
+          <div class="resource-desc">Annual summit and YouTube archive. The best practitioner-facing conference for people building AI products. Talks are concrete, speakers are building in production.</div>
+        </div>
+        <div class="resource-card">
+          <div class="resource-header">
+            <div class="resource-name">NeurIPS / ICLR</div>
+            <span class="resource-type type-conference">Conference</span>
+          </div>
+          <div class="resource-desc">For the research papers underlying the tools you use. Use the paper-reading protocol from Topic 01. Most relevant papers for agent practitioners: planning, memory, tool use, evals.</div>
+        </div>
+      </div>
+
+      <div class="resource-section-label">Papers Worth Reading</div>
+      <div class="resource-grid">
+        <div class="resource-card">
+          <div class="resource-header">
+            <div class="resource-name">ReAct: Synergizing Reasoning and Acting</div>
+            <span class="resource-type type-paper">Paper</span>
+          </div>
+          <div class="resource-desc">Yao et al., 2022. The foundational ReAct paper. If you have been using ReAct throughout this curriculum without reading the source, read it now — the framing clarifies a lot of what we covered in Modules 2–4.</div>
+        </div>
+        <div class="resource-card">
+          <div class="resource-header">
+            <div class="resource-name">Chain-of-Thought Prompting</div>
+            <span class="resource-type type-paper">Paper</span>
+          </div>
+          <div class="resource-desc">Wei et al., 2022. The CoT foundation. Shorter than you expect and clearer than most secondary sources. The original framing of when and why chain-of-thought helps.</div>
+        </div>
+        <div class="resource-card">
+          <div class="resource-header">
+            <div class="resource-name">Lost in the Middle</div>
+            <span class="resource-type type-paper">Paper</span>
+          </div>
+          <div class="resource-desc">Liu et al., 2023. Why language models struggle with information in the middle of long contexts. The empirical foundation for the context engineering practices in Module 3.</div>
+        </div>
+        <div class="resource-card">
+          <div class="resource-header">
+            <div class="resource-name">Anthropic Model Cards for Claude</div>
+            <span class="resource-type type-paper">Doc</span>
+          </div>
+          <div class="resource-desc">Read these before deploying any Claude-based system. The honest capability and limitation documentation is more useful for production decisions than any benchmark summary.</div>
+        </div>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- Ongoing Practice: Weekly Sync -->
+    <section class="topic-section">
+      <div class="section-number">Ongoing Practice</div>
+      <h2>The Weekly Frontier Sync</h2>
+
+      <p>Knowledge that stays with one person decays the moment that person leaves, gets busy, or shifts focus. The weekly frontier sync converts individual learning into team capability. It is the simplest high-leverage practice we know for staying current as a team.</p>
+
+      <div class="sync-box">
+        <div class="sync-box-label">Format</div>
+        <h3>Weekly 20-Minute Frontier Sync</h3>
+        <p>One person brings a new capability, paper, or practitioner insight they encountered that week. The group evaluates together: is this signal or noise? How would it change what we are building?</p>
+        <ul class="sync-agenda">
+          <li>
+            <span class="sync-time">0–2 min</span>
+            <span class="sync-item">Presenter gives context: where did you find this, why did it catch your attention?</span>
+          </li>
+          <li>
+            <span class="sync-time">2–8 min</span>
+            <span class="sync-item">Presenter explains the finding: what does it claim, what is the evidence, what did you observe if you tested it?</span>
+          </li>
+          <li>
+            <span class="sync-time">8–15 min</span>
+            <span class="sync-item">Group evaluation: apply the signal/noise framework from Topic 02. Is the claim independently verifiable? Does it reflect an actual use case we care about?</span>
+          </li>
+          <li>
+            <span class="sync-time">15–18 min</span>
+            <span class="sync-time" style="color: var(--accent);">Action</span>
+            <span class="sync-item">One of three outcomes: (1) log it in the experiment queue, (2) log it as watch-and-wait, or (3) dismiss with a note on why.</span>
+          </li>
+          <li>
+            <span class="sync-time">18–20 min</span>
+            <span class="sync-item">Rotate — who brings next week's finding?</span>
+          </li>
+        </ul>
+      </div>
+
+      <h3>Facilitation tips</h3>
+      <p>Rotate the presenter role. If one person always brings findings, the team gets one person's filtered view of the frontier. The rotation forces everyone to stay in the information stream.</p>
+      <p>Log the outcomes, not just the meetings. A shared doc with "this week's finding" and a one-sentence verdict — signal, noise, or watch — becomes a searchable institutional record. Six months later, you will know which predictions held up.</p>
+      <p>Keep the format strict. Twenty minutes is enough for one finding. If a finding generates so much discussion that you overrun the time, that is itself a signal — log it for follow-up outside the sync.</p>
+
+      <div class="callout callout-insight">
+        <div class="callout-label">Why this works</div>
+        <p>The discipline of presenting a finding to a group — and having that group ask hard questions — forces you to evaluate what you actually understand about it. Most noise is eliminated by the simple act of having to explain it out loud to skeptical peers. The signal survives that scrutiny. The noise doesn't.</p>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- Module Summary -->
+    <section class="summary-section">
+      <h2>Completing This Curriculum, You Can Now...</h2>
+      <div class="capability-list">
+        <div class="capability-item">
+          <span class="capability-check">[01]</span>
+          <span>Design and reason about the autonomy spectrum — from simple tool-augmented LLMs through fully autonomous multi-agent pipelines — and make deliberate placement decisions based on risk and reversibility.</span>
+        </div>
+        <div class="capability-item">
+          <span class="capability-check">[02]</span>
+          <span>Build reliable ReAct agents with proper tool design, memory architecture, and planning loops. Apply the 12-Factor Agent framework to make systems production-ready.</span>
+        </div>
+        <div class="capability-item">
+          <span class="capability-check">[03]</span>
+          <span>Engineer context windows deliberately — manage what goes in, when it goes in, and how it is structured for agent use. Apply RAG patterns that match your latency and accuracy requirements.</span>
+        </div>
+        <div class="capability-item">
+          <span class="capability-check">[04]</span>
+          <span>Architect multi-agent systems using orchestrator/subagent patterns. Implement MCP servers for tool sharing and A2A protocols for cross-agent communication.</span>
+        </div>
+        <div class="capability-item">
+          <span class="capability-check">[05]</span>
+          <span>Deploy agents safely — design guardrails, implement HITL checkpoints calibrated to action risk, apply EU AI Act compliance thinking, and defend against prompt injection and other agent-specific attacks.</span>
+        </div>
+        <div class="capability-item">
+          <span class="capability-check">[06]</span>
+          <span>Build and run evals. Know the difference between unit evals, integration evals, and human evals. Use observability tooling to trace failures and improve systems based on real production data.</span>
+        </div>
+        <div class="capability-item">
+          <span class="capability-check">[07]</span>
+          <span>Stay current. Apply the signal/noise framework to new model releases and capability claims. Run your own evaluation protocol before adopting anything new. Build team learning systems that convert individual knowledge into shared institutional capability.</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Closing -->
+    <section class="closing-section">
+      <h2>What "Frontier" Actually Means</h2>
+      <p>Frontier does not mean knowing everything. No one knows everything in this field, including the people building the models. Frontier means having the tools and habits to learn continuously — to read new information with calibrated skepticism, to test claims against your own systems, and to update your understanding without getting whiplashed by every new announcement.</p>
+      <p>The practitioners who stay dangerous in this field are not the ones who know the most right now. They are the ones who have built reliable systems for knowing what to pay attention to. They have an information diet, an evaluation protocol, and a team culture that treats staying current as infrastructure rather than optional reading.</p>
+      <p>You have spent six modules building the technical foundations. This final module is the operating system that runs underneath all of it. The frameworks will change. The models will improve. The vocabulary will shift. The underlying discipline — building carefully, evaluating honestly, learning continuously — does not.</p>
+      <p>That is what you carry forward from here.</p>
+    </section>
+
+  </div>
+</div>
+
+<!-- Footer -->
+<div class="container">
+  <footer class="footer">
+    <div class="footer-inner">
+      <a href="module-06.html" class="footer-nav-link">← Module 06</a>
+      <span class="footer-badge">End of Curriculum</span>
+      <a href="agentic-ai-curriculum.html" class="footer-nav-link">← Back to Curriculum Overview</a>
+    </div>
+  </footer>
+</div>
+
+</body>
+</html>

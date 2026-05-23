@@ -1,0 +1,1646 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Module 04: Multi-Agent Systems &amp; Orchestration — Agentic AI Curriculum</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;500&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;500&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap');
+
+  :root {
+    --bg: #0a0a0f;
+    --surface: #111118;
+    --surface2: #18181f;
+    --border: #2a2a3a;
+    --accent: #7c6af7;
+    --accent2: #f7c36a;
+    --accent3: #6af7d4;
+    --text: #e8e8f0;
+    --muted: #6b6b80;
+    --danger: #f76a6a;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 300;
+    line-height: 1.7;
+    min-height: 100vh;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.4;
+  }
+
+  /* Sticky nav */
+  .top-nav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(10,10,15,0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .top-nav-inner {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 0 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 52px;
+    gap: 1rem;
+  }
+
+  .nav-back {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.05em;
+    color: var(--muted);
+    text-decoration: none;
+    transition: color 0.2s;
+    white-space: nowrap;
+  }
+
+  .nav-back:hover { color: var(--text); }
+
+  .nav-module-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    color: var(--muted);
+    text-transform: uppercase;
+    text-align: center;
+    flex: 1;
+  }
+
+  .nav-next {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.05em;
+    color: var(--muted);
+    text-decoration: none;
+    transition: color 0.2s;
+    white-space: nowrap;
+  }
+
+  .nav-next:hover { color: var(--accent); }
+
+  /* Container */
+  .container {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 0 2rem;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Hero */
+  .hero {
+    padding: 4.5rem 0 3.5rem;
+    border-bottom: 1px solid var(--border);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero::after {
+    content: '';
+    position: absolute;
+    top: -100px;
+    right: -200px;
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, rgba(247,195,106,0.10) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .hero-eyebrow {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.2em;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+  }
+
+  .module-badge {
+    display: inline-block;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.1em;
+    padding: 0.25rem 0.6rem;
+    border-radius: 4px;
+    margin-bottom: 1.2rem;
+  }
+
+  .badge-advanced {
+    background: rgba(247,195,106,0.12);
+    color: var(--accent2);
+    border: 1px solid rgba(247,195,106,0.3);
+  }
+
+  .hero h1 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: clamp(2rem, 4.5vw, 3.2rem);
+    line-height: 1.08;
+    margin-bottom: 1.4rem;
+    letter-spacing: -0.02em;
+  }
+
+  .hero-sub {
+    font-size: 1.05rem;
+    color: #a0a0b8;
+    max-width: 620px;
+    line-height: 1.8;
+    margin-bottom: 2rem;
+  }
+
+  .hero-meta {
+    display: flex;
+    gap: 2.5rem;
+    flex-wrap: wrap;
+  }
+
+  .meta-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+  }
+
+  .meta-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.15em;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+
+  .meta-value {
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    font-size: 1rem;
+    color: var(--text);
+  }
+
+  /* Stat callout in hero */
+  .hero-stat {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.5rem;
+    background: rgba(247,195,106,0.07);
+    border: 1px solid rgba(247,195,106,0.2);
+    border-radius: 8px;
+    padding: 0.9rem 1.4rem;
+    margin-bottom: 2rem;
+  }
+
+  .hero-stat-number {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 1.8rem;
+    color: var(--accent2);
+    line-height: 1;
+  }
+
+  .hero-stat-label {
+    font-size: 0.88rem;
+    color: #b8a070;
+    line-height: 1.4;
+    max-width: 260px;
+  }
+
+  /* Main content */
+  .content {
+    padding: 4rem 0 6rem;
+  }
+
+  /* Topic sections */
+  .topic-section {
+    margin-bottom: 5rem;
+  }
+
+  .topic-section:last-child {
+    margin-bottom: 0;
+  }
+
+  .section-number {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+  }
+
+  .topic-section h2 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 1.65rem;
+    letter-spacing: -0.01em;
+    line-height: 1.2;
+    margin-bottom: 1.6rem;
+    color: var(--text);
+  }
+
+  .topic-section h3 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    font-size: 1.1rem;
+    letter-spacing: -0.01em;
+    margin-top: 2rem;
+    margin-bottom: 0.8rem;
+    color: var(--text);
+  }
+
+  .topic-section p {
+    font-size: 0.97rem;
+    color: #c8c8d8;
+    line-height: 1.8;
+    margin-bottom: 1.2rem;
+  }
+
+  .topic-section p:last-child {
+    margin-bottom: 0;
+  }
+
+  /* Section divider */
+  .section-divider {
+    height: 1px;
+    background: linear-gradient(to right, transparent, var(--border) 20%, var(--border) 80%, transparent);
+    margin: 4.5rem 0;
+  }
+
+  /* Callout boxes */
+  .callout {
+    border-radius: 10px;
+    padding: 1.3rem 1.6rem;
+    margin: 2rem 0;
+  }
+
+  .callout-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 0.6rem;
+    font-weight: 500;
+  }
+
+  .callout p {
+    font-size: 0.92rem;
+    line-height: 1.75;
+    margin-bottom: 0;
+  }
+
+  .callout p + p {
+    margin-top: 0.8rem;
+  }
+
+  .callout-insight {
+    background: rgba(124,106,247,0.07);
+    border: 1px solid rgba(124,106,247,0.25);
+  }
+
+  .callout-insight .callout-label {
+    color: var(--accent);
+  }
+
+  .callout-insight p {
+    color: #b8b0f0;
+  }
+
+  .callout-mistake {
+    background: rgba(247,106,106,0.07);
+    border: 1px solid rgba(247,106,106,0.25);
+  }
+
+  .callout-mistake .callout-label {
+    color: var(--danger);
+  }
+
+  .callout-mistake p {
+    color: #e0b0b0;
+  }
+
+  .callout-example {
+    background: rgba(106,247,212,0.06);
+    border: 1px solid rgba(106,247,212,0.2);
+  }
+
+  .callout-example .callout-label {
+    color: var(--accent3);
+  }
+
+  .callout-example p {
+    color: #a8e8d8;
+  }
+
+  /* Code blocks */
+  .code-block {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.4rem 1.6rem;
+    margin: 1.6rem 0;
+    overflow-x: auto;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.82rem;
+    line-height: 1.75;
+    color: #c0c0d8;
+  }
+
+  .code-block code {
+    font-family: inherit;
+  }
+
+  .code-comment { color: var(--muted); }
+  .code-key { color: var(--accent2); }
+  .code-string { color: var(--accent3); }
+  .code-keyword { color: var(--accent); }
+  .code-fn { color: #c0a0f0; }
+
+  /* Topology diagram */
+  .topology-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 1rem;
+    margin: 2rem 0;
+  }
+
+  @media (max-width: 640px) {
+    .topology-grid { grid-template-columns: 1fr; }
+  }
+
+  .topology-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.4rem 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+  }
+
+  .topology-card.active-card {
+    border-color: rgba(124,106,247,0.4);
+    background: rgba(124,106,247,0.05);
+  }
+
+  .topology-icon {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .topology-card.active-card .topology-icon {
+    color: var(--accent);
+  }
+
+  .topology-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 1rem;
+    color: var(--text);
+  }
+
+  .topology-desc {
+    font-size: 0.82rem;
+    color: #9898b0;
+    line-height: 1.65;
+  }
+
+  .topology-verdict {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.68rem;
+    margin-top: 0.3rem;
+  }
+
+  .verdict-good { color: var(--accent3); }
+  .verdict-warn { color: var(--accent2); }
+  .verdict-theory { color: var(--muted); }
+
+  /* Protocol comparison */
+  .protocol-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.2rem;
+    margin: 2rem 0;
+  }
+
+  @media (max-width: 580px) {
+    .protocol-grid { grid-template-columns: 1fr; }
+  }
+
+  .protocol-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.5rem;
+  }
+
+  .protocol-card.mcp-card {
+    border-color: rgba(124,106,247,0.3);
+  }
+
+  .protocol-card.a2a-card {
+    border-color: rgba(106,247,212,0.25);
+  }
+
+  .protocol-header {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    margin-bottom: 1rem;
+  }
+
+  .protocol-badge {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    padding: 0.2rem 0.55rem;
+    border-radius: 4px;
+  }
+
+  .mcp-badge {
+    background: rgba(124,106,247,0.15);
+    color: var(--accent);
+    border: 1px solid rgba(124,106,247,0.3);
+  }
+
+  .a2a-badge {
+    background: rgba(106,247,212,0.08);
+    color: var(--accent3);
+    border: 1px solid rgba(106,247,212,0.2);
+  }
+
+  .protocol-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: var(--text);
+  }
+
+  .protocol-subtitle {
+    font-size: 0.8rem;
+    color: var(--muted);
+    margin-bottom: 0.9rem;
+    font-style: italic;
+  }
+
+  .protocol-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
+  }
+
+  .protocol-list li {
+    font-size: 0.83rem;
+    color: #9898b0;
+    line-height: 1.55;
+    padding-left: 1.1rem;
+    position: relative;
+  }
+
+  .mcp-card .protocol-list li::before {
+    content: '→';
+    position: absolute;
+    left: 0;
+    color: var(--accent);
+    font-size: 0.75rem;
+  }
+
+  .a2a-card .protocol-list li::before {
+    content: '→';
+    position: absolute;
+    left: 0;
+    color: var(--accent3);
+    font-size: 0.75rem;
+  }
+
+  /* Decision table */
+  .decision-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1.8rem 0;
+    font-size: 0.86rem;
+  }
+
+  .decision-table th {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    text-align: left;
+    padding: 0.6rem 1rem;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface2);
+  }
+
+  .decision-table td {
+    padding: 0.8rem 1rem;
+    color: #b0b0c8;
+    border-bottom: 1px solid rgba(42,42,58,0.5);
+    line-height: 1.6;
+    vertical-align: top;
+  }
+
+  .decision-table tr:last-child td {
+    border-bottom: none;
+  }
+
+  /* Anti-pattern / failure cards */
+  .failure-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin: 1.8rem 0;
+  }
+
+  .failure-item {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--danger);
+    border-radius: 0 8px 8px 0;
+    padding: 1rem 1.4rem;
+  }
+
+  .failure-item-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    font-size: 0.92rem;
+    color: var(--text);
+    margin-bottom: 0.4rem;
+  }
+
+  .failure-item-desc {
+    font-size: 0.84rem;
+    color: #9898b0;
+    line-height: 1.65;
+  }
+
+  /* Role cards */
+  .role-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin: 2rem 0;
+  }
+
+  @media (max-width: 580px) {
+    .role-grid { grid-template-columns: 1fr; }
+  }
+
+  .role-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.3rem 1.5rem;
+  }
+
+  .role-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--accent2);
+    margin-bottom: 0.5rem;
+  }
+
+  .role-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: var(--text);
+    margin-bottom: 0.5rem;
+  }
+
+  .role-desc {
+    font-size: 0.83rem;
+    color: #9898b0;
+    line-height: 1.65;
+  }
+
+  /* Agent factory diagram */
+  .factory-flow {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    margin: 2rem 0;
+    padding: 1.5rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+  }
+
+  .factory-node {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0.6rem 1rem;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--text);
+    white-space: nowrap;
+  }
+
+  .factory-node.orchestrator-node {
+    border-color: rgba(247,195,106,0.4);
+    color: var(--accent2);
+  }
+
+  .factory-node.agent-node {
+    border-color: rgba(124,106,247,0.35);
+    color: var(--accent);
+  }
+
+  .factory-node.output-node {
+    border-color: rgba(106,247,212,0.3);
+    color: var(--accent3);
+  }
+
+  .factory-arrow {
+    font-size: 0.9rem;
+    color: var(--muted);
+    flex-shrink: 0;
+  }
+
+  /* Lab section */
+  .lab-section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 5rem;
+  }
+
+  .lab-header {
+    padding: 1.8rem 2rem;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface2);
+  }
+
+  .lab-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+  }
+
+  .lab-header h2 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 1.4rem;
+    color: var(--text);
+    margin-bottom: 0.6rem;
+  }
+
+  .lab-header p {
+    font-size: 0.92rem;
+    color: #9898b0;
+    line-height: 1.7;
+  }
+
+  .lab-body {
+    padding: 2rem;
+  }
+
+  .lab-body p {
+    font-size: 0.93rem;
+    color: #b0b0c8;
+    line-height: 1.8;
+    margin-bottom: 1.1rem;
+  }
+
+  .lab-body h3 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    font-size: 1rem;
+    color: var(--text);
+    margin-top: 1.8rem;
+    margin-bottom: 0.7rem;
+  }
+
+  .lab-step {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.3rem 1.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .lab-step-num {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 0.4rem;
+  }
+
+  .lab-step-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: var(--text);
+    margin-bottom: 0.5rem;
+  }
+
+  .lab-step-desc {
+    font-size: 0.85rem;
+    color: #9898b0;
+    line-height: 1.65;
+  }
+
+  /* Summary section */
+  .summary-section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 2rem 2.2rem;
+    margin-bottom: 4rem;
+  }
+
+  .summary-section h2 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 1.25rem;
+    margin-bottom: 1.3rem;
+    color: var(--text);
+  }
+
+  .summary-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.7rem;
+  }
+
+  .summary-list li {
+    font-size: 0.93rem;
+    color: #b0b0c8;
+    line-height: 1.7;
+    padding-left: 1.5rem;
+    position: relative;
+  }
+
+  .summary-list li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0.58rem;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--accent2);
+  }
+
+  /* Footer */
+  .footer {
+    border-top: 1px solid var(--border);
+    padding: 2.5rem 0;
+  }
+
+  .footer-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .footer-text {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.68rem;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+  }
+
+  .footer-prev {
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    font-size: 0.92rem;
+    color: var(--muted);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: color 0.2s;
+  }
+
+  .footer-prev:hover { color: var(--text); }
+
+  .footer-next {
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    font-size: 0.92rem;
+    color: var(--accent);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: gap 0.2s;
+  }
+
+  .footer-next:hover { gap: 0.8rem; }
+
+  /* Inline code */
+  code {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.82em;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    padding: 0.1em 0.35em;
+    color: var(--accent3);
+  }
+
+  strong {
+    font-weight: 500;
+    color: var(--text);
+  }
+
+  em {
+    font-style: italic;
+    color: #aaaacc;
+  }
+
+  .tag {
+    display: inline-block;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.1em;
+    padding: 0.15rem 0.45rem;
+    border-radius: 3px;
+    background: rgba(124,106,247,0.12);
+    color: var(--accent);
+    border: 1px solid rgba(124,106,247,0.25);
+  }
+
+  .tag-teal {
+    background: rgba(106,247,212,0.08);
+    color: var(--accent3);
+    border-color: rgba(106,247,212,0.2);
+  }
+
+  .tag-gold {
+    background: rgba(247,195,106,0.10);
+    color: var(--accent2);
+    border-color: rgba(247,195,106,0.25);
+  }
+</style>
+</head>
+<body>
+
+<!-- Sticky top nav -->
+<nav class="top-nav">
+  <div class="top-nav-inner">
+    <a href="agentic-ai-curriculum.html" class="nav-back">← Back to Curriculum</a>
+    <span class="nav-module-label">Module 04 · Multi-Agent Systems</span>
+    <a href="module-05.html" class="nav-next">Next: Module 05 →</a>
+  </div>
+</nav>
+
+<!-- Hero -->
+<div class="hero">
+  <div class="container">
+    <div class="hero-eyebrow">Module 04 · Advanced</div>
+    <div class="module-badge badge-advanced">ADVANCED</div>
+    <h1>Multi-Agent Systems<br>&amp; Orchestration</h1>
+
+    <div class="hero-stat">
+      <span class="hero-stat-number">97M</span>
+      <span class="hero-stat-label">MCP downloads per month by March 2026 — up from ~2M at launch 16 months prior</span>
+    </div>
+
+    <p class="hero-sub">
+      The competitive moat is shifting from smarter individual agents to coordination layers that manage fleets of agents as unified systems. Single-agent systems have real ceilings — context limits, serial execution, no error isolation. This module is about what happens when you break tasks across multiple specialized agents, and the new class of problems that creates. We'll cover MCP and A2A, the emerging protocols that are becoming the plumbing of the agentic internet, and the orchestration patterns that make agent fleets reliable and governable.
+    </p>
+
+    <div class="hero-meta">
+      <div class="meta-item">
+        <span class="meta-label">Duration</span>
+        <span class="meta-value">2 weeks</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">Level</span>
+        <span class="meta-value">Advanced</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">Prerequisites</span>
+        <span class="meta-value">Modules 01–03</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Main content -->
+<div class="content">
+  <div class="container">
+
+    <!-- Topic 1: Why multi-agent -->
+    <div class="topic-section">
+      <div class="section-number">Topic 01</div>
+      <h2>Why Multi-Agent? Three Legitimate Reasons (and One That Isn't)</h2>
+
+      <p>Before we talk about how to build multi-agent systems, we need to be honest about when you should build one at all. Multi-agent architecture adds real costs: coordination overhead, debugging complexity, more failure modes, and higher token spend. The question isn't "can we use multiple agents?" It's "does the task structure actually justify it?"</p>
+
+      <p>There are exactly three reasons to go multi-agent that hold up under scrutiny.</p>
+
+      <h3>Reason 1: Parallelism</h3>
+
+      <p>Some tasks decompose into subtasks that don't depend on each other's results. When they do, you can run those subtasks concurrently instead of sequentially. A single-agent system is serial by nature — it must complete each ReAct loop step before starting the next. A multi-agent system can dispatch multiple subagents simultaneously, and total latency becomes the time of the slowest subagent, not the sum of all of them.</p>
+
+      <div class="callout callout-example">
+        <div class="callout-label">COMPASS Example</div>
+        <p>The COMPASS competitive intelligence system receives a research question like "How are B2B SaaS companies responding to AI-native competitors entering their market?" The Planner decomposes this into five sub-questions: pricing strategy shifts, feature roadmap acceleration, churn patterns, messaging changes, and M&amp;A activity. Each sub-question goes to a separate Researcher subagent. All five Researchers run simultaneously. The Synthesizer assembles their outputs. Total wall-clock time: ~40 seconds instead of ~200 seconds if run serially.</p>
+      </div>
+
+      <h3>Reason 2: Specialization</h3>
+
+      <p>Different subagents can have different system prompts, different tool access, and even different underlying models. A Researcher subagent needs web search tools and instructions optimized for factual extraction. A Synthesizer needs different instructions — about structure, argument clarity, and synthesis — and no web search at all. Trying to serve both roles with a single system prompt produces an agent that does neither well.</p>
+
+      <p>Specialization also lets you right-size models. A subagent doing simple data formatting doesn't need the same model as the one making complex analytical judgments. Running cheaper models for routine subagent work and expensive models only where reasoning depth matters is a real cost lever.</p>
+
+      <h3>Reason 3: Error Isolation</h3>
+
+      <p>In a single-agent system, a tool failure or a bad model output can derail the entire task. In a multi-agent system with an orchestrator, a subagent failure is localized. The orchestrator can detect the failure, log it, and decide to retry, reroute to a different subagent, or degrade gracefully — returning a partial result rather than a total failure. The system has seams where faults can be caught.</p>
+
+      <p>This is especially important in production. When you have ten Researcher subagents and one returns a garbage result, the Synthesizer can flag the anomaly and the orchestrator can retry just that one. The other nine results are preserved.</p>
+
+      <div class="callout callout-mistake">
+        <div class="callout-label">The Illegitimate Reason</div>
+        <p>"Because it sounds more sophisticated." We see this constantly: teams adding agents to a system because multi-agent feels more impressive, not because the task structure demands it. Adding an orchestrator layer to a system that was working fine as a single agent doesn't make it better. It makes it slower, harder to debug, and more expensive. Aria — the customer success agent we've been building since Module 1 — would be made strictly worse by multi-agent complexity. She handles one customer conversation at a time, her tasks aren't decomposable in parallel, and the coordination overhead would dwarf any benefit. Aria stays single-agent.</p>
+      </div>
+    </div>
+
+    <div class="section-divider"></div>
+
+    <!-- Topic 2: Orchestration topologies -->
+    <div class="topic-section">
+      <div class="section-number">Topic 02</div>
+      <h2>Orchestration Topologies: Hierarchical, Peer-to-Peer, Market-Based</h2>
+
+      <p>There are three ways to arrange agents relative to each other. The topology you choose shapes the debugging story, the failure modes, and the governance model for the entire system.</p>
+
+      <div class="topology-grid">
+        <div class="topology-card active-card">
+          <div class="topology-icon">Most Common</div>
+          <div class="topology-title">Hierarchical</div>
+          <div class="topology-desc">One orchestrator at the top. Subagents below. The orchestrator decomposes tasks, dispatches work, monitors completion, and synthesizes results. Subagents don't communicate with each other — they report only to the orchestrator.</div>
+          <div class="topology-verdict verdict-good">Production-ready. Debug easily. Clear accountability.</div>
+        </div>
+        <div class="topology-card">
+          <div class="topology-icon">Emerging</div>
+          <div class="topology-title">Peer-to-Peer</div>
+          <div class="topology-desc">Agents communicate directly with each other without a central coordinator. Useful for iterative refinement cycles: a Drafter sends output to a Critic who sends feedback back. Good for tasks where the answer evolves through dialogue.</div>
+          <div class="topology-verdict verdict-warn">Harder to debug. No single point of accountability.</div>
+        </div>
+        <div class="topology-card">
+          <div class="topology-icon">Theoretical</div>
+          <div class="topology-title">Market-Based</div>
+          <div class="topology-desc">Agents bid on tasks from a shared queue. The task goes to the agent that offers the best combination of capability and cost. Dynamic resource allocation. Handles variable task volumes without static role assignment.</div>
+          <div class="topology-verdict verdict-theory">More theoretical in 2026. Watch this space.</div>
+        </div>
+      </div>
+
+      <h3>COMPASS is Hierarchical</h3>
+
+      <p>The COMPASS system has a clear hierarchy: one Planner, three-to-five Researchers, one Synthesizer. The Planner doesn't know or care which Researcher handles which sub-question. The Researchers don't communicate with each other. The Synthesizer doesn't talk back to the Planner. Information flows down from Planner to Researchers, and up from Researchers to Synthesizer. This structure is what makes COMPASS debuggable: when a result is wrong, you check the Synthesizer first, then the relevant Researcher, then the Planner's decomposition.</p>
+
+      <h3>Role Specialization Within Topologies</h3>
+
+      <p>Regardless of topology, well-designed multi-agent systems define role boundaries explicitly. Four roles appear repeatedly in production systems:</p>
+
+      <div class="role-grid">
+        <div class="role-card">
+          <div class="role-label">Role</div>
+          <div class="role-title">Researcher</div>
+          <div class="role-desc">Fetches and summarizes information from external sources. Optimized for factual extraction, source citation, and concise summarization. Tool access: web search, document retrieval, databases.</div>
+        </div>
+        <div class="role-card">
+          <div class="role-label">Role</div>
+          <div class="role-title">Critic</div>
+          <div class="role-desc">Reviews outputs from other agents for accuracy, coherence, and completeness. Does not produce primary content — it evaluates it. Common in peer-to-peer topologies and quality gate patterns.</div>
+        </div>
+        <div class="role-card">
+          <div class="role-label">Role</div>
+          <div class="role-title">Executor</div>
+          <div class="role-desc">Takes a fully specified plan and carries it out — writing code, making API calls, manipulating files. Needs no reasoning about what to do, only how to do it. Optimized for reliability and tool use accuracy.</div>
+        </div>
+        <div class="role-card">
+          <div class="role-label">Role</div>
+          <div class="role-title">Evaluator</div>
+          <div class="role-desc">Compares output against a success criterion and produces a structured verdict. Used in evaluation loops where the orchestrator needs a signal about whether to accept, retry, or escalate a result.</div>
+        </div>
+      </div>
+
+      <p>These are archetypes, not mandates. Your system may combine roles or invent new ones. The discipline is in making sure every agent knows its role and has only the tools appropriate to it.</p>
+    </div>
+
+    <div class="section-divider"></div>
+
+    <!-- Topic 3: MCP -->
+    <div class="topic-section">
+      <div class="section-number">Topic 03</div>
+      <h2>Model Context Protocol (MCP): Standardized Agent-to-Tool Communication</h2>
+
+      <p>Before MCP, every agent framework had its own way of connecting agents to tools. LangChain had its tool abstraction. AutoGen had another. Custom deployments had their own ad hoc integrations. Every tool integration was framework-specific, meaning a Slack integration built for one framework wouldn't work with another. When a team switched frameworks, they rewrote their tool integrations from scratch.</p>
+
+      <p>MCP is Anthropic's answer to this fragmentation. It's an open standard — a JSON-RPC protocol — that defines how an agent (the MCP client) discovers and calls tools exposed by an MCP server. Any agent framework that implements the MCP client spec can use any MCP-compatible tool server, regardless of how either was built.</p>
+
+      <div class="callout callout-insight">
+        <div class="callout-label">Insight</div>
+        <p>Think of MCP as USB for agent tools. Before USB, every peripheral had its own connector. USB standardized the interface so any peripheral could plug into any computer. MCP standardizes the interface so any agent can call any tool. The 97 million monthly downloads by March 2026 signal that the ecosystem has converged on this as the standard — not just for Anthropic's own products, but across the agent-building community.</p>
+      </div>
+
+      <h3>Protocol Architecture</h3>
+
+      <p>MCP uses a client/server model. The <strong>MCP server</strong> owns the tool — it knows how to call a GitHub API, query a PostgreSQL database, or post to Slack. The <strong>MCP client</strong> is the agent runtime — it calls the MCP server when it needs a tool executed. The agent never directly calls the underlying API; it always goes through the MCP server.</p>
+
+      <p>An MCP server exposes three things:</p>
+
+      <ul class="failure-list" style="border: none;">
+        <li class="failure-item" style="border-left-color: var(--accent);">
+          <div class="failure-item-title">Manifest (Tool Discovery)</div>
+          <div class="failure-item-desc">A list of available tools with their names, descriptions, and input schemas. The agent reads the manifest to know what tools exist and how to call them. This is how an agent can dynamically discover capabilities at runtime rather than having them hardcoded.</div>
+        </li>
+        <li class="failure-item" style="border-left-color: var(--accent);">
+          <div class="failure-item-title">Tool Handler (Execution)</div>
+          <div class="failure-item-desc">The implementation that actually runs when a tool is called. The agent sends a JSON-RPC request with the tool name and arguments. The server executes the tool, then returns a structured result. Errors surface as structured error objects, not raw exceptions.</div>
+        </li>
+        <li class="failure-item" style="border-left-color: var(--accent);">
+          <div class="failure-item-title">Resource Handler (Data Exposure)</div>
+          <div class="failure-item-desc">A mechanism for the server to expose data that isn't tied to a specific tool call — configuration, reference documents, live data streams. Resources are read by the agent as part of context construction, not as tool calls.</div>
+        </li>
+      </ul>
+
+      <h3>Transport Modes</h3>
+
+      <p>MCP supports three transport mechanisms, depending on where your MCP server lives relative to your agent:</p>
+
+      <table class="decision-table">
+        <thead>
+          <tr>
+            <th>Transport</th>
+            <th>Use Case</th>
+            <th>Latency</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>stdio</strong></td>
+            <td>Local MCP server running on the same machine as the agent. Fastest. Used in development and for local tool execution (filesystem access, local code execution).</td>
+            <td>Sub-millisecond</td>
+          </tr>
+          <tr>
+            <td><strong>HTTP + SSE</strong></td>
+            <td>Remote MCP server accessed over HTTP. Server-sent events for streaming responses. Standard for cloud-deployed tool servers. Works through firewalls and load balancers.</td>
+            <td>Network-dependent</td>
+          </tr>
+          <tr>
+            <td><strong>WebSocket</strong></td>
+            <td>Bidirectional streaming between agent and server. Used when the tool needs to push updates back to the agent in real time — progress updates, streaming results, event subscriptions.</td>
+            <td>Network-dependent</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>The MCP Ecosystem in 2026</h3>
+
+      <p>The ecosystem has expanded far beyond Anthropic's own servers. As of early 2026, there are MCP servers for GitHub, Slack, PostgreSQL, Notion, Stripe, Jira, Salesforce, Google Drive, and hundreds of community-built integrations. The practical implication: if your agent needs to integrate with a mainstream SaaS tool, there's probably already an MCP server for it. You define the tool selection logic; someone else built the integration.</p>
+
+      <div class="callout callout-example">
+        <div class="callout-label">COMPASS and MCP</div>
+        <p>Each COMPASS Researcher subagent connects to MCP servers for web search (Brave or Perplexity), a news aggregator, and a structured data source (Crunchbase or similar). The Planner connects to none — it only reasons. The Synthesizer connects to none — it only synthesizes from what the Researchers return. Separation of tool access is a forcing function for specialization. If a Researcher can't call the web search MCP server, it will fail fast rather than hallucinating information.</p>
+      </div>
+
+      <h3>What an MCP Tool Call Looks Like</h3>
+
+      <div class="code-block"><code><span class="code-comment">// Agent sends to MCP server (JSON-RPC 2.0)</span>
+{
+  <span class="code-key">"jsonrpc"</span>: <span class="code-string">"2.0"</span>,
+  <span class="code-key">"method"</span>: <span class="code-string">"tools/call"</span>,
+  <span class="code-key">"id"</span>: <span class="code-string">"req-001"</span>,
+  <span class="code-key">"params"</span>: {
+    <span class="code-key">"name"</span>: <span class="code-string">"web_search"</span>,
+    <span class="code-key">"arguments"</span>: {
+      <span class="code-key">"query"</span>: <span class="code-string">"B2B SaaS AI-native competitor pricing strategy 2025"</span>,
+      <span class="code-key">"max_results"</span>: 5
+    }
+  }
+}
+
+<span class="code-comment">// MCP server response</span>
+{
+  <span class="code-key">"jsonrpc"</span>: <span class="code-string">"2.0"</span>,
+  <span class="code-key">"id"</span>: <span class="code-string">"req-001"</span>,
+  <span class="code-key">"result"</span>: {
+    <span class="code-key">"content"</span>: [
+      {
+        <span class="code-key">"type"</span>: <span class="code-string">"text"</span>,
+        <span class="code-key">"text"</span>: <span class="code-string">"[Structured search results as text...]"</span>
+      }
+    ],
+    <span class="code-key">"isError"</span>: <span class="code-keyword">false</span>
+  }
+}</code></div>
+    </div>
+
+    <div class="section-divider"></div>
+
+    <!-- Topic 4: A2A -->
+    <div class="topic-section">
+      <div class="section-number">Topic 04</div>
+      <h2>Agent-to-Agent (A2A): The Interoperability Standard for Agent Networks</h2>
+
+      <p>MCP standardizes how agents talk to tools. A2A standardizes how agents talk to <em>each other</em>. These are different problems with different solutions, and both are necessary for a functioning agentic internet.</p>
+
+      <p>A2A is Google's open standard, published in 2025 and gaining rapid adoption. The core insight is that agents, from a network perspective, look like services: they have capabilities, they accept inputs, they produce outputs, they can be called remotely. A2A gives those services a common interface so that agents built by different teams, on different frameworks, can interoperate without custom integration work.</p>
+
+      <div class="protocol-grid">
+        <div class="protocol-card mcp-card">
+          <div class="protocol-header">
+            <span class="protocol-badge mcp-badge">MCP</span>
+            <span class="protocol-title">Agent → Tool</span>
+          </div>
+          <div class="protocol-subtitle">Vertical integration</div>
+          <ul class="protocol-list">
+            <li>JSON-RPC 2.0 over stdio, HTTP+SSE, or WebSocket</li>
+            <li>MCP server exposes tools and resources</li>
+            <li>Agent discovers tools at runtime via manifest</li>
+            <li>Designed for tool execution and data retrieval</li>
+            <li>Anthropic-originated, broadly adopted</li>
+          </ul>
+        </div>
+        <div class="protocol-card a2a-card">
+          <div class="protocol-header">
+            <span class="protocol-badge a2a-badge">A2A</span>
+            <span class="protocol-title">Agent → Agent</span>
+          </div>
+          <div class="protocol-subtitle">Horizontal integration</div>
+          <ul class="protocol-list">
+            <li>HTTP-based with standard REST semantics</li>
+            <li>Each agent exposes an Agent Card at <code>/.well-known/agent.json</code></li>
+            <li>Tasks are the unit of work; Messages carry communication</li>
+            <li>Designed for agent delegation and coordination</li>
+            <li>Google-originated, cross-platform adoption</li>
+          </ul>
+        </div>
+      </div>
+
+      <p>These protocols are complementary, not competing. A COMPASS Researcher subagent might use MCP to call a web search tool, and use A2A to receive task assignments from the Planner and return results to the Synthesizer. MCP is the plumbing inside a single agent's tool use. A2A is the highway between agents.</p>
+
+      <h3>The Agent Card</h3>
+
+      <p>Every A2A-compliant agent publishes an Agent Card — a JSON document at the well-known URL <code>/.well-known/agent.json</code>. The Agent Card is the agent's public identity: what it can do, what inputs it accepts, what outputs it produces, and what authentication it requires. Any agent that wants to delegate work to this agent reads the card first to confirm capability match before sending a task.</p>
+
+      <div class="code-block"><code><span class="code-comment">// Agent Card for a COMPASS Researcher subagent</span>
+{
+  <span class="code-key">"name"</span>: <span class="code-string">"COMPASS-Researcher"</span>,
+  <span class="code-key">"version"</span>: <span class="code-string">"1.2.0"</span>,
+  <span class="code-key">"description"</span>: <span class="code-string">"Researches a scoped sub-question using web search and news aggregation. Returns a structured summary with source citations."</span>,
+  <span class="code-key">"capabilities"</span>: [<span class="code-string">"web-research"</span>, <span class="code-string">"news-search"</span>, <span class="code-string">"summarization"</span>],
+  <span class="code-key">"inputSchema"</span>: {
+    <span class="code-key">"type"</span>: <span class="code-string">"object"</span>,
+    <span class="code-key">"properties"</span>: {
+      <span class="code-key">"sub_question"</span>: { <span class="code-key">"type"</span>: <span class="code-string">"string"</span> },
+      <span class="code-key">"max_sources"</span>: { <span class="code-key">"type"</span>: <span class="code-string">"integer"</span>, <span class="code-key">"default"</span>: 5 }
+    },
+    <span class="code-key">"required"</span>: [<span class="code-string">"sub_question"</span>]
+  },
+  <span class="code-key">"outputSchema"</span>: {
+    <span class="code-key">"type"</span>: <span class="code-string">"object"</span>,
+    <span class="code-key">"properties"</span>: {
+      <span class="code-key">"summary"</span>: { <span class="code-key">"type"</span>: <span class="code-string">"string"</span> },
+      <span class="code-key">"sources"</span>: { <span class="code-key">"type"</span>: <span class="code-string">"array"</span> },
+      <span class="code-key">"confidence"</span>: { <span class="code-key">"type"</span>: <span class="code-string">"string"</span>, <span class="code-key">"enum"</span>: [<span class="code-string">"high"</span>, <span class="code-string">"medium"</span>, <span class="code-string">"low"</span>] }
+    }
+  },
+  <span class="code-key">"auth"</span>: { <span class="code-key">"type"</span>: <span class="code-string">"bearer"</span> }
+}</code></div>
+
+      <h3>A2A Primitives</h3>
+
+      <p>The A2A protocol defines three core primitives that every agent interaction uses:</p>
+
+      <table class="decision-table">
+        <thead>
+          <tr>
+            <th>Primitive</th>
+            <th>What It Is</th>
+            <th>Lifecycle</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Task</strong></td>
+            <td>The unit of delegated work. Contains the input, priority, deadline, and a unique ID for tracking.</td>
+            <td><code>submitted</code> → <code>working</code> → <code>completed</code> / <code>failed</code> / <code>requires-input</code></td>
+          </tr>
+          <tr>
+            <td><strong>Message</strong></td>
+            <td>Communication between agents within a task. Can carry instructions, clarifications, partial results, or status updates. Many messages may occur within a single task.</td>
+            <td>Stateless. Each message stands alone.</td>
+          </tr>
+          <tr>
+            <td><strong>Artifact</strong></td>
+            <td>The deliverable output of a completed task. Structured according to the agent's output schema. Persisted and referenced by ID so downstream agents don't re-fetch.</td>
+            <td>Created on completion. Immutable once created.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <p>The <code>requires-input</code> task state is worth noting specifically. It's how an A2A agent implements HITL (human-in-the-loop) pauses without breaking the protocol. When a subagent reaches a decision point it can't resolve autonomously, it transitions the task to <code>requires-input</code> and sends a Message explaining what it needs. The orchestrator (or a human) responds, and the task resumes. This is structured ambiguity handling at the protocol level.</p>
+    </div>
+
+    <div class="section-divider"></div>
+
+    <!-- Topic 5: Shared state and conflict -->
+    <div class="topic-section">
+      <div class="section-number">Topic 05</div>
+      <h2>Shared State, Conflict Resolution, and Communication Overload</h2>
+
+      <p>Multiple agents acting on the same environment create coordination problems that don't exist in single-agent systems. Two agents that can both write to the same database will eventually write conflicting values. Two agents that can both send emails will eventually send duplicates. Coordination isn't free — it must be designed.</p>
+
+      <h3>Two Models for Agent State</h3>
+
+      <p>The <strong>blackboard model</strong> (also called shared environment) gives all agents read and write access to a common data store. It's simple to implement: any agent can write its findings, and any other agent can read them. The problem is race conditions. If two Researcher subagents both find and write a conclusion about the same topic at the same time, the last write wins — and the first agent's work is silently discarded. In a system with tight timing, the outcome becomes nondeterministic.</p>
+
+      <p><strong>Message passing</strong> is the alternative. Agents communicate only through explicit messages routed through the orchestrator or a message broker. No agent can read another agent's state directly — it can only receive what's been explicitly sent to it. This eliminates race conditions and makes the information flow auditable, at the cost of more overhead and more deliberate system design.</p>
+
+      <div class="callout callout-insight">
+        <div class="callout-label">Insight</div>
+        <p>COMPASS uses message passing. The Planner sends task messages to each Researcher. Each Researcher sends result messages to the Synthesizer. No agent reads another's state. The orchestrator is the only entity that sees all messages. This means any failure is traceable: you can replay the message log and see exactly where the system diverged from expected behavior.</p>
+      </div>
+
+      <h3>Conflict Resolution Strategies</h3>
+
+      <p>When multiple agents produce conflicting outputs — two Researchers return contradictory findings, for example — the system needs a strategy for resolution. Three approaches are common in production:</p>
+
+      <ul class="failure-list" style="border: none;">
+        <li class="failure-item" style="border-left-color: var(--accent2);">
+          <div class="failure-item-title">Last-Write-Wins</div>
+          <div class="failure-item-desc">The most recent output overwrites earlier ones. Simple, deterministic, but information-destroying. Acceptable when outputs are independent and recency implies relevance. Not acceptable when outputs represent competing perspectives that should both be surfaced.</div>
+        </li>
+        <li class="failure-item" style="border-left-color: var(--accent2);">
+          <div class="failure-item-title">Critic Arbitration</div>
+          <div class="failure-item-desc">A dedicated Critic subagent receives all conflicting outputs and produces a structured verdict: which is more credible, why, and what the resolution is. More expensive — you're running an additional agent — but produces reasoned conflict resolution rather than arbitrary overwriting.</div>
+        </li>
+        <li class="failure-item" style="border-left-color: var(--accent2);">
+          <div class="failure-item-title">Orchestrator Override</div>
+          <div class="failure-item-desc">The orchestrator itself resolves conflicts using simple rules (prefer higher-confidence outputs, prefer more recent sources) or flags the conflict for human review. Works well when the orchestrator has enough context to judge, and when HITL escalation is already part of the system design.</div>
+        </li>
+      </ul>
+
+      <h3>Communication Overload</h3>
+
+      <p>More agents does not mean better output. There's a real phenomenon — borrowed from distributed systems theory — where adding more agents past an optimal number increases coordination cost faster than it increases output quality. We see this in COMPASS: three well-scoped Researchers produce a better brief than five would, because the Synthesizer has to reconcile more outputs, some of which are redundant. Adding a fourth Researcher without adding complexity to the original question means that Researcher is covering ground already covered by another — and the Synthesizer has to spend more context figuring out which Researcher to trust when they partially overlap.</p>
+
+      <div class="callout callout-mistake">
+        <div class="callout-label">Common Mistake</div>
+        <p>Teams often increase the number of subagents in response to quality complaints, as if more agents will average out to a better answer. They won't. If the Researchers are returning low-quality outputs, the problem is almost always in the Planner's decomposition (sub-questions are too broad or too overlapping) or in the Researcher's system prompt and tool access — not in the number of Researchers. Fix the root cause, not the headcount.</p>
+      </div>
+    </div>
+
+    <div class="section-divider"></div>
+
+    <!-- Topic 6: Patterns that break at scale -->
+    <div class="topic-section">
+      <div class="section-number">Topic 06</div>
+      <h2>Coordination Patterns That Break at Scale</h2>
+
+      <p>Multi-agent systems that work in demos frequently fail in production. The failure modes are predictable — they're the same ones that appear in distributed computing, because agent fleets are distributed systems. Knowing them in advance is the difference between a system that degrades gracefully and one that fails silently.</p>
+
+      <ul class="failure-list">
+        <li class="failure-item">
+          <div class="failure-item-title">Tail Latency</div>
+          <div class="failure-item-desc">In a parallel system, total latency equals the latency of the <em>slowest</em> subagent, not the average. If you have five parallel Researchers and one gets stuck on a slow web source for 45 seconds, the entire pipeline waits 45 seconds — even though the other four finished in 8. As you add more parallel agents, you increase the probability that at least one will be slow. Mitigation: set timeout budgets per subagent, and design the Synthesizer to work with whatever results have arrived when the budget expires.</div>
+        </li>
+        <li class="failure-item">
+          <div class="failure-item-title">Cascading Failures</div>
+          <div class="failure-item-desc">A failure in one subagent propagates upward and takes out the whole pipeline. The Planner fails to parse a malformed response from a Researcher, throws an exception, and the Synthesizer never runs. Design for partial failure explicitly: the Synthesizer should be able to produce a degraded brief from whatever results it receives. "Three out of five Researchers returned results; here is the brief with a note on missing coverage" is a valid, useful output. A crash is not.</div>
+        </li>
+        <li class="failure-item">
+          <div class="failure-item-title">Agent Swarm Anti-Pattern</div>
+          <div class="failure-item-desc">Spawning many undifferentiated agents in the hope that their aggregate output will be good. It won't. Quantity does not substitute for quality. Twenty undifferentiated Researchers without scoped sub-questions will return twenty overlapping, poorly focused summaries that the Synthesizer cannot coherently assemble. Three COMPASS Researchers with precisely scoped sub-questions and clear output schemas consistently outperform twenty ungoverned agents. Specificity beats volume.</div>
+        </li>
+        <li class="failure-item">
+          <div class="failure-item-title">Token Storms</div>
+          <div class="failure-item-desc">Each agent in the system has its own context window. When agents pass full outputs to the next agent in the pipeline, token costs multiply. A Researcher that returns a 4,000-token summary means the Synthesizer's context starts with 4,000 tokens per Researcher — 20,000 tokens before it writes a single word of synthesis. Mitigate by having each Researcher return a structured, compact summary (not its full reasoning trace), and by having intermediate agents compress before passing. The rule: summarize before you send.</div>
+        </li>
+      </ul>
+
+      <div class="callout callout-insight">
+        <div class="callout-label">Design Principle</div>
+        <p>Think of each agent handoff as a compression boundary. What does the next agent actually need? Not everything the current agent knows — just the distilled conclusion, with enough context to act on it. Design your output schemas to enforce this discipline. If a Researcher's output schema has a <code>summary</code> field with a 500-token max, it can't pass token storms downstream even if it tries.</p>
+      </div>
+    </div>
+
+    <div class="section-divider"></div>
+
+    <!-- Topic 7: Agent factories -->
+    <div class="topic-section">
+      <div class="section-number">Topic 07</div>
+      <h2>Agent Factories: The Emerging Pattern for Knowledge Work</h2>
+
+      <p>The multi-agent patterns we've covered so far assume a fixed system topology: you design the agents, define the roles, and deploy. The system runs the same way every time. This works well when your task type is predictable. It breaks down when you need to handle diverse task types that require different agent configurations.</p>
+
+      <p>Agent factories are the answer. A meta-orchestrator sits at the top of the hierarchy and, rather than dispatching to a fixed set of subagents, <em>spawns the right agents dynamically</em> based on the incoming task. The factory pattern turns agent composition into a runtime decision, not a design-time decision.</p>
+
+      <h3>Factory Pattern in Production</h3>
+
+      <div class="factory-flow">
+        <div class="factory-node orchestrator-node">Meta-Orchestrator</div>
+        <div class="factory-arrow">→</div>
+        <div class="factory-node">Task: Fix bug #447</div>
+        <div class="factory-arrow">→</div>
+        <div class="factory-node agent-node">Planner</div>
+        <div class="factory-arrow">→</div>
+        <div class="factory-node agent-node">Coder</div>
+        <div class="factory-arrow">→</div>
+        <div class="factory-node agent-node">Tester</div>
+        <div class="factory-arrow">→</div>
+        <div class="factory-node agent-node">Reviewer</div>
+        <div class="factory-arrow">→</div>
+        <div class="factory-node output-node">PR + test results</div>
+      </div>
+
+      <div class="factory-flow" style="margin-top: 0.5rem;">
+        <div class="factory-node orchestrator-node">Meta-Orchestrator</div>
+        <div class="factory-arrow">→</div>
+        <div class="factory-node">Task: Quarterly report</div>
+        <div class="factory-arrow">→</div>
+        <div class="factory-node agent-node">Researcher</div>
+        <div class="factory-arrow">→</div>
+        <div class="factory-node agent-node">Outliner</div>
+        <div class="factory-arrow">→</div>
+        <div class="factory-node agent-node">Drafter</div>
+        <div class="factory-arrow">→</div>
+        <div class="factory-node agent-node">Editor</div>
+        <div class="factory-arrow">→</div>
+        <div class="factory-node output-node">Final document</div>
+      </div>
+
+      <p>The meta-orchestrator reads the incoming task, classifies it, and instantiates the appropriate agent pipeline. Both pipelines use MCP-connected tools. Both use A2A for inter-agent communication. But the roles, sequencing, and handoff schemas are different because the task structure is different.</p>
+
+      <h3>Real 2026 Examples</h3>
+
+      <p>Coding agents are the most mature factory pattern in production. The typical pipeline: a Planner breaks down the bug report or feature request into subtasks, a Coder implements each subtask, a Tester runs the test suite against each implementation, a Reviewer checks for style and correctness, and a Deployer runs the deployment if all checks pass. The entire pipeline may run with zero human intervention for routine bugs. For novel architecture decisions, the Planner escalates to HITL before proceeding.</p>
+
+      <p>DevOps agent factories follow a similar pattern: Diagnostician identifies the incident root cause, Patch Agent writes the fix, Test Agent validates it in staging, Deploy Agent pushes to production. Mean time to resolution for known incident classes drops significantly when the factory can handle the full pipeline autonomously.</p>
+
+      <div class="callout callout-insight">
+        <div class="callout-label">Organizational Analogy</div>
+        <p>An agent factory is structurally identical to a well-run project team with defined roles, structured handoffs, and a project manager who assigns the right team to the right project. The management insight that makes project teams work — clear role definitions, explicit deliverable schemas at each handoff, escalation protocols for blockers — is the same insight that makes agent factories work. If you've built effective human teams, you already understand the design principles. The implementation just happens to be in code.</p>
+      </div>
+
+      <h3>When Not to Use a Factory</h3>
+
+      <p>Factory patterns add significant engineering overhead: you need task classification, dynamic agent instantiation, inter-agent routing, and logging infrastructure that works across dynamically spawned agents. Don't build a factory if your system handles one task type at predictable volume. Build a factory when you have multiple distinct task types, when new task types appear frequently, or when task volume is variable enough that static agent allocation would be wasteful.</p>
+    </div>
+
+    <div class="section-divider"></div>
+
+    <!-- Lab -->
+    <div class="lab-section">
+      <div class="lab-header">
+        <div class="lab-label">Lab · Module 04</div>
+        <h2>Build COMPASS: A 3-Agent Research Pipeline</h2>
+        <p>Build a hierarchical multi-agent system with a Planner, parallel Researchers using MCP-connected tools, and a Synthesizer. Compare quality and latency against a single-agent baseline running the same question serially.</p>
+      </div>
+      <div class="lab-body">
+
+        <p>This lab builds the COMPASS system end-to-end. You'll implement the Planner, three Researcher subagents, and the Synthesizer as separate agent runtimes communicating via structured JSON messages. You'll also build the single-agent baseline for comparison.</p>
+
+        <h3>Architecture Overview</h3>
+        <p>The pipeline: Planner receives the research question → decomposes into 3–5 sub-questions and outputs a structured task assignment → Researchers run in parallel, each fetching and summarizing sources via MCP-connected web search → Synthesizer receives all Researcher outputs and assembles the final brief.</p>
+
+        <div class="lab-step">
+          <div class="lab-step-num">Step 01</div>
+          <div class="lab-step-title">Implement the Planner Agent</div>
+          <div class="lab-step-desc">The Planner receives the high-level research question and produces a structured JSON task assignment. Constrain its output schema so it can't return ambiguous or overlapping sub-questions. The schema enforces decomposition discipline at the source.</div>
+        </div>
+
+        <div class="code-block"><code><span class="code-comment"># Planner system prompt (abbreviated)</span>
+PLANNER_SYSTEM = <span class="code-string">"""
+You are a research decomposition specialist.
+Given a research question, decompose it into 3–5 non-overlapping
+sub-questions. Each sub-question must be independently researchable
+with web search. Do not overlap — each sub-question covers distinct
+territory.
+
+Output ONLY valid JSON matching this schema:
+{
+  "original_question": string,
+  "sub_questions": [
+    {
+      "id": "sq-1",
+      "question": string,
+      "focus_area": string,
+      "search_hints": [string]   // 2–3 suggested search queries
+    }
+  ],
+  "synthesis_instructions": string  // guidance for the Synthesizer
+}
+"""</span>
+
+<span class="code-comment"># Planner invocation</span>
+<span class="code-keyword">def</span> <span class="code-fn">run_planner</span>(research_question: str) -> dict:
+    response = llm.invoke(
+        system=PLANNER_SYSTEM,
+        messages=[{<span class="code-string">"role"</span>: <span class="code-string">"user"</span>, <span class="code-string">"content"</span>: research_question}],
+        response_format={<span class="code-string">"type"</span>: <span class="code-string">"json_object"</span>}
+    )
+    plan = json.loads(response.content)
+    assert <span class="code-string">"sub_questions"</span> <span class="code-keyword">in</span> plan, <span class="code-string">"Planner output missing sub_questions"</span>
+    assert 3 <= len(plan[<span class="code-string">"sub_questions"</span>]) <= 5, <span class="code-string">"Expected 3–5 sub-questions"</span>
+    <span class="code-keyword">return</span> plan</code></div>
+
+        <div class="lab-step">
+          <div class="lab-step-num">Step 02</div>
+          <div class="lab-step-title">Implement the Researcher Subagent with MCP Tool Access</div>
+          <div class="lab-step-desc">Each Researcher receives one sub-question from the Planner's output and runs its own agentic loop — searching, reading results, and summarizing. Connect it to a web search MCP server. The Researcher's output schema enforces compact summaries (500 tokens max) with mandatory source citations and a confidence rating.</div>
+        </div>
+
+        <div class="code-block"><code><span class="code-comment"># Researcher system prompt</span>
+RESEARCHER_SYSTEM = <span class="code-string">"""
+You are a research specialist. You receive a scoped sub-question and
+must find the best available information using web search.
+
+Search at least 3 sources. Evaluate source credibility.
+Return ONLY valid JSON:
+{
+  "sub_question_id": string,
+  "summary": string,          // max 400 words — distilled findings only
+  "key_findings": [string],   // 3–5 bullet points
+  "sources": [
+    {"title": string, "url": string, "relevance": "high"|"medium"|"low"}
+  ],
+  "confidence": "high"|"medium"|"low",
+  "confidence_rationale": string
+}
+Do not include your search reasoning. Return only findings.
+"""</span>
+
+<span class="code-comment"># Researcher is an agentic loop — it calls tools until it has enough</span>
+<span class="code-keyword">async def</span> <span class="code-fn">run_researcher</span>(sub_question: dict, mcp_client) -> dict:
+    messages = [{
+        <span class="code-string">"role"</span>: <span class="code-string">"user"</span>,
+        <span class="code-string">"content"</span>: f<span class="code-string">"Research this sub-question:\n{sub_question['question']}\n\nSearch hints: {sub_question['search_hints']}"</span>
+    }]
+
+    <span class="code-comment"># Agentic loop — model calls web_search tool until satisfied</span>
+    <span class="code-keyword">while</span> <span class="code-keyword">True</span>:
+        response = <span class="code-keyword">await</span> llm.invoke_async(
+            system=RESEARCHER_SYSTEM,
+            messages=messages,
+            tools=mcp_client.get_tools(),   <span class="code-comment"># tools from MCP manifest</span>
+            response_format={<span class="code-string">"type"</span>: <span class="code-string">"json_object"</span>}
+        )
+        <span class="code-keyword">if</span> response.stop_reason == <span class="code-string">"tool_use"</span>:
+            tool_result = <span class="code-keyword">await</span> mcp_client.call_tool(response.tool_call)
+            messages.append(response.to_message())
+            messages.append(tool_result.to_message())
+        <span class="code-keyword">else</span>:
+            <span class="code-keyword">return</span> json.loads(response.content)   <span class="code-comment"># final JSON output</span></code></div>
+
+        <div class="lab-step">
+          <div class="lab-step-num">Step 03</div>
+          <div class="lab-step-title">Run Researchers in Parallel</div>
+          <div class="lab-step-desc">Dispatch all Researcher subagents concurrently using async gather. Set a per-researcher timeout — 60 seconds is a reasonable starting point. Collect results and flag any that timed out or returned errors. The Synthesizer will receive a partial result set if any Researchers fail.</div>
+        </div>
+
+        <div class="code-block"><code><span class="code-keyword">async def</span> <span class="code-fn">run_researchers_parallel</span>(plan: dict, mcp_client) -> list[dict]:
+    tasks = [
+        run_researcher(sq, mcp_client)
+        <span class="code-keyword">for</span> sq <span class="code-keyword">in</span> plan[<span class="code-string">"sub_questions"</span>]
+    ]
+
+    <span class="code-comment"># asyncio.gather preserves order; gather all even if some fail</span>
+    results = <span class="code-keyword">await</span> asyncio.gather(*tasks, return_exceptions=<span class="code-keyword">True</span>)
+
+    researcher_outputs = []
+    <span class="code-keyword">for</span> sq, result <span class="code-keyword">in</span> zip(plan[<span class="code-string">"sub_questions"</span>], results):
+        <span class="code-keyword">if</span> isinstance(result, Exception):
+            <span class="code-comment"># Degraded result — note failure but continue</span>
+            researcher_outputs.append({
+                <span class="code-string">"sub_question_id"</span>: sq[<span class="code-string">"id"</span>],
+                <span class="code-string">"error"</span>: str(result),
+                <span class="code-string">"summary"</span>: <span class="code-keyword">None</span>,
+                <span class="code-string">"confidence"</span>: <span class="code-string">"failed"</span>
+            })
+        <span class="code-keyword">else</span>:
+            researcher_outputs.append(result)
+
+    <span class="code-keyword">return</span> researcher_outputs</code></div>
+
+        <div class="lab-step">
+          <div class="lab-step-num">Step 04</div>
+          <div class="lab-step-title">Implement the Synthesizer</div>
+          <div class="lab-step-desc">The Synthesizer receives the Planner's synthesis instructions and all Researcher outputs. It has no tool access. Its job is to reconcile findings, note conflicts, and produce the final brief. It should explicitly acknowledge any failed Researcher slots so the reader knows what coverage is missing.</div>
+        </div>
+
+        <div class="code-block"><code>SYNTHESIZER_SYSTEM = <span class="code-string">"""
+You are a research synthesis specialist. You receive summaries from
+multiple research agents covering different aspects of a question.
+
+Your job:
+1. Identify areas of consensus across sources
+2. Surface and explain any contradictions
+3. Note any coverage gaps (failed or low-confidence Researchers)
+4. Write a coherent executive brief
+
+Output valid JSON:
+{
+  "executive_summary": string,    // 200–300 words
+  "key_findings": [               // ordered by importance
+    {"finding": string, "supported_by": [sub_question_id], "confidence": string}
+  ],
+  "contradictions": [
+    {"topic": string, "positions": [string], "resolution": string}
+  ],
+  "coverage_gaps": [string],
+  "overall_confidence": "high"|"medium"|"low"
+}
+"""</span>
+
+<span class="code-keyword">def</span> <span class="code-fn">run_synthesizer</span>(plan: dict, researcher_outputs: list[dict]) -> dict:
+    synthesis_input = json.dumps({
+        <span class="code-string">"original_question"</span>: plan[<span class="code-string">"original_question"</span>],
+        <span class="code-string">"synthesis_instructions"</span>: plan[<span class="code-string">"synthesis_instructions"</span>],
+        <span class="code-string">"researcher_outputs"</span>: researcher_outputs
+    }, indent=2)
+
+    response = llm.invoke(
+        system=SYNTHESIZER_SYSTEM,
+        messages=[{<span class="code-string">"role"</span>: <span class="code-string">"user"</span>, <span class="code-string">"content"</span>: synthesis_input}],
+        response_format={<span class="code-string">"type"</span>: <span class="code-string">"json_object"</span>}
+    )
+    <span class="code-keyword">return</span> json.loads(response.content)</code></div>
+
+        <div class="lab-step">
+          <div class="lab-step-num">Step 05</div>
+          <div class="lab-step-title">Build the Single-Agent Baseline</div>
+          <div class="lab-step-desc">Implement a single agent that receives the same research question and runs all research serially — one search query at a time, in a single agentic loop. Use the same tools and the same underlying model. Record total latency and output quality for both systems on the same three test questions.</div>
+        </div>
+
+        <div class="lab-step">
+          <div class="lab-step-num">Step 06</div>
+          <div class="lab-step-title">Compare and Measure</div>
+          <div class="lab-step-desc">Run both systems on three research questions of increasing complexity. Record wall-clock latency, total tokens used (across all agents in COMPASS vs. the single agent), and output quality scored on a rubric: coverage breadth, source diversity, finding accuracy, and citation quality. Document where COMPASS wins and where it doesn't — the single agent often wins on simple questions where decomposition adds no value.</div>
+        </div>
+
+        <h3>Expected Findings</h3>
+        <p>On complex, multi-faceted questions, COMPASS should win on coverage breadth and latency. The parallel execution eliminates serial bottlenecks. On simple, focused questions, the single agent typically wins: COMPASS adds coordination overhead (the Planner decomposition, the structured handoffs) without meaningful benefit. Document this. The ability to articulate when multi-agent helps and when it doesn't is the practical skill this lab builds.</p>
+
+      </div>
+    </div>
+
+    <!-- Summary -->
+    <div class="summary-section">
+      <h2>Module 04 — Key Takeaways</h2>
+      <ul class="summary-list">
+        <li>Multi-agent is justified by three things: parallelism, specialization, and error isolation. "More sophisticated" is not a reason. Apply this test before adding any agent to a system.</li>
+        <li>Hierarchical topology is the production default — debuggable, auditable, clear accountability. Peer-to-peer is useful for iterative refinement but harder to debug. Market-based remains mostly theoretical in 2026.</li>
+        <li>MCP is the standard for agent-to-tool communication: JSON-RPC, three transport modes (stdio, HTTP+SSE, WebSocket), and a discovery manifest that lets agents find tools at runtime. 97M monthly downloads signals ecosystem convergence.</li>
+        <li>A2A is the standard for agent-to-agent communication: HTTP-based, Agent Cards for capability discovery, and three primitives (Task, Message, Artifact). MCP is vertical (agent-to-tool). A2A is horizontal (agent-to-agent). They are complementary.</li>
+        <li>Shared state is simple and prone to race conditions. Message passing is more overhead but auditable and safe. Choose message passing for production systems where debugging matters.</li>
+        <li>Four failure patterns to design against: tail latency (slowest subagent sets total time), cascading failures (design for partial results), agent swarm anti-pattern (specificity beats volume), and token storms (summarize before passing between agents).</li>
+        <li>Agent factories — meta-orchestrators that spawn agents dynamically — are the emerging pattern for knowledge work pipelines with variable task types. They add engineering overhead and are only worth building when task diversity and volume justify it.</li>
+      </ul>
+    </div>
+
+    <!-- Footer nav -->
+    <footer class="footer">
+      <div class="footer-inner">
+        <a href="module-03.html" class="footer-prev">← Module 03: Context Engineering</a>
+        <span class="footer-text">Module 04 of 07</span>
+        <a href="module-05.html" class="footer-next">Module 05: Evaluation &amp; Reliability →</a>
+      </div>
+    </footer>
+
+  </div>
+</div>
+
+</body>
+</html>
