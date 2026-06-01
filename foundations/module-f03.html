@@ -1,0 +1,1352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Module F03: APIs — The Plumbing of Modern Software — AI Foundations Curriculum</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;500&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;500&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap');
+
+  :root {
+    --bg: #0a0a0f;
+    --surface: #111118;
+    --surface2: #18181f;
+    --border: #2a2a3a;
+    --accent: #7c6af7;
+    --accent2: #f7c36a;
+    --accent3: #6af7d4;
+    --text: #e8e8f0;
+    --muted: #6b6b80;
+    --danger: #f76a6a;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 300;
+    line-height: 1.7;
+    min-height: 100vh;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.4;
+  }
+
+  /* Sticky nav */
+  .top-nav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(10,10,15,0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .top-nav-inner {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 0 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 52px;
+    gap: 1rem;
+  }
+
+  .nav-back {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.05em;
+    color: var(--muted);
+    text-decoration: none;
+    transition: color 0.2s;
+    white-space: nowrap;
+  }
+
+  .nav-back:hover { color: var(--text); }
+
+  .nav-module-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    color: var(--muted);
+    text-transform: uppercase;
+    text-align: center;
+    flex: 1;
+  }
+
+  .nav-next {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.05em;
+    color: var(--muted);
+    text-decoration: none;
+    transition: color 0.2s;
+    white-space: nowrap;
+  }
+
+  .nav-next:hover { color: var(--accent); }
+
+  /* Container */
+  .container {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 0 2rem;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Hero */
+  .hero {
+    padding: 4.5rem 0 3.5rem;
+    border-bottom: 1px solid var(--border);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero::after {
+    content: '';
+    position: absolute;
+    top: -100px;
+    right: -200px;
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, rgba(107,107,128,0.10) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .hero-eyebrow {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.2em;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+  }
+
+  .module-badge {
+    display: inline-block;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.1em;
+    padding: 0.25rem 0.6rem;
+    border-radius: 4px;
+    margin-bottom: 1.2rem;
+    background: rgba(107, 107, 128, 0.2);
+    color: var(--muted);
+    border: 1px solid var(--border);
+  }
+
+  .hero h1 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: clamp(2rem, 4.5vw, 3.2rem);
+    line-height: 1.08;
+    margin-bottom: 1.4rem;
+    letter-spacing: -0.02em;
+  }
+
+  .hero-sub {
+    font-size: 1.05rem;
+    color: #a0a0b8;
+    max-width: 620px;
+    line-height: 1.8;
+    margin-bottom: 2rem;
+  }
+
+  .hero-meta {
+    display: flex;
+    gap: 2.5rem;
+    flex-wrap: wrap;
+  }
+
+  .meta-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+  }
+
+  .meta-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.15em;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+
+  .meta-value {
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    font-size: 1rem;
+    color: var(--text);
+  }
+
+  /* Main content */
+  .content {
+    padding: 4rem 0 6rem;
+  }
+
+  /* Topic sections */
+  .topic-section {
+    margin-bottom: 5rem;
+  }
+
+  .topic-section:last-child {
+    margin-bottom: 0;
+  }
+
+  .section-number {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+  }
+
+  .topic-section h2 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 1.65rem;
+    letter-spacing: -0.01em;
+    line-height: 1.2;
+    margin-bottom: 1.6rem;
+    color: var(--text);
+  }
+
+  .topic-section h3 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    font-size: 1.1rem;
+    letter-spacing: -0.01em;
+    margin-top: 2rem;
+    margin-bottom: 0.8rem;
+    color: var(--text);
+  }
+
+  .topic-section p {
+    font-size: 0.97rem;
+    color: #c8c8d8;
+    line-height: 1.8;
+    margin-bottom: 1.2rem;
+  }
+
+  .topic-section p:last-child {
+    margin-bottom: 0;
+  }
+
+  /* Section divider */
+  .section-divider {
+    height: 1px;
+    background: linear-gradient(to right, transparent, var(--border) 20%, var(--border) 80%, transparent);
+    margin: 4.5rem 0;
+  }
+
+  /* Callout boxes */
+  .callout {
+    border-radius: 10px;
+    padding: 1.3rem 1.6rem;
+    margin: 2rem 0;
+  }
+
+  .callout-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 0.6rem;
+    font-weight: 500;
+  }
+
+  .callout p {
+    font-size: 0.92rem;
+    line-height: 1.75;
+    margin-bottom: 0;
+  }
+
+  .callout p + p {
+    margin-top: 0.8rem;
+  }
+
+  .callout-insight {
+    background: rgba(124,106,247,0.07);
+    border: 1px solid rgba(124,106,247,0.25);
+  }
+
+  .callout-insight .callout-label {
+    color: var(--accent);
+  }
+
+  .callout-insight p {
+    color: #b8b0f0;
+  }
+
+  .callout-mistake {
+    background: rgba(247,106,106,0.07);
+    border: 1px solid rgba(247,106,106,0.25);
+  }
+
+  .callout-mistake .callout-label {
+    color: var(--danger);
+  }
+
+  .callout-mistake p {
+    color: #e0b0b0;
+  }
+
+  .callout-example {
+    background: rgba(106,247,212,0.06);
+    border: 1px solid rgba(106,247,212,0.2);
+  }
+
+  .callout-example .callout-label {
+    color: var(--accent3);
+  }
+
+  .callout-example p {
+    color: #a8e8d8;
+  }
+
+  /* Code blocks */
+  .code-block {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.4rem 1.6rem;
+    margin: 1.6rem 0;
+    overflow-x: auto;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.82rem;
+    line-height: 1.75;
+    color: #c0c0d8;
+  }
+
+  .code-block code {
+    font-family: inherit;
+  }
+
+  /* Spectrum visualization */
+  .spectrum-row {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 0.75rem;
+    margin: 2rem 0;
+  }
+
+  @media (max-width: 640px) {
+    .spectrum-row {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .spectrum-item {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .spectrum-item::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+  }
+
+  .spec-1::before { background: var(--muted); opacity: 0.4; }
+  .spec-2::before { background: linear-gradient(to right, var(--muted), var(--accent)); opacity: 0.5; }
+  .spec-3::before { background: var(--accent); opacity: 0.6; }
+  .spec-4::before { background: linear-gradient(to right, var(--accent), var(--accent3)); opacity: 0.7; }
+  .spec-5::before { background: var(--accent3); opacity: 0.9; }
+
+  .spectrum-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 0.4rem;
+  }
+
+  .spectrum-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    font-size: 0.88rem;
+    color: var(--text);
+    margin-bottom: 0.4rem;
+  }
+
+  .spectrum-desc {
+    font-size: 0.75rem;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+
+  /* Pillars grid */
+  .pillars-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+    margin: 2rem 0;
+  }
+
+  @media (max-width: 540px) {
+    .pillars-grid { grid-template-columns: 1fr; }
+  }
+
+  .pillar-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.3rem 1.5rem;
+  }
+
+  .pillar-number {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.15em;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 0.4rem;
+  }
+
+  .pillar-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 1.1rem;
+    margin-bottom: 0.6rem;
+    color: var(--text);
+  }
+
+  .pillar-desc {
+    font-size: 0.85rem;
+    color: #9898b0;
+    line-height: 1.6;
+  }
+
+  .pillar-missing {
+    margin-top: 0.8rem;
+    padding-top: 0.8rem;
+    border-top: 1px solid var(--border);
+    font-size: 0.78rem;
+    color: var(--danger);
+    font-family: 'IBM Plex Mono', monospace;
+    letter-spacing: 0.02em;
+  }
+
+  /* Exercise section */
+  .exercise-section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 5rem;
+  }
+
+  .exercise-header {
+    padding: 1.8rem 2rem;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface2);
+  }
+
+  .exercise-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+  }
+
+  .exercise-header h2 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 1.4rem;
+    color: var(--text);
+    margin-bottom: 0.6rem;
+  }
+
+  .exercise-header p {
+    font-size: 0.92rem;
+    color: #9898b0;
+    line-height: 1.7;
+  }
+
+  .exercise-body {
+    padding: 2rem;
+  }
+
+  .system-card {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.3rem 1.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .system-card:last-of-type {
+    margin-bottom: 0;
+  }
+
+  .system-number {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 0.4rem;
+  }
+
+  .system-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    font-size: 0.97rem;
+    color: var(--text);
+    margin-bottom: 0.5rem;
+  }
+
+  .system-desc {
+    font-size: 0.86rem;
+    color: #9898b0;
+    line-height: 1.65;
+    margin-bottom: 0.6rem;
+  }
+
+  .system-prompt {
+    font-size: 0.8rem;
+    color: var(--muted);
+    font-family: 'IBM Plex Mono', monospace;
+    letter-spacing: 0.02em;
+    line-height: 1.5;
+  }
+
+  .facil-section {
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--border);
+  }
+
+  .facil-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    font-size: 1rem;
+    color: var(--text);
+    margin-bottom: 1rem;
+  }
+
+  .facil-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+  }
+
+  .facil-list li {
+    font-size: 0.88rem;
+    color: #9898b0;
+    line-height: 1.65;
+    padding-left: 1.2rem;
+    position: relative;
+  }
+
+  .facil-list li::before {
+    content: '—';
+    position: absolute;
+    left: 0;
+    color: var(--muted);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.75rem;
+  }
+
+  /* Summary section */
+  .summary-section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 2rem 2.2rem;
+    margin-bottom: 4rem;
+  }
+
+  .summary-section h2 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 1.25rem;
+    margin-bottom: 1.3rem;
+    color: var(--text);
+  }
+
+  .summary-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.7rem;
+  }
+
+  .summary-list li {
+    font-size: 0.93rem;
+    color: #b0b0c8;
+    line-height: 1.7;
+    padding-left: 1.5rem;
+    position: relative;
+  }
+
+  .summary-list li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0.58rem;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--muted);
+  }
+
+  /* Footer */
+  .footer {
+    border-top: 1px solid var(--border);
+    padding: 2.5rem 0;
+  }
+
+  .footer-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .footer-text {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.68rem;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+  }
+
+  .footer-next {
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    font-size: 0.92rem;
+    color: var(--accent);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: gap 0.2s;
+  }
+
+  .footer-next:hover { gap: 0.8rem; }
+
+  /* Inline code */
+  code {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.82em;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    padding: 0.1em 0.35em;
+    color: var(--accent3);
+  }
+
+  strong {
+    font-weight: 500;
+    color: var(--text);
+  }
+
+  /* Status code grid */
+  .status-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+    margin: 1.6rem 0;
+  }
+
+  @media (max-width: 540px) {
+    .status-grid { grid-template-columns: 1fr; }
+  }
+
+  .status-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1rem 1.2rem;
+  }
+
+  .status-code {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 1.1rem;
+    font-weight: 500;
+    margin-bottom: 0.3rem;
+  }
+
+  .status-200 { color: var(--accent3); }
+  .status-4xx { color: var(--accent2); }
+  .status-429 { color: var(--danger); }
+  .status-5xx { color: #a8a0f0; }
+
+  .status-name {
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    font-size: 0.88rem;
+    color: var(--text);
+    margin-bottom: 0.3rem;
+  }
+
+  .status-desc {
+    font-size: 0.8rem;
+    color: #9898b0;
+    line-height: 1.5;
+  }
+
+  /* Prerequisites list */
+  .prereq-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin: 1.2rem 0;
+  }
+
+  .prereq-list li {
+    font-size: 0.88rem;
+    color: #9898b0;
+    line-height: 1.65;
+    padding-left: 1.4rem;
+    position: relative;
+  }
+
+  .prereq-list li::before {
+    content: '→';
+    position: absolute;
+    left: 0;
+    color: var(--muted);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.75rem;
+  }
+
+  /* Step cards */
+  .step-card {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.3rem 1.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .step-number {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 0.4rem;
+  }
+
+  .step-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    font-size: 0.97rem;
+    color: var(--text);
+    margin-bottom: 0.6rem;
+  }
+
+  .step-desc {
+    font-size: 0.86rem;
+    color: #9898b0;
+    line-height: 1.65;
+  }
+</style>
+</head>
+<body>
+
+<!-- Sticky top nav -->
+<nav class="top-nav">
+  <div class="top-nav-inner">
+    <div style="display:flex; flex-direction:column; gap:0.15rem;">
+      <a href="index.html" class="nav-back">← Back to Foundations</a>
+      <a href="module-f02.html" class="nav-back" style="font-size:0.62rem; opacity:0.7;">← Module F02</a>
+    </div>
+    <span class="nav-module-label">Module F03 · APIs</span>
+    <a href="module-f04.html" class="nav-next">Next: Module F04 →</a>
+  </div>
+</nav>
+
+<!-- Hero -->
+<div class="hero">
+  <div class="container">
+    <div class="hero-eyebrow">Module F03 · Foundation</div>
+    <div class="module-badge">FOUNDATION</div>
+    <h1>APIs:<br>The Plumbing of Modern Software</h1>
+    <p class="hero-sub">
+      Every agent you'll build in the main curriculum makes API calls — to language models, to databases, to external services. Understanding what an API is, how requests and responses work, and how to read raw JSON isn't a "developer skill." It's the minimum literacy required to build on top of AI systems.
+    </p>
+    <div class="hero-meta">
+      <div class="meta-item">
+        <span class="meta-label">Duration</span>
+        <span class="meta-value">3–4 days</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">Level</span>
+        <span class="meta-value">Foundation</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">Exercise</span>
+        <span class="meta-value">First API call</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">Prerequisite</span>
+        <span class="meta-value">Module F01–F02</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Main content -->
+<div class="container">
+<div class="content">
+
+  <!-- Running example setup -->
+  <div class="topic-section" id="running-example">
+    <p>Maya has been using Claude through the chat interface. She pastes in meeting transcripts, asks for summaries, and copies the results into her notes. It works, but it's manual — she has to be there, she has to paste, she has to copy back. What she actually wants is for the summary to happen automatically: the moment a new transcript lands in a shared folder, the summary should appear.</p>
+    <p>That requires calling the API programmatically — not through a browser, but directly from a system that can run on its own. This module gives Maya, and you, what you need to understand that transition. The API is where you stop being a user of AI tools and start being a builder of them.</p>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <!-- TOPIC 1 -->
+  <div class="topic-section" id="topic-1">
+    <div class="section-number">Topic 01</div>
+    <h2>What an API Actually Is</h2>
+
+    <p>API stands for Application Programming Interface. The "interface" part is the key word. An interface is a defined, stable contract between two things — in this case, between two software systems. One system exposes capabilities through the API; other systems consume those capabilities through it. Neither side needs to understand how the other works internally. They just need to speak the same interface language.</p>
+
+    <p>The best analogy is a restaurant menu. The menu tells you what you can order (the endpoints), the format in which you order it (you say "one bowl of ramen, no pork" — a structured request), and what you'll get back (a bowl of ramen, or an explanation of why they're out of it). You don't need to know how the kitchen works. You don't need to know the chef's technique or where the noodles came from. You just need to know how to place an order. The menu is the API. The kitchen is the implementation. The wall between them is the whole point.</p>
+
+    <p>Why do APIs exist? Without standardized interfaces, every system that wanted to communicate with every other system would need custom integration code. If you had 10 systems and wanted them all to talk to each other, that's potentially 90 custom integrations (every pair in both directions). APIs let one system expose its capabilities once, in a standard way, and every other system can consume them using the same pattern. This is how the modern software ecosystem scales.</p>
+
+    <h3>REST APIs: The Dominant Type</h3>
+
+    <p>There are many types of APIs, but the one you'll encounter most often — and the type that all major AI APIs use — is a REST API. REST stands for Representational State Transfer. It's an architectural style, not a protocol, which is a fancy way of saying it's a set of conventions that most web APIs follow. Those conventions use HTTP (the protocol the web runs on) and URLs to represent resources and actions.</p>
+
+    <p>The pattern is simple: you send a request to a URL (called an endpoint) with some data (called the payload or body), and you get back a response. The response tells you whether it worked and gives you the result if it did. That's it. Everything else is detail layered on top of this basic pattern.</p>
+
+    <h3>APIs Everywhere Maya Already Uses</h3>
+
+    <p>Once you understand what an API is, you start seeing them everywhere. When Maya's meeting summarizer needs to call Claude, it calls the Claude API — she sends text, she gets text back. If she wants to automatically pull meeting transcripts from her company's conferencing system, that system almost certainly has an API she can call to retrieve transcripts as structured data. If she wants to save summaries to a CRM, the CRM has an API for writing records. If she wants to trigger a Slack message when a summary is ready, Slack has an API for sending messages. Every modern software service exposes its capabilities through an API. The AI part is just one of many calls in the chain.</p>
+
+    <div class="callout callout-insight">
+      <div class="callout-label">Key Insight</div>
+      <p>When you use ChatGPT or Claude through a web browser, you're using a chat interface that is itself making API calls under the hood. Every message you type triggers an HTTP request to Anthropic's or OpenAI's servers. The API is the raw interface — you're just getting a visual wrapper. When you build agents, you strip away the wrapper and make those calls directly, with full control over every parameter: the model, the temperature, the system prompt, the max output length. The chat interface decides all of that for you. The API lets you decide it yourself.</p>
+    </div>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <!-- TOPIC 2 -->
+  <div class="topic-section" id="topic-2">
+    <div class="section-number">Topic 02</div>
+    <h2>HTTP: The Protocol Everything Runs On</h2>
+
+    <p>HTTP stands for Hypertext Transfer Protocol. It's the communication protocol the web runs on. When you visit a website, when you submit a form, when you call an API — you're almost always using HTTP, or its secure version HTTPS (which encrypts the traffic in transit so that no one between you and the server can read it). Understanding HTTP means understanding the format of the messages that travel back and forth.</p>
+
+    <h3>Anatomy of an HTTP Request</h3>
+
+    <p>Every HTTP request has four key parts. Learning to recognize these four parts means you can read any API documentation and understand what it's asking you to send.</p>
+
+    <p><strong>Method</strong> — what you're doing. The most common methods are: GET (retrieve data — like loading a webpage), POST (create or submit data — like submitting a form or sending a prompt to an AI), PUT (replace data entirely), and DELETE (remove data). For AI APIs, you'll almost always use POST. You're submitting a prompt, and the server returns a completion.</p>
+
+    <p><strong>URL (endpoint)</strong> — where you're sending the request. For the Claude API, that's <code>https://api.anthropic.com/v1/messages</code>. The URL is the address of the specific resource or capability you're interacting with. Different capabilities have different URLs — different endpoints.</p>
+
+    <p><strong>Headers</strong> — metadata about the request, traveling alongside the body. Headers carry your authentication credentials, declare the content type of the body (so the server knows how to parse it), specify the API version you're targeting, and communicate other configuration. For AI API calls, you'll always have at least three headers: your API key, the content type declaration, and the API version.</p>
+
+    <p><strong>Body</strong> — the actual data payload. For a POST request to an LLM API, this is your JSON object containing the model name, the messages, and any parameters you're setting. The body is what you're actually sending; the headers are the envelope it arrives in.</p>
+
+    <h3>Anatomy of an HTTP Response</h3>
+
+    <p>Every HTTP response has three key parts. The response is what comes back after you send a request.</p>
+
+    <p><strong>Status code</strong> — a number that tells you immediately what happened, before you even look at the body. 200 means success. The 4xx range means there was a problem with your request. The 5xx range means there was a problem on the server's side. More on specific codes in Topic 5.</p>
+
+    <p><strong>Headers</strong> — metadata about the response. The content type header tells you how to parse the body. Rate limit headers tell you how many requests you have left and when the limit resets.</p>
+
+    <p><strong>Body</strong> — the actual response data. For a successful LLM API call, this is a JSON object containing the model's output and usage statistics. For an error, it's a JSON object explaining what went wrong.</p>
+
+    <p>Here's what a real HTTP request and response look like — not runnable code, but a clear picture of the actual messages that travel over the wire:</p>
+
+<pre class="code-block"><code>POST https://api.anthropic.com/v1/messages HTTP/1.1
+Content-Type: application/json
+x-api-key: sk-ant-...
+anthropic-version: 2023-06-01
+
+{
+  "model": "claude-sonnet-4-5",
+  "max_tokens": 1024,
+  "messages": [
+    {"role": "user", "content": "Summarize this meeting in 3 bullet points."}
+  ]
+}</code></pre>
+
+    <p>And the response that comes back:</p>
+
+<pre class="code-block"><code>HTTP/1.1 200 OK
+Content-Type: application/json
+
+{
+  "id": "msg_01XFDUDYJgAACzvnptvVoYEL",
+  "type": "message",
+  "role": "assistant",
+  "content": [{"type": "text", "text": "Here are the 3 key points..."}],
+  "usage": {"input_tokens": 892, "output_tokens": 247}
+}</code></pre>
+
+    <p>The request goes out. The response comes back. That's the whole protocol. Everything in building AI systems is some version of this exchange.</p>
+
+    <h3>Why This Matters for Debugging</h3>
+
+    <p>When an agent fails, you'll see one of those HTTP status codes. Understanding what 429 means (you hit a rate limit — slow down and wait) versus 401 (your API key is missing or wrong — check your credentials) versus 500 (the server has a bug — this is their problem, not yours, wait and retry) is the difference between fast debugging and hours of confusion. The status code is the first thing to look at. It narrows the problem space immediately.</p>
+
+    <div class="callout callout-mistake">
+      <div class="callout-label">Common Mistake</div>
+      <p>Not checking the status code and treating every response as a success. If your API key is wrong, you get a 401 response with an error message in the body — but if your code blindly takes whatever comes back in the response body and passes it along as if it were AI output, you'll spend a long time confused about why the model is "outputting" authentication error messages. Always handle non-200 responses explicitly. Check the status code first. Only proceed to parse the body if the status is in the 200 range.</p>
+    </div>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <!-- TOPIC 3 -->
+  <div class="topic-section" id="topic-3">
+    <div class="section-number">Topic 03</div>
+    <h2>JSON: The Universal Language of Data Exchange</h2>
+
+    <p>JSON stands for JavaScript Object Notation. It started as a JavaScript-specific format, but it's now the universal format for API communication across every programming language and platform. Both what you send (request bodies) and what you receive (response bodies) will almost always be JSON. Learning to read and write it fluently is the single highest-leverage skill in this module.</p>
+
+    <h3>The Rules of JSON</h3>
+
+    <p>JSON has exactly six data types and a small set of structural rules. Once you know these, you can read any JSON document.</p>
+
+    <p><strong>Key-value pairs</strong> form the basic unit. They look like <code>{"key": "value"}</code>. Keys are always strings — they must be wrapped in double quotes. Values can be any of the six data types: strings (in double quotes), numbers (no quotes), booleans (<code>true</code> or <code>false</code>, lowercase, no quotes), null (no quotes, exactly as written), objects (wrapped in curly braces <code>{}</code>), or arrays (wrapped in square brackets <code>[]</code>).</p>
+
+    <p><strong>Arrays</strong> are ordered lists of values: <code>["item1", "item2", "item3"]</code>. The items in an array don't have to be the same type — you can have strings, numbers, and objects in the same array, though in practice they usually are the same type.</p>
+
+    <p><strong>Nesting</strong> is where JSON becomes powerful. Objects can contain arrays. Arrays can contain objects. Objects can contain other objects. The messages field in an LLM API call is an array of objects, each object having a "role" key and a "content" key. That's two levels of nesting, and it's as deep as most API structures go.</p>
+
+    <p><strong>Data types, spelled correctly:</strong> Strings go in double quotes: <code>"hello"</code>. Numbers have no quotes: <code>1024</code>. Booleans are exactly <code>true</code> or <code>false</code>, lowercase, no quotes. Null is exactly <code>null</code>, no quotes. These distinctions matter — <code>"true"</code> is a string containing the word true; <code>true</code> is a boolean. They mean different things to a parser.</p>
+
+    <h3>Reading a Real LLM API Response</h3>
+
+    <p>Here is the full response structure from the Claude Messages API, with annotations explaining every field. (Note: real JSON doesn't support comments — the <code>// annotations</code> here are for illustration only.)</p>
+
+<pre class="code-block"><code>{
+  "id": "msg_01...",          // unique ID for this message — useful for logging
+  "type": "message",          // always "message" for the Messages API
+  "role": "assistant",        // the model's role in the conversation
+  "content": [
+    {
+      "type": "text",         // content block type — could be "text" or "tool_use"
+      "text": "Here are the action items from your meeting:..."
+                              // the actual model output — what you're here for
+    }
+  ],
+  "model": "claude-sonnet-4-5",   // which model actually handled the request
+  "stop_reason": "end_turn",      // why generation stopped:
+                                  //   "end_turn" = model finished naturally
+                                  //   "max_tokens" = hit the limit (may be truncated!)
+                                  //   "stop_sequence" = hit a stop sequence you specified
+  "stop_sequence": null,          // which stop sequence triggered (if applicable)
+  "usage": {
+    "input_tokens": 892,          // tokens in your prompt — billed at input rate
+    "output_tokens": 247          // tokens in the response — billed at output rate
+  }
+}</code></pre>
+
+    <p>The field you want most of the time is <code>content[0].text</code> — that's the model's response. But the other fields are important too. <code>stop_reason</code> tells you whether the response is complete. <code>usage</code> tells you what this call cost in tokens. <code>id</code> lets you correlate this response to a specific request in your logs.</p>
+
+    <h3>The Most Common JSON Mistakes</h3>
+
+    <p>Three mistakes account for the vast majority of JSON formatting errors. All three produce a 400 Bad Request response from the API, with an error message saying something like "invalid JSON body."</p>
+
+    <p><strong>Forgetting quotes around string values.</strong> <code>{"role": user}</code> is invalid. <code>{"role": "user"}</code> is valid. String values always need double quotes.</p>
+
+    <p><strong>Trailing commas.</strong> JSON doesn't allow a comma after the last item in an object or array. <code>{"key": "value",}</code> is invalid. <code>{"key": "value"}</code> is valid. Most text editors and JSON validators will catch this for you — use them.</p>
+
+    <p><strong>Wrong data type.</strong> If a field expects a number and you pass a string, the API will reject it. <code>{"max_tokens": "1024"}</code> is wrong. <code>{"max_tokens": 1024}</code> is right. Check the API documentation for the expected type of each field.</p>
+
+    <h3>Why JSON Is Everywhere</h3>
+
+    <p>JSON won over XML and CSV for most API use cases because it's human-readable (you can look at it and understand it), machine-parseable (every programming language has a JSON parser built in), language-agnostic (it doesn't assume anything about the language consuming it), self-describing (the keys tell you what the values mean), and compact enough to be efficient over the network. There are contexts where other formats are better — binary formats for high-performance systems, CSV for tabular data — but for API communication, JSON is the default you'll encounter almost everywhere.</p>
+
+    <div class="callout callout-insight">
+      <div class="callout-label">Key Insight</div>
+      <p>Once you can read JSON fluently, you can read any API documentation and understand what to send and what to expect back. This is the skill that unlocks direct API usage. It's not a programming skill — it's a literacy skill, closer to reading a spreadsheet than writing code. You don't need to write a JSON parser. You need to be able to look at a JSON object and understand its structure at a glance. That takes maybe 20 minutes of focused practice, and it transfers to every API you'll ever work with.</p>
+    </div>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <!-- TOPIC 4 -->
+  <div class="topic-section" id="topic-4">
+    <div class="section-number">Topic 04</div>
+    <h2>Authentication: API Keys and Why They Matter</h2>
+
+    <p>When you make an API call, the server on the other end needs to know who you are. Not just to be polite — it needs to know who you are to decide whether you're allowed to make this call, what limits apply to you, and how to bill you for the compute you're consuming. The mechanism for proving identity to an API server is called authentication.</p>
+
+    <h3>What an API Key Is</h3>
+
+    <p>An API key is a long, randomly generated string — something like <code>sk-ant-api03-AbCdEfGhIjKlMnOpQrStUvWxYz...</code> — that identifies and authorizes your application. When you include your API key in a request header, the server knows three things: who you are (which account is making this call), what plan and limits apply to you, and where to send the bill. The key is both an identity token and a billing credential in a single string.</p>
+
+    <p>For the Claude API, you pass the key in a request header called <code>x-api-key</code>. Some APIs use a different pattern called Bearer authentication, where you send <code>Authorization: Bearer [your-token]</code> in the header. The mechanics are slightly different; the concept is identical. You're proving who you are by presenting a secret credential.</p>
+
+    <h3>Why API Keys Are Sensitive</h3>
+
+    <p>An API key is not just an identity. It's a billing credential. If someone else obtains your API key and uses it, the API calls are charged to your account — not theirs. A stolen API key doesn't just expose data; it exposes your payment method to someone else's usage. A bad actor with your key can run millions of tokens of compute at your expense before you notice.</p>
+
+    <p>This means API keys need to be treated with the same care you'd give a password, or more. You wouldn't paste your banking password into a Slack message. You shouldn't paste your API key there either.</p>
+
+    <h3>Secure Handling in Practice</h3>
+
+    <p>The right way to handle an API key is to store it as an environment variable — a value that lives in the operating system's environment, not in any file that gets written to disk or committed to source control. When your code needs the key, it reads it from the environment at runtime. The key never appears in your code files. If someone gets your code, they don't get your key.</p>
+
+    <p>In a terminal, you set an environment variable like this: <code>export ANTHROPIC_API_KEY="sk-ant-..."</code>. In your code, you read it by its name: <code>os.environ["ANTHROPIC_API_KEY"]</code> in Python, or <code>process.env.ANTHROPIC_API_KEY</code> in Node. The pattern is the same across languages: keep the secret out of the code, in the environment.</p>
+
+    <p>In production systems, environment variables are usually managed by a secrets management service — AWS Secrets Manager, HashiCorp Vault, or similar. These services handle rotation, access auditing, and distribution to the systems that need the secrets. For the purposes of this module, the environment variable pattern is sufficient. The principle to internalize: credentials live outside code.</p>
+
+    <h3>Scoped Keys and Least Privilege</h3>
+
+    <p>Some APIs let you create keys with limited permissions — a read-only key that can retrieve data but not modify it, or a key scoped to specific endpoints only. This is the principle of least privilege: a key should have only the access it actually needs to do its job, and no more. If a key is only used to retrieve data, it shouldn't have permission to delete data. If a key is compromised, limiting its scope limits the damage.</p>
+
+    <div class="callout callout-mistake">
+      <div class="callout-label">Common Mistake</div>
+      <p>A developer builds a quick prototype and hardcodes the API key directly in the code file. They commit that file to a GitHub repository to share with a colleague. Within minutes, GitHub's automated secret scanning detects the key pattern and notifies Anthropic (or OpenAI, or whichever provider issued the key). The provider contacts the developer, warns them the key has been exposed, and may automatically revoke it. If the developer is lucky, no unauthorized usage occurred in those minutes. If they're unlucky, someone already found the publicly visible key and started running inference at their expense. The fix is always the same: delete the exposed key immediately, generate a new one, move it to an environment variable, and add a check to your workflow to never commit secrets. This pattern happens dozens of times per day across the industry. It's not a beginner mistake — it's a human mistake that even experienced developers make when moving fast. Environment variables are the habit that prevents it.</p>
+    </div>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <!-- TOPIC 5 -->
+  <div class="topic-section" id="topic-5">
+    <div class="section-number">Topic 05</div>
+    <h2>Rate Limits, Quotas, and Graceful Error Handling</h2>
+
+    <p>API calls don't always succeed. In fact, in any real system running at scale, failures are a routine part of operation — not edge cases to be handled eventually, but expected events to be handled well from the start. Building systems that fail gracefully is the difference between a fragile demo and a reliable production tool. This topic covers the failure modes you'll encounter most often and what to do about each.</p>
+
+    <h3>Rate Limits: Why They Exist and What They Mean</h3>
+
+    <p>Rate limits restrict how many API calls you can make within a given time window. For LLM APIs, limits are typically expressed in two dimensions: tokens per minute (TPM) and requests per minute (RPM). If you send 10 large requests in rapid succession, you might hit your TPM limit even if you're well under the RPM limit. Limits vary by API tier — higher-tier plans get higher limits, which is part of what you're paying for.</p>
+
+    <p>Rate limits serve two purposes. For the provider, they're capacity management — they prevent any single customer from monopolizing shared infrastructure. For you, they can also serve as a spending guard — a rate limit that stops your agent from making calls faster than expected is a feature when your agent is misbehaving and running in a loop at 3 AM.</p>
+
+    <p>When you exceed a rate limit, you get a <strong>429 Too Many Requests</strong> response. The response will often include a <code>Retry-After</code> header telling you how many seconds to wait before trying again. Pay attention to that header.</p>
+
+    <h3>Exponential Backoff: The Standard Retry Pattern</h3>
+
+    <p>The standard pattern for handling 429s is exponential backoff. When you get a 429, wait a bit before retrying. If you get another 429, wait twice as long. And again — twice as long. The wait times grow exponentially: 1 second, 2 seconds, 4 seconds, 8 seconds, 16 seconds. Eventually you're waiting long enough that the rate limit window has reset and your retry succeeds.</p>
+
+    <p>This pattern works because it reduces the pressure on the API at exactly the times when that pressure is already highest. If you're getting 429s, it means you're at your limit. Immediately retrying keeps you at your limit. Backing off lets the window reset.</p>
+
+    <p>In production, you add jitter to the backoff — a small random delay on top of the exponential wait — to prevent multiple parallel processes from all retrying at exactly the same moment and creating a thundering herd. The principle: when you're hitting limits, slow down with increasing patience, not increasing urgency.</p>
+
+    <h3>Idempotency: Designing Retries Safely</h3>
+
+    <p>When a request fails mid-flight — network timeout, server error — you may not know whether the action was completed before the failure. For LLM API calls, this is usually harmless: calling the same prompt twice just costs double tokens, producing two responses when you only needed one. But for other APIs — payment processing, database writes, sending emails — retrying a failed request can cause duplicate actions with real consequences.</p>
+
+    <p>Idempotency keys solve this. An idempotency key is a unique identifier you include in your request header. If the server receives two requests with the same idempotency key, it treats the second as a retry of the first and returns the same result without executing the action twice. The Claude API itself doesn't require idempotency keys (two identical LLM calls just produce two independent responses), but payment APIs, database APIs, and many other service APIs do support and sometimes require them. When you're building agents that chain multiple API calls together, know which calls are safe to retry and which need idempotency protection.</p>
+
+    <h3>The Error Codes You Need to Know</h3>
+
+    <div class="status-grid">
+      <div class="status-card">
+        <div class="status-code status-200">200</div>
+        <div class="status-name">OK</div>
+        <div class="status-desc">Success. Parse the response body for your result.</div>
+      </div>
+      <div class="status-card">
+        <div class="status-code status-4xx">400</div>
+        <div class="status-name">Bad Request</div>
+        <div class="status-desc">Your request was malformed. Check your JSON structure, required fields, and data types. Read the error body — it will tell you exactly what's wrong.</div>
+      </div>
+      <div class="status-card">
+        <div class="status-code status-4xx">401</div>
+        <div class="status-name">Unauthorized</div>
+        <div class="status-desc">API key is missing, wrong, or expired. Check your key, check that you're sending it in the right header, check that it's the key for this environment (test vs. production).</div>
+      </div>
+      <div class="status-card">
+        <div class="status-code status-4xx">403</div>
+        <div class="status-name">Forbidden</div>
+        <div class="status-desc">Your key is valid but you don't have permission for this operation. You may be on a plan that doesn't include this capability, or the key is scoped to other endpoints.</div>
+      </div>
+      <div class="status-card">
+        <div class="status-code status-429">429</div>
+        <div class="status-name">Too Many Requests</div>
+        <div class="status-desc">Rate limit hit. Wait (check the Retry-After header) and retry with exponential backoff. Don't hammer the API with immediate retries — that makes it worse.</div>
+      </div>
+      <div class="status-card">
+        <div class="status-code status-5xx">500</div>
+        <div class="status-name">Internal Server Error</div>
+        <div class="status-desc">The API service has a bug on their side. This is their problem, not yours. Wait a moment and retry. If it persists, check the provider's status page.</div>
+      </div>
+      <div class="status-card">
+        <div class="status-code status-5xx">503</div>
+        <div class="status-name">Service Unavailable</div>
+        <div class="status-desc">The API is down or overloaded. Wait and retry with backoff. Check the provider's status page for incident reports.</div>
+      </div>
+    </div>
+
+    <h3>Retry Budgets: Knowing When to Give Up</h3>
+
+    <p>In production agent systems, you need to limit how many retries you'll attempt before giving up and logging an error. Infinite retries seem resilient; they're actually how you turn a small API outage into your agent running all night spending money on calls that keep failing. A retry budget might look like: up to 5 retries on 5xx errors, each with exponential backoff, maximum total wait time of 2 minutes. If all 5 retries fail, log the error with full context, emit an alert, and stop. Your monitoring system handles it from there.</p>
+
+    <div class="callout callout-insight">
+      <div class="callout-label">Key Insight</div>
+      <p>Error handling is not optional in production AI systems. API calls fail. Rate limits get hit. Models return unexpected output. Network connections drop. The difference between a fragile demo and a reliable system is mostly: does the code know what to do when something goes wrong? Every agent you build should have explicit handling for 429s (wait and retry with backoff), 5xx errors (wait and retry with backoff and a budget), 4xx errors that aren't 429s (don't retry — fix the request), and unexpected response structures (don't crash, log the anomaly, handle gracefully). Building this handling from the start is much easier than retrofitting it after your agent has failed in production at the worst possible moment.</p>
+    </div>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <!-- TOPIC 6 -->
+  <div class="topic-section" id="topic-6">
+    <div class="section-number">Topic 06</div>
+    <h2>The Anatomy of an LLM API Call</h2>
+
+    <p>This is the practical culmination of everything in this module. We've covered what APIs are, how HTTP works, how to read JSON, how authentication works, and how to handle errors. Now we put it all together in the specific context of calling a language model API — the call that Maya needs to make, the call that every agent in the main curriculum will make repeatedly.</p>
+
+    <h3>The Endpoint</h3>
+
+    <p>For Claude, the endpoint for generating model responses is <code>POST /v1/messages</code>, which resolves to <code>https://api.anthropic.com/v1/messages</code>. For OpenAI, the equivalent endpoint is <code>POST /v1/chat/completions</code>. Different URLs, different field names, same concept: you POST a structured request containing your messages and parameters, you get back a structured response containing the model's output. The pattern is identical across providers.</p>
+
+    <h3>Required Request Fields</h3>
+
+    <p><strong>model</strong> — which model to use. <code>"claude-sonnet-4-6"</code>, <code>"claude-haiku-4-5-20251001"</code>, <code>"gpt-4o"</code>. Different models have different costs, capabilities, speeds, and context limits. Haiku is fast and cheap — good for high-volume classification tasks. Sonnet is the general-purpose workhorse — excellent quality at reasonable cost. Opus is the most capable and most expensive — reserve it for tasks that genuinely require it. The model field is not optional; the API doesn't have a "default" model, because the choice carries real cost and quality implications that you need to make deliberately.</p>
+
+    <p><strong>messages</strong> — an array of message objects, each with a <code>role</code> (either <code>"user"</code> or <code>"assistant"</code>) and <code>content</code> (the text of that message). This array is the conversation history. For a single-turn call, it's just one user message. For a multi-turn conversation, you include the full history: user message, assistant response, user message, assistant response, and the new user message at the end. The model sees the entire array as context for its response.</p>
+
+    <p><strong>max_tokens</strong> — the maximum number of tokens the model can generate in its response. If the model reaches this limit, it stops — potentially mid-sentence — and returns what it has with a <code>stop_reason</code> of <code>"max_tokens"</code>. Set this high enough for your expected output length, with some headroom. For a short summary, 512 might be fine. For a detailed analysis, you might need 4096. For tasks where you genuinely don't know the output length, set it conservatively high — you're billed for actual output tokens, not for max_tokens.</p>
+
+    <h3>Optional but Important Fields</h3>
+
+    <p><strong>system</strong> — the system prompt. This is a special instruction that applies to the entire conversation, separate from the user-facing messages. It's where you define the model's role, its task, its constraints, its output format. For Maya's meeting summarizer, the system prompt might be: <code>"You are a meeting summarizer. Extract action items as a JSON array. Each item should have an owner, a description, and a due date if mentioned."</code> The system prompt is often the most important thing you write — it shapes every response the model generates. We cover it in depth in Module F05.</p>
+
+    <p><strong>temperature</strong> — a number from 0 to 1 (or 0 to 2 for some APIs) that controls randomness in the output. At temperature 0, the model is nearly deterministic — given the same input, it will almost always produce the same output. At temperature 1, there's more variation. At temperature near 2, outputs become more creative and less predictable. For structured tasks like extracting action items from a meeting (where you want consistent, reliable output), use a low temperature — 0 or 0.1. For creative tasks where variety is valuable, use a higher temperature. The default is often around 1.0.</p>
+
+    <p><strong>top_p</strong> — nucleus sampling. An alternative to temperature for controlling randomness. When set to 0.9, the model only considers tokens that collectively account for 90% of the probability mass for the next token. Most practitioners use temperature or top_p, not both simultaneously. The Claude API documentation recommends not setting both at the same time.</p>
+
+    <p><strong>stop</strong> — an array of strings. If the model generates any of these strings, it stops immediately at that point and returns what it has. Useful for structured output parsing: if you ask the model to output data in a specific format and include a terminator, a stop sequence lets you reliably capture exactly that output and nothing after it. Example: <code>"stop": ["###END###"]</code> — your prompt tells the model to end its response with that marker, and you use it as a reliable parsing boundary.</p>
+
+    <h3>Response Fields: What Comes Back</h3>
+
+    <p><strong>content</strong> — an array of content blocks. For a simple text response, there's one block with <code>"type": "text"</code> and the model's output in the <code>"text"</code> field. If the model is using tools (which we cover in the main curriculum), content blocks may include tool call blocks as well. For most uses in this module, you're looking for <code>response.content[0].text</code>.</p>
+
+    <p><strong>stop_reason</strong> — why generation stopped. <code>"end_turn"</code> means the model finished naturally — the response is complete. <code>"max_tokens"</code> means the model hit your limit and the response may be truncated — always check this, and if you see it frequently, increase your max_tokens. <code>"stop_sequence"</code> means the model hit one of your specified stop sequences — intentional, expected.</p>
+
+    <p><strong>usage</strong> — the <code>input_tokens</code> and <code>output_tokens</code> counts. These are your billing units. Input tokens are cheaper than output tokens for most models. Log these. If you're building a system where costs matter — and they do — you need visibility into usage at the call level to understand where your token budget is going. An agent that runs 100 summarizations a day with 3,000 input tokens and 500 output tokens each is a predictable cost. An agent where token counts vary wildly is a signal that something is wrong with your prompt design.</p>
+
+    <h3>A Complete curl Command You Can Run Today</h3>
+
+    <p>curl is a command-line tool for making HTTP requests. It comes pre-installed on Mac and Linux; Windows users can access it through PowerShell or WSL. Here is a complete, working curl command that calls the Claude API — if you have an API key, you can run this right now:</p>
+
+<pre class="code-block"><code>curl https://api.anthropic.com/v1/messages \
+  -H "Content-Type: application/json" \
+  -H "x-api-key: $ANTHROPIC_API_KEY" \
+  -H "anthropic-version: 2023-06-01" \
+  -d '{
+    "model": "claude-haiku-4-5-20251001",
+    "max_tokens": 512,
+    "system": "You are a meeting summarizer. Extract action items as a JSON array.",
+    "messages": [
+      {"role": "user", "content": "Here is the meeting transcript: [transcript here]"}
+    ]
+  }'</code></pre>
+
+    <p>Each piece of this command corresponds to something we've covered. The URL is the endpoint. The <code>-H</code> flags are headers: content type, authentication, API version. The <code>-d</code> flag is the body — the JSON payload containing the model, the max_tokens limit, the system prompt, and the user message. The backslashes at the end of each line are just line continuations — the whole thing is one command.</p>
+
+    <p>The <code>$ANTHROPIC_API_KEY</code> is an environment variable. If you've run <code>export ANTHROPIC_API_KEY="sk-ant-..."</code> in your terminal, curl will substitute the actual key value here automatically. Your key never appears in the command you type or in any log — just the variable name.</p>
+
+    <div class="callout callout-example">
+      <div class="callout-label">Maya's First API Call</div>
+      <p>Maya copies this curl command, replaces the placeholder transcript with three sentences from a real meeting — "We need to finalize the Q3 budget by Friday. Sarah will own the financial model. Tom needs to get sign-off from legal before we proceed." — and runs it in her terminal. She gets back JSON. She can see the structure: content, text, stop_reason, usage. The usage shows 87 input tokens and 134 output tokens.</p>
+      <p>She changes the system prompt to "You are a meeting summarizer. Be brief. Output a maximum of three bullet points." The output changes. She changes the model from <code>claude-haiku-4-5-20251001</code> to <code>claude-sonnet-4-5</code> and notices the output is more structured and specific — it correctly identifies Sarah as the budget owner and Tom's legal dependency without her having to specify that. She sets temperature to 0 and runs the same call three times. The output is nearly identical each time. She sets temperature to 1.0 and runs it three more times. The phrasing varies, though the content is consistent.</p>
+      <p>She's no longer dependent on a chat interface. She understands what the call is sending and what it's getting back. She can write this into a script. She can point the script at the shared folder. The manual paste-and-copy step is gone. That's the whole transition this module is about.</p>
+    </div>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <!-- EXERCISE SECTION -->
+  <div class="exercise-section" id="exercise">
+    <div class="exercise-header">
+      <div class="exercise-label">Module F03 · Hands-On Lab</div>
+      <h2>Your First Raw API Call</h2>
+      <p>This is the most hands-on exercise in the foundations curriculum. You'll go from zero to running a real LLM API call from your terminal in under 30 minutes. No programming required — just a terminal and an API key.</p>
+    </div>
+
+    <div class="exercise-body">
+
+      <div class="system-card">
+        <div class="system-number">Prerequisites</div>
+        <div class="system-title">Before You Begin</div>
+        <div class="system-desc">
+          <ul class="prereq-list">
+            <li>An Anthropic API key — sign up at console.anthropic.com, free tier available. You'll generate a key from the API Keys section of your account settings.</li>
+            <li>A terminal — on Mac, this is the Terminal app (find it in Applications → Utilities). On Windows, use WSL (Windows Subsystem for Linux) or PowerShell.</li>
+            <li>curl — comes pre-installed on Mac and most Linux systems. On Windows, it's available in PowerShell 5.1+ and in WSL. Verify by running <code>curl --version</code> in your terminal.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="step-card">
+        <div class="step-number">Step 01</div>
+        <div class="step-title">Set Your API Key as an Environment Variable</div>
+        <div class="step-desc">
+          <p style="font-size: 0.86rem; color: #9898b0; line-height: 1.65; margin-bottom: 0.8rem;">In your terminal, run the following command — replacing the placeholder with your actual key from console.anthropic.com. This keeps the key out of any command you might copy or share.</p>
+          <pre class="code-block" style="margin: 0.8rem 0 0;"><code>export ANTHROPIC_API_KEY="sk-ant-your-key-here"</code></pre>
+          <p style="font-size: 0.86rem; color: #9898b0; line-height: 1.65; margin-top: 0.8rem; margin-bottom: 0;">Note: this environment variable only persists for the current terminal session. If you close the terminal and open a new one, you'll need to run this command again. That's fine for this exercise — in real projects, you'd add it to your shell's profile file or use a <code>.env</code> file (that you never commit to git).</p>
+        </div>
+      </div>
+
+      <div class="step-card">
+        <div class="step-number">Step 02</div>
+        <div class="step-title">Run the Minimal API Call</div>
+        <div class="step-desc">
+          <p style="font-size: 0.86rem; color: #9898b0; line-height: 1.65; margin-bottom: 0.8rem;">Copy and paste this command into your terminal exactly as written, then press Enter:</p>
+          <pre class="code-block" style="margin: 0.8rem 0;"><code>curl https://api.anthropic.com/v1/messages \
+  -H "Content-Type: application/json" \
+  -H "x-api-key: $ANTHROPIC_API_KEY" \
+  -H "anthropic-version: 2023-06-01" \
+  -d '{
+    "model": "claude-haiku-4-5-20251001",
+    "max_tokens": 256,
+    "messages": [
+      {"role": "user", "content": "What is 2 + 2? Answer in one sentence."}
+    ]
+  }'</code></pre>
+          <p style="font-size: 0.86rem; color: #9898b0; line-height: 1.65; margin-bottom: 0.4rem;">You should receive a JSON response that looks roughly like this:</p>
+          <pre class="code-block" style="margin: 0.8rem 0 0;"><code>{
+  "id": "msg_01...",
+  "type": "message",
+  "role": "assistant",
+  "content": [{"type": "text", "text": "2 + 2 equals 4."}],
+  "model": "claude-haiku-4-5-20251001",
+  "stop_reason": "end_turn",
+  "usage": {"input_tokens": 21, "output_tokens": 11}
+}</code></pre>
+        </div>
+      </div>
+
+      <div class="step-card">
+        <div class="step-number">Step 03</div>
+        <div class="step-title">Examine the Response</div>
+        <div class="step-desc">
+          <p style="font-size: 0.86rem; color: #9898b0; line-height: 1.65; margin-bottom: 0.6rem;">Before moving on, answer these questions about the response you received. This is the reading-JSON exercise:</p>
+          <ul class="prereq-list">
+            <li>What model actually handled the request? (Look at the <code>model</code> field in the response.)</li>
+            <li>What did the model say? (Find <code>content[0].text</code>.)</li>
+            <li>Why did generation stop? (Check <code>stop_reason</code>. Is it <code>"end_turn"</code>?)</li>
+            <li>How many input tokens did your prompt use? How many output tokens did the response use? (Check <code>usage</code>.)</li>
+            <li>At current Haiku pricing (check console.anthropic.com/pricing), what did this call cost? It will be a very small fraction of a cent — but calculate it. This builds intuition about per-call economics that matters when you're running thousands of calls.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="step-card">
+        <div class="step-number">Step 04</div>
+        <div class="step-title">Modify the Request</div>
+        <div class="step-desc">
+          <p style="font-size: 0.86rem; color: #9898b0; line-height: 1.65; margin-bottom: 0.8rem;">Make the following changes to the request, one at a time. After each change, run the call and observe what's different in the response.</p>
+          <ul class="prereq-list">
+            <li>Add a system prompt: include <code>"system": "Respond only in uppercase."</code> in your JSON body (as a sibling to <code>messages</code>, not inside it). Run again. Does the model follow the instruction?</li>
+            <li>Set <code>"temperature": 0</code> in your JSON body. Run the same call three times without changing anything else. Are the responses identical or different?</li>
+            <li>Change temperature to <code>1.0</code>. Run the same call three more times. Is there more variation? For a simple math question, variation may be minimal — try changing the user message to something more open-ended: <code>"Describe the color blue in one sentence."</code></li>
+            <li>Remove the system prompt and change the user message back to the math question. Try changing the model to <code>"claude-sonnet-4-5"</code>. Is the response different in quality or length? Is it noticeably faster or slower?</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="step-card">
+        <div class="step-number">Step 05</div>
+        <div class="step-title">Make It Fail Intentionally</div>
+        <div class="step-desc">
+          <p style="font-size: 0.86rem; color: #9898b0; line-height: 1.65; margin-bottom: 0.8rem;">This step teaches more than any working call. You'll deliberately break the request in three different ways and observe what error you get back. Error messages stop being intimidating once you've seen them on your own terms.</p>
+          <ul class="prereq-list">
+            <li><strong>Wrong API key:</strong> Change one character in your API key (in the command itself, not the environment variable — temporarily hardcode a bad key with <code>-H "x-api-key: sk-ant-wrong"</code>). Run the call. What HTTP status code does curl show? What does the error body say? This is a 401. You'll recognize it instantly in the future.</li>
+            <li><strong>max_tokens too small:</strong> Set <code>"max_tokens": 5</code>. Ask something that requires a longer answer: <code>"Explain the water cycle."</code> What does <code>stop_reason</code> say in the response? Is the <code>content</code> text truncated mid-sentence?</li>
+            <li><strong>Missing required field:</strong> Remove the <code>"model"</code> field from your JSON body entirely. What HTTP status code do you get? What does the error message in the body tell you? This is a 400. The error message should tell you exactly which field is missing — API error messages for 400s are usually specific and useful.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="step-card">
+        <div class="step-number">Step 06</div>
+        <div class="step-title">Design Maya's Meeting Summarizer Call</div>
+        <div class="step-desc">
+          <p style="font-size: 0.86rem; color: #9898b0; line-height: 1.65; margin-bottom: 0.8rem;">Don't write code for this step — write in plain English. Answer each question as if you're writing a specification for the API call that would power Maya's automated meeting summarizer:</p>
+          <ul class="prereq-list">
+            <li><strong>System prompt:</strong> What should the model be told about its role and task? What output format should you request — bullet points, JSON, prose? What level of detail is appropriate for meeting action items?</li>
+            <li><strong>User message structure:</strong> What should the user message contain — just the raw transcript? Should you include any additional context (meeting date, attendees) in the message?</li>
+            <li><strong>Model choice:</strong> Given that this summarizer might run dozens of times per day on long transcripts, would you choose Haiku or Sonnet? What's the tradeoff?</li>
+            <li><strong>Temperature:</strong> For extracting action items from a meeting transcript — where you want reliable, consistent output rather than creative variation — what temperature would you set?</li>
+            <li><strong>max_tokens:</strong> A typical meeting transcript is 2,000–5,000 words. The summary should be concise. What max_tokens value guards against truncation without being wastefully high?</li>
+            <li><strong>Error handling plan:</strong> If this script runs automatically every time a new transcript appears in a shared folder, what should happen if the API call returns a 429? What if it returns a 500? What if the response has an unexpected structure?</li>
+          </ul>
+          <p style="font-size: 0.86rem; color: #9898b0; line-height: 1.65; margin-top: 0.8rem; margin-bottom: 0;">There are no single correct answers here. The point is to think through the design choices deliberately — and to notice that you now have the vocabulary to think about them. Three days ago, "set max_tokens to avoid truncation" might have been meaningless. Now it's a specific, actionable decision.</p>
+        </div>
+      </div>
+
+      <!-- Facilitation notes -->
+      <div class="facil-section">
+        <div class="facil-title">Facilitation Guide</div>
+        <ul class="facil-list">
+          <li>The "make it fail intentionally" step (Step 05) consistently produces the biggest breakthrough moments. Seeing a 401 response with its plain-English error message demystifies it. Guide the group to read the error body carefully — most 4xx error messages are genuinely informative and tell you exactly what's wrong.</li>
+          <li>Some participants will feel anxious about running terminal commands. Pair them with someone who's comfortable. The curl command is safe — it's just sending text to a server and printing the response. There's nothing it can break on their machine. Name this explicitly: "This command cannot damage your computer. It sends text to a server and prints text back."</li>
+          <li>For the temperature experiment in Step 04, the math question ("what is 2+2") produces very little variation because the answer is deterministic. If the temperature difference isn't showing up, switch to a more open-ended prompt — "Give me a metaphor for learning a new skill" — and the variation at temperature 1.0 will be visible.</li>
+          <li>The Step 06 design exercise is a good bridge to Module F05 (Prompts). Participants who engage seriously with the system prompt question are already doing prompt design — they just don't have the vocabulary for it yet. That's fine. Let the terminology catch up to the intuition.</li>
+          <li>For groups that finish quickly: challenge them to chain two curl calls manually — first a call that extracts action items from a transcript, then a second call that takes those action items and formats them as a formal email to the team. This is a manual version of what agents do automatically. It makes the abstraction concrete.</li>
+          <li>The calculation in Step 03 (what did this call cost?) is important for building cost intuition. A call costing $0.000035 sounds insignificant. But 100,000 calls a month is $3,500. At scale, the model choice and prompt efficiency matter a great deal. Better to build that intuition in the foundations curriculum than after the first unexpected bill.</li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- SUMMARY SECTION -->
+  <div class="summary-section" id="summary">
+    <h2>By the End of This Module, You Should Be Able To...</h2>
+    <ul class="summary-list">
+      <li>Explain what an API is and why APIs exist — the contract metaphor, what an endpoint is, why standardization across systems matters, and why the Claude and OpenAI chat interfaces are themselves built on top of the same APIs you call directly.</li>
+      <li>Read an HTTP request and response and identify each component: the method, the URL, the headers (authentication, content type, version), and the body — and explain the role of each.</li>
+      <li>Interpret common HTTP status codes — 200 (success), 400 (bad request, check your JSON), 401 (unauthorized, check your key), 403 (forbidden, check your permissions), 429 (rate limit, wait and retry), 500 (server error, retry), 503 (unavailable, retry) — and know what action to take for each without having to look it up.</li>
+      <li>Read and write valid JSON — identifying strings (in quotes), numbers (no quotes), booleans (true/false, no quotes), null, arrays, and nested objects — and avoid the three most common mistakes: unquoted string values, trailing commas, and wrong data types.</li>
+      <li>Explain why API keys are sensitive billing credentials, not just identity tokens, and describe secure handling practices: environment variables, no hardcoding in code, no committing to source control, rotation when compromised.</li>
+      <li>Explain what rate limits are, what a 429 response means, and how exponential backoff works — including why immediately retrying makes things worse and why waiting with increasing patience is the correct pattern.</li>
+      <li>Read the Claude Messages API request structure field by field — model, messages, max_tokens, system, temperature, stop — and the response structure — content, stop_reason, usage — and explain what each field controls or represents.</li>
+      <li>Run a basic LLM API call from a terminal using curl, modify the request parameters and observe how the response changes, and interpret error responses from intentionally malformed requests.</li>
+    </ul>
+  </div>
+
+</div>
+</div>
+
+<!-- Footer -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer-inner">
+      <div class="footer-text">AI Foundations Curriculum · Module F03 · Foundation · Updated May 2026</div>
+      <a href="module-f04.html" class="footer-next">Next: Module F04 — Data &amp; Storage →</a>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

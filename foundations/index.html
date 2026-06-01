@@ -1,0 +1,1047 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Foundations — Prerequisites for Agentic AI</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;500&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #111118;
+    --surface2: #18181f;
+    --border: #2a2a3a;
+    --accent: #7c6af7;
+    --accent2: #f7c36a;
+    --accent3: #6af7d4;
+    --text: #e8e8f0;
+    --muted: #6b6b80;
+    --danger: #f76a6a;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 300;
+    line-height: 1.7;
+    min-height: 100vh;
+  }
+
+  /* Noise texture overlay */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.4;
+  }
+
+  .container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 2rem;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Top nav bar */
+  .top-nav {
+    border-bottom: 1px solid var(--border);
+    padding: 0.9rem 0;
+    background: rgba(10,10,15,0.95);
+    backdrop-filter: blur(12px);
+    position: sticky;
+    top: 0;
+    z-index: 200;
+  }
+
+  .top-nav-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+
+  .top-nav-title {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.12em;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+
+  .top-nav-link {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.68rem;
+    letter-spacing: 0.06em;
+    color: var(--muted);
+    text-decoration: none;
+    border-bottom: 1px solid transparent;
+    transition: color 0.2s, border-color 0.2s;
+    white-space: nowrap;
+  }
+
+  .top-nav-link:hover {
+    color: var(--accent3);
+    border-bottom-color: rgba(106,247,212,0.4);
+  }
+
+  /* Hero */
+  .hero {
+    padding: 5rem 0 3rem;
+    border-bottom: 1px solid var(--border);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero::after {
+    content: '';
+    position: absolute;
+    top: -120px;
+    right: -200px;
+    width: 700px;
+    height: 700px;
+    background: radial-gradient(circle, rgba(124,106,247,0.12) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .hero-eyebrow {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.2em;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 1.2rem;
+  }
+
+  .hero h1 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: clamp(2.4rem, 5vw, 4rem);
+    line-height: 1.05;
+    margin-bottom: 1.5rem;
+    letter-spacing: -0.02em;
+  }
+
+  .hero h1 span {
+    color: var(--accent);
+  }
+
+  .hero-sub {
+    font-size: 1.1rem;
+    color: var(--muted);
+    max-width: 640px;
+    line-height: 1.8;
+    margin-bottom: 2.5rem;
+  }
+
+  .hero-meta {
+    display: flex;
+    gap: 2.5rem;
+    flex-wrap: wrap;
+  }
+
+  .meta-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+  }
+
+  .meta-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+
+  .meta-value {
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    font-size: 1.05rem;
+    color: var(--text);
+  }
+
+  .meta-value a {
+    color: var(--accent3);
+    text-decoration: none;
+    border-bottom: 1px solid rgba(106,247,212,0.3);
+    transition: border-color 0.2s;
+  }
+
+  .meta-value a:hover {
+    border-color: var(--accent3);
+  }
+
+  /* Navigation rail */
+  .nav-rail {
+    display: flex;
+    gap: 0.5rem;
+    padding: 1.5rem 0;
+    border-bottom: 1px solid var(--border);
+    flex-wrap: wrap;
+    background: rgba(10,10,15,0.92);
+    backdrop-filter: blur(12px);
+    z-index: 100;
+  }
+
+  .nav-pill {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.05em;
+    padding: 0.35rem 0.8rem;
+    border-radius: 100px;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.2s;
+    text-decoration: none;
+    white-space: nowrap;
+  }
+
+  .nav-pill:hover, .nav-pill.active {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: rgba(124,106,247,0.08);
+  }
+
+  /* Running example callout */
+  .running-example {
+    margin: 3rem 0 0;
+    background: rgba(106,247,212,0.05);
+    border: 1px solid rgba(106,247,212,0.2);
+    border-radius: 12px;
+    padding: 1.5rem 2rem;
+  }
+
+  .running-example-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent3);
+    margin-bottom: 0.5rem;
+  }
+
+  .running-example-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 1.05rem;
+    color: var(--accent3);
+    margin-bottom: 0.6rem;
+  }
+
+  .running-example-text {
+    font-size: 0.92rem;
+    color: #a0a0b8;
+    line-height: 1.7;
+  }
+
+  /* Module layout */
+  .modules {
+    padding: 3rem 0 6rem;
+    display: flex;
+    flex-direction: column;
+    gap: 4rem;
+  }
+
+  .module {
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    gap: 3rem;
+    align-items: start;
+  }
+
+  @media (max-width: 780px) {
+    .module { grid-template-columns: 1fr; gap: 1.5rem; }
+  }
+
+  .module-sidebar {
+    position: sticky;
+    top: 80px;
+  }
+
+  .module-number {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 0.6rem;
+  }
+
+  .module-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 1.45rem;
+    line-height: 1.2;
+    margin-bottom: 0.8rem;
+    letter-spacing: -0.01em;
+  }
+
+  .module-badge {
+    display: inline-block;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.1em;
+    padding: 0.25rem 0.6rem;
+    border-radius: 4px;
+    margin-bottom: 1rem;
+  }
+
+  .badge-foundation { background: rgba(107, 107, 128, 0.2); color: var(--muted); border: 1px solid var(--border); }
+  .badge-core { background: rgba(124,106,247,0.15); color: var(--accent); border: 1px solid rgba(124,106,247,0.3); }
+  .badge-advanced { background: rgba(247,195,106,0.12); color: var(--accent2); border: 1px solid rgba(247,195,106,0.3); }
+  .badge-frontier { background: rgba(106,247,212,0.12); color: var(--accent3); border: 1px solid rgba(106,247,212,0.3); }
+
+  .module-duration {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.68rem;
+    color: var(--muted);
+  }
+
+  .module-body {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  .module-desc {
+    padding: 1.5rem 1.8rem;
+    font-size: 0.97rem;
+    color: #c0c0d0;
+    line-height: 1.75;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .topics-header {
+    padding: 1rem 1.8rem 0.5rem;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .topics-list {
+    list-style: none;
+    padding: 0 0 0.8rem;
+  }
+
+  .topic-item {
+    display: flex;
+    gap: 1rem;
+    align-items: baseline;
+    padding: 0.5rem 1.8rem;
+    transition: background 0.15s;
+    cursor: default;
+  }
+
+  .topic-item:hover {
+    background: var(--surface2);
+  }
+
+  .topic-dot {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    margin-top: 0.55rem;
+  }
+
+  .dot-foundation { background: var(--muted); }
+  .dot-core { background: var(--accent); }
+  .dot-advanced { background: var(--accent2); }
+  .dot-frontier { background: var(--accent3); }
+
+  .topic-text {
+    font-size: 0.92rem;
+    color: var(--text);
+    line-height: 1.5;
+  }
+
+  .topic-sub {
+    font-size: 0.79rem;
+    color: var(--muted);
+    display: block;
+    margin-top: 0.1rem;
+    font-family: 'IBM Plex Mono', monospace;
+  }
+
+  .lab-block {
+    margin: 0 1.8rem 1.5rem;
+    padding: 1rem 1.2rem;
+    background: var(--surface2);
+    border-left: 3px solid var(--accent);
+    border-radius: 0 8px 8px 0;
+  }
+
+  .lab-block.lab-advanced { border-left-color: var(--accent2); }
+  .lab-block.lab-frontier { border-left-color: var(--accent3); }
+
+  .lab-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.15em;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 0.4rem;
+  }
+
+  .lab-advanced .lab-label { color: var(--accent2); }
+  .lab-frontier .lab-label { color: var(--accent3); }
+
+  .lab-desc {
+    font-size: 0.88rem;
+    color: #b0b0c4;
+    line-height: 1.6;
+  }
+
+  /* Divider between modules */
+  .module-divider {
+    height: 1px;
+    background: linear-gradient(to right, transparent, var(--border) 20%, var(--border) 80%, transparent);
+  }
+
+  /* Principles sidebar callout */
+  .callout {
+    background: rgba(124,106,247,0.07);
+    border: 1px solid rgba(124,106,247,0.2);
+    border-radius: 10px;
+    padding: 1.2rem 1.5rem;
+    margin-top: 1.5rem;
+  }
+
+  .callout-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    font-size: 0.85rem;
+    color: var(--accent);
+    margin-bottom: 0.5rem;
+  }
+
+  .callout-text {
+    font-size: 0.82rem;
+    color: var(--muted);
+    line-height: 1.6;
+  }
+
+  /* Footer */
+  .footer {
+    border-top: 1px solid var(--border);
+    padding: 2.5rem 0;
+    text-align: center;
+  }
+
+  .footer-text {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+  }
+
+  /* Accent line on module */
+  .module-accent-line {
+    height: 2px;
+    background: linear-gradient(to right, var(--accent), transparent);
+    opacity: 0.4;
+  }
+
+  .module-accent-line.line-advanced {
+    background: linear-gradient(to right, var(--accent2), transparent);
+  }
+
+  .module-accent-line.line-frontier {
+    background: linear-gradient(to right, var(--accent3), transparent);
+  }
+
+  .module-accent-line.line-foundation {
+    background: linear-gradient(to right, var(--muted), transparent);
+    opacity: 0.3;
+  }
+
+  .module-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    margin-top: 1rem;
+    margin-bottom: 0.2rem;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.05em;
+    color: var(--accent);
+    text-decoration: none;
+    padding-bottom: 0.1rem;
+    border-bottom: 1px solid rgba(124,106,247,0.3);
+    transition: border-color 0.2s, gap 0.2s;
+  }
+
+  .module-link:hover {
+    border-color: var(--accent);
+    gap: 0.6rem;
+  }
+
+  .module-link.link-advanced { color: var(--accent2); border-bottom-color: rgba(247,195,106,0.3); }
+  .module-link.link-advanced:hover { border-color: var(--accent2); }
+
+  .module-link.link-frontier { color: var(--accent3); border-bottom-color: rgba(106,247,212,0.3); }
+  .module-link.link-frontier:hover { border-color: var(--accent3); }
+
+  .module-link.link-foundation { color: var(--muted); border-bottom-color: rgba(107,107,128,0.3); }
+  .module-link.link-foundation:hover { border-color: var(--muted); }
+
+  /* Next step section */
+  .next-step {
+    margin: 0 0 5rem;
+    background: var(--surface);
+    border: 1px solid rgba(106,247,212,0.25);
+    border-radius: 14px;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .next-step::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at top left, rgba(106,247,212,0.06) 0%, transparent 60%);
+    pointer-events: none;
+  }
+
+  .next-step-accent {
+    height: 3px;
+    background: linear-gradient(to right, var(--accent3), var(--accent), transparent);
+    opacity: 0.7;
+  }
+
+  .next-step-inner {
+    padding: 2rem 2.4rem;
+  }
+
+  .next-step-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--accent3);
+    margin-bottom: 0.7rem;
+  }
+
+  .next-step-heading {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 1.5rem;
+    letter-spacing: -0.01em;
+    color: var(--text);
+    margin-bottom: 0.9rem;
+    line-height: 1.2;
+  }
+
+  .next-step-text {
+    font-size: 0.97rem;
+    color: #a8a8c0;
+    line-height: 1.75;
+    max-width: 680px;
+    margin-bottom: 1.8rem;
+  }
+
+  .next-step-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.8rem 1.6rem;
+    background: rgba(106,247,212,0.1);
+    border: 1px solid rgba(106,247,212,0.35);
+    border-radius: 8px;
+    color: var(--accent3);
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    font-size: 0.95rem;
+    text-decoration: none;
+    transition: background 0.2s, border-color 0.2s, gap 0.2s;
+  }
+
+  .next-step-cta:hover {
+    background: rgba(106,247,212,0.16);
+    border-color: rgba(106,247,212,0.6);
+    gap: 0.9rem;
+  }
+</style>
+</head>
+<body>
+
+<!-- Top navigation bar -->
+<div class="top-nav">
+  <div class="container">
+    <div class="top-nav-inner">
+      <span class="top-nav-title">AI Foundations Curriculum</span>
+      <a href="../agentic-ai-curriculum.html" class="top-nav-link">Main Curriculum →</a>
+    </div>
+  </div>
+</div>
+
+<div class="hero">
+  <div class="container">
+    <div class="hero-eyebrow">Foundations Curriculum · 2026 Edition</div>
+    <h1>AI Foundations<br><span>Before You Build, You Need to Understand</span></h1>
+    <p class="hero-sub">
+      The conceptual underpinnings every practitioner needs — from how language models actually work to why they fail and how to defend against it. No engineering background required. Complete this curriculum before starting Agentic AI: From Zero to Frontier.
+    </p>
+    <div class="hero-meta">
+      <div class="meta-item">
+        <span class="meta-label">Modules</span>
+        <span class="meta-value">6</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">Est. Duration</span>
+        <span class="meta-value">3–4 weeks</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">Prerequisites</span>
+        <span class="meta-value">None</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">Leads to</span>
+        <span class="meta-value"><a href="../agentic-ai-curriculum.html">Agentic AI Curriculum</a></span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+  <nav class="nav-rail">
+    <a class="nav-pill active" href="#mf1">F01 · Language Models</a>
+    <a class="nav-pill" href="#mf2">F02 · Tokens &amp; Context</a>
+    <a class="nav-pill" href="#mf3">F03 · APIs</a>
+    <a class="nav-pill" href="#mf4">F04 · Data &amp; Storage</a>
+    <a class="nav-pill" href="#mf5">F05 · Prompts</a>
+    <a class="nav-pill" href="#mf6">F06 · Failure Modes</a>
+  </nav>
+</div>
+
+<div class="container">
+
+  <!-- Running example callout -->
+  <div class="running-example">
+    <div class="running-example-label">Running Example</div>
+    <div class="running-example-title">Running Example: Maya</div>
+    <p class="running-example-text">
+      Throughout these six modules, we follow Maya — a marketing analyst at a mid-size SaaS company. She's been using AI tools (ChatGPT, Claude) for 18 months and has been asked to build the company's first internal AI-powered tools: a meeting notes summarizer and a recipe recommender. No engineering background. Just curiosity and a deadline. Her questions drive the examples.
+    </p>
+  </div>
+
+  <div class="modules">
+
+    <!-- MODULE F01 -->
+    <div class="module" id="mf1">
+      <div class="module-sidebar">
+        <div class="module-number">Module F01</div>
+        <div class="module-title">What Language Models Actually Are</div>
+        <span class="module-badge badge-foundation">FOUNDATION</span>
+        <div class="module-duration">⏱ 1 week</div>
+        <a href="module-f01.html" class="module-link link-foundation">Open Module →</a>
+        <div class="callout">
+          <div class="callout-title">Why this matters</div>
+          <div class="callout-text">Most practitioners use AI tools every day without understanding what's happening under the hood. This module closes that gap. Once you know how models learn and generate text, the design decisions in the main curriculum — context engineering, guardrails, hallucination defenses — stop seeming arbitrary and start making obvious sense.</div>
+        </div>
+      </div>
+      <div class="module-body">
+        <div class="module-accent-line line-foundation"></div>
+        <div class="module-desc">
+          Before you can build with language models, you need to understand what they actually are — not the marketing version, but the real one. This module explains how models go from raw text on the internet to a system that can answer questions, write code, and summarize meetings. No math required. What is required: genuine curiosity about what's happening inside the black box you're about to wire into a production system.
+        </div>
+        <div class="topics-header">Core Topics</div>
+        <ul class="topics-list">
+          <li class="topic-item">
+            <span class="topic-dot dot-foundation"></span>
+            <span class="topic-text">The shift from rules to learning: how AI got useful
+              <span class="topic-sub">Machine learning, neural networks, training data — what these actually mean</span>
+            </span>
+          </li>
+          <li class="topic-item">
+            <span class="topic-dot dot-foundation"></span>
+            <span class="topic-text">Training vs. inference: two completely different things
+              <span class="topic-sub">How the model learned what it knows; how it applies that knowledge at runtime</span>
+            </span>
+          </li>
+          <li class="topic-item">
+            <span class="topic-dot dot-foundation"></span>
+            <span class="topic-text">What the model "knows" — and what it's making up
+              <span class="topic-sub">Parametric knowledge, training cutoffs, and the hallucination mechanism</span>
+            </span>
+          </li>
+          <li class="topic-item">
+            <span class="topic-dot dot-foundation"></span>
+            <span class="topic-text">Why models are probabilistic, not deterministic
+              <span class="topic-sub">Temperature, sampling, and why the same prompt gives different answers each time</span>
+            </span>
+          </li>
+          <li class="topic-item">
+            <span class="topic-dot dot-foundation"></span>
+            <span class="topic-text">The model landscape: GPT, Claude, Gemini — what actually differs
+              <span class="topic-sub">Parameters, fine-tuning, instruction-tuning, and capability differences</span>
+            </span>
+          </li>
+        </ul>
+        <div class="lab-block">
+          <div class="lab-label">Exercise</div>
+          <div class="lab-desc">The Temperature Test — send the same prompt 10 times at temperature 0, then 10 times at temperature 1. Document what changes, what stays the same, and explain in plain language why.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="module-divider"></div>
+
+    <!-- MODULE F02 -->
+    <div class="module" id="mf2">
+      <div class="module-sidebar">
+        <div class="module-number">Module F02</div>
+        <div class="module-title">Tokens and Context: The Physics of Language Models</div>
+        <span class="module-badge badge-foundation">FOUNDATION</span>
+        <div class="module-duration">⏱ 3–4 days</div>
+        <a href="module-f02.html" class="module-link link-foundation">Open Module →</a>
+        <div class="callout">
+          <div class="callout-title">Why this matters</div>
+          <div class="callout-text">Tokens are the atom of everything in a language model. Understanding what they are — and understanding the context window as finite working memory — explains why agents fail at long tasks, why API costs scale the way they do, and why context engineering (Module 3 of the main curriculum) is a core skill rather than a nice-to-have.</div>
+        </div>
+      </div>
+      <div class="module-body">
+        <div class="module-accent-line line-foundation"></div>
+        <div class="module-desc">
+          Maya's first question when she got her API bill: "Why did summarizing one document cost more than I expected?" The answer is tokens. This module explains what tokens are, how the context window works as the model's finite working memory, and why the economics of language models are inseparable from these concepts. You'll leave with a mental model that makes every API call make sense.
+        </div>
+        <div class="topics-header">Core Topics</div>
+        <ul class="topics-list">
+          <li class="topic-item">
+            <span class="topic-dot dot-foundation"></span>
+            <span class="topic-text">What is a token? Not a word, not a character — something in between
+              <span class="topic-sub">Byte-pair encoding; how rare words and punctuation tokenize differently</span>
+            </span>
+          </li>
+          <li class="topic-item">
+            <span class="topic-dot dot-foundation"></span>
+            <span class="topic-text">Autoregressive generation: how models produce text one token at a time
+              <span class="topic-sub">Left-to-right; why this matters for latency, cost, and output quality</span>
+            </span>
+          </li>
+          <li class="topic-item">
+            <span class="topic-dot dot-foundation"></span>
+            <span class="topic-text">The context window: everything the model sees at once
+              <span class="topic-sub">System prompt, conversation history, injected documents, tool results — all in one window</span>
+            </span>
+          </li>
+          <li class="topic-item">
+            <span class="topic-dot dot-foundation"></span>
+            <span class="topic-text">Why bigger context windows don't solve everything
+              <span class="topic-sub">The "lost in the middle" problem; attention quality at long ranges</span>
+            </span>
+          </li>
+          <li class="topic-item">
+            <span class="topic-dot dot-foundation"></span>
+            <span class="topic-text">Tokens as currency: cost, latency, and economics
+              <span class="topic-sub">Per-token pricing; why a 1M-token context is expensive; input vs. output token costs</span>
+            </span>
+          </li>
+        </ul>
+        <div class="lab-block">
+          <div class="lab-label">Exercise</div>
+          <div class="lab-desc">Find the limit. Take a long document — a meeting transcript, a report — and try to process it in a single API call. Find where it breaks. Then design a chunking strategy to handle it correctly.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="module-divider"></div>
+
+    <!-- MODULE F03 -->
+    <div class="module" id="mf3">
+      <div class="module-sidebar">
+        <div class="module-number">Module F03</div>
+        <div class="module-title">APIs: The Plumbing of Modern Software</div>
+        <span class="module-badge badge-foundation">FOUNDATION</span>
+        <div class="module-duration">⏱ 3–4 days</div>
+        <a href="module-f03.html" class="module-link link-foundation">Open Module →</a>
+        <div class="callout">
+          <div class="callout-title">Why this matters</div>
+          <div class="callout-text">Every agent in the main curriculum makes API calls — to language models, databases, and external services. Understanding APIs isn't optional. It's the literacy you need to read documentation, debug failures, and understand what's happening when an agent calls a tool.</div>
+        </div>
+      </div>
+      <div class="module-body">
+        <div class="module-accent-line line-foundation"></div>
+        <div class="module-desc">
+          When Maya's meeting summarizer stopped working, the error said "429 Too Many Requests." She had no idea what that meant. This module makes that gap disappear. APIs are how software talks to software — and every AI tool you'll ever build or use depends on them. You don't need to build APIs. You need to understand them well enough to use them confidently and debug them when they break.
+        </div>
+        <div class="topics-header">Core Topics</div>
+        <ul class="topics-list">
+          <li class="topic-item">
+            <span class="topic-dot dot-foundation"></span>
+            <span class="topic-text">What an API actually is: a contract for software-to-software communication
+              <span class="topic-sub">Endpoints, methods, the request/response pattern; what REST means</span>
+            </span>
+          </li>
+          <li class="topic-item">
+            <span class="topic-dot dot-foundation"></span>
+            <span class="topic-text">HTTP: the protocol everything runs on
+              <span class="topic-sub">GET vs. POST; headers; status codes (200, 401, 429, 500) and what each means</span>
+            </span>
+          </li>
+          <li class="topic-item">
+            <span class="topic-dot dot-foundation"></span>
+            <span class="topic-text">JSON: the universal language of data exchange
+              <span class="topic-sub">Key-value pairs, arrays, nesting; reading and writing JSON confidently</span>
+            </span>
+          </li>
+          <li class="topic-item">
+            <span class="topic-dot dot-foundation"></span>
+            <span class="topic-text">Authentication: API keys, security, and what happens when keys leak
+              <span class="topic-sub">Bearer tokens, environment variables, key rotation — practical security habits</span>
+            </span>
+          </li>
+          <li class="topic-item">
+            <span class="topic-dot dot-foundation"></span>
+            <span class="topic-text">Rate limits, quotas, and graceful error handling
+              <span class="topic-sub">429 Too Many Requests; exponential backoff; what happens when you exceed limits</span>
+            </span>
+          </li>
+          <li class="topic-item">
+            <span class="topic-dot dot-foundation"></span>
+            <span class="topic-text">Anatomy of an LLM API call: request, parameters, response
+              <span class="topic-sub">model, messages, temperature, max_tokens, stop sequences — what each controls</span>
+            </span>
+          </li>
+        </ul>
+        <div class="lab-block">
+          <div class="lab-label">Hands-On Lab</div>
+          <div class="lab-desc">Make your first raw API call to Claude using curl. Modify the temperature. Change the system prompt. Read the full JSON response. Find the token usage fields. Make it fail intentionally (wrong API key, over max_tokens) and read the error.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="module-divider"></div>
+
+    <!-- MODULE F04 -->
+    <div class="module" id="mf4">
+      <div class="module-sidebar">
+        <div class="module-number">Module F04</div>
+        <div class="module-title">Data, Storage, and How AI Finds Information</div>
+        <span class="module-badge badge-foundation">FOUNDATION</span>
+        <div class="module-duration">⏱ 3–4 days</div>
+        <a href="module-f04.html" class="module-link link-foundation">Open Module →</a>
+        <div class="callout">
+          <div class="callout-title">Why this matters</div>
+          <div class="callout-text">Agents retrieve, store, and reason over information — not just generate text. Before you can understand RAG, vector stores, and context engineering (all central to the main curriculum), you need to understand how data is stored, searched, and retrieved. This module builds that foundation.</div>
+        </div>
+      </div>
+      <div class="module-body">
+        <div class="module-accent-line line-foundation"></div>
+        <div class="module-desc">
+          Maya's recipe recommender needs to find recipes that match a user's description — not by keyword, but by meaning. "Something light and summery" shouldn't only return recipes that contain those exact words. This module explains how AI-powered search actually works, why it's fundamentally different from traditional search, and what the data infrastructure behind it looks like.
+        </div>
+        <div class="topics-header">Core Topics</div>
+        <ul class="topics-list">
+          <li class="topic-item">
+            <span class="topic-dot dot-foundation"></span>
+            <span class="topic-text">Structured vs. unstructured data: why the distinction matters for AI
+              <span class="topic-sub">Tables and rows vs. documents and free text; where AI excels, where it struggles</span>
+            </span>
+          </li>
+          <li class="topic-item">
+            <span class="topic-dot dot-foundation"></span>
+            <span class="topic-text">What databases actually are: the three types you'll encounter
+              <span class="topic-sub">Relational databases, document stores, key-value stores — use cases for each</span>
+            </span>
+          </li>
+          <li class="topic-item">
+            <span class="topic-dot dot-foundation"></span>
+            <span class="topic-text">How traditional search works — and why it's insufficient for AI
+              <span class="topic-sub">Keyword matching, inverted indexes; what full-text search can't do</span>
+            </span>
+          </li>
+          <li class="topic-item">
+            <span class="topic-dot dot-foundation"></span>
+            <span class="topic-text">Embeddings: turning text into numbers that capture meaning
+              <span class="topic-sub">Vector representations; why semantically similar sentences embed to similar vectors</span>
+            </span>
+          </li>
+          <li class="topic-item">
+            <span class="topic-dot dot-foundation"></span>
+            <span class="topic-text">Vector stores: databases built for similarity search
+              <span class="topic-sub">Approximate nearest-neighbor (ANN) search; popular options (Pinecone, Weaviate, pgvector)</span>
+            </span>
+          </li>
+          <li class="topic-item">
+            <span class="topic-dot dot-foundation"></span>
+            <span class="topic-text">Why AI doesn't know about last week: training cutoffs and runtime retrieval
+              <span class="topic-sub">Static model weights vs. dynamic retrieval; the RAG pattern as the bridge</span>
+            </span>
+          </li>
+        </ul>
+        <div class="lab-block">
+          <div class="lab-label">Hands-On Lab</div>
+          <div class="lab-desc">Build a simple semantic search over 20–30 short documents. Compare keyword search vs. embedding-based search on the same 5 queries. Document where they agree, where they diverge, and why.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="module-divider"></div>
+
+    <!-- MODULE F05 -->
+    <div class="module" id="mf5">
+      <div class="module-sidebar">
+        <div class="module-number">Module F05</div>
+        <div class="module-title">Prompts, Instructions, and Model Behavior</div>
+        <span class="module-badge badge-foundation">FOUNDATION</span>
+        <div class="module-duration">⏱ 3–4 days</div>
+        <a href="module-f05.html" class="module-link link-foundation">Open Module →</a>
+        <div class="callout">
+          <div class="callout-title">Why this matters</div>
+          <div class="callout-text">You will write prompts for every agent you build. Understanding how they actually influence model behavior — and how to get structured, consistent output — is non-negotiable before you start wiring prompts into agentic systems where you can't manually review every response.</div>
+        </div>
+      </div>
+      <div class="module-body">
+        <div class="module-accent-line line-foundation"></div>
+        <div class="module-desc">
+          Maya's meeting summarizer works fine for some meetings and badly for others. The difference isn't the model — it's what she's asking it to do and how. This module is about prompt craft as a discipline: not tricks and hacks, but a structured understanding of how models respond to instructions, what kinds of instructions work, and how to get reliable output from a system that is, by nature, probabilistic.
+        </div>
+        <div class="topics-header">Core Topics</div>
+        <ul class="topics-list">
+          <li class="topic-item">
+            <span class="topic-dot dot-foundation"></span>
+            <span class="topic-text">The anatomy of a prompt: system message, user messages, conversation history
+              <span class="topic-sub">What the model sees vs. what the user sees; role hierarchy; how context flows</span>
+            </span>
+          </li>
+          <li class="topic-item">
+            <span class="topic-dot dot-foundation"></span>
+            <span class="topic-text">How models follow instructions: instruction-tuning explained
+              <span class="topic-sub">Base models vs. instruction-tuned models; RLHF; why models follow system prompts</span>
+            </span>
+          </li>
+          <li class="topic-item">
+            <span class="topic-dot dot-foundation"></span>
+            <span class="topic-text">System prompts: setting persona, constraints, format, and guardrails
+              <span class="topic-sub">What belongs in the system prompt; length vs. specificity tradeoffs</span>
+            </span>
+          </li>
+          <li class="topic-item">
+            <span class="topic-dot dot-foundation"></span>
+            <span class="topic-text">Temperature and sampling: controlling randomness
+              <span class="topic-sub">Temperature 0 vs. 1; top-p; when to use creative vs. deterministic settings</span>
+            </span>
+          </li>
+          <li class="topic-item">
+            <span class="topic-dot dot-foundation"></span>
+            <span class="topic-text">Few-shot examples: showing the model what you want
+              <span class="topic-sub">One-shot, few-shot; when examples beat descriptions</span>
+            </span>
+          </li>
+          <li class="topic-item">
+            <span class="topic-dot dot-foundation"></span>
+            <span class="topic-text">Structured output: requesting JSON instead of prose
+              <span class="topic-sub">Output format instructions; JSON mode; why structured output is essential for agents</span>
+            </span>
+          </li>
+        </ul>
+        <div class="lab-block">
+          <div class="lab-label">Hands-On Lab</div>
+          <div class="lab-desc">Prompt iteration sprint. Start with a vague prompt for a meeting summarizer. In exactly 5 iterations, improve it until it produces consistent JSON with action_items, summary, and attendees fields. Document what changed each round and what the biggest impact was.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="module-divider"></div>
+
+    <!-- MODULE F06 -->
+    <div class="module" id="mf6">
+      <div class="module-sidebar">
+        <div class="module-number">Module F06</div>
+        <div class="module-title">Failure Modes: What AI Gets Wrong and Why</div>
+        <span class="module-badge badge-foundation">FOUNDATION</span>
+        <div class="module-duration">⏱ 1 week</div>
+        <a href="module-f06.html" class="module-link link-foundation">Open Module →</a>
+        <div class="callout">
+          <div class="callout-title">Why this matters — and why it comes last</div>
+          <div class="callout-text">Every module in the main curriculum — guardrails, HITL design, evals, observability — exists because AI systems fail in predictable, architectural ways. This module is the bridge: learn what breaks and why, so when the main curriculum says "here's how to defend against it," you understand what you're defending against.</div>
+        </div>
+      </div>
+      <div class="module-body">
+        <div class="module-accent-line line-foundation"></div>
+        <div class="module-desc">
+          Maya's meeting summarizer once confidently attributed an action item to someone who wasn't even in the meeting. The model didn't flag uncertainty. It just stated it as fact. This isn't a bug you can fix with a patch — it's a property of how language models work. This module is an honest accounting of how AI fails: the mechanisms, the patterns, and the practical defenses. You'll end this curriculum knowing exactly what you're up against.
+        </div>
+        <div class="topics-header">Core Topics</div>
+        <ul class="topics-list">
+          <li class="topic-item">
+            <span class="topic-dot dot-foundation"></span>
+            <span class="topic-text">Hallucinations: confident wrongness and why it's architectural, not a bug
+              <span class="topic-sub">The autocomplete nature of LLMs; why confidence does not equal accuracy</span>
+            </span>
+          </li>
+          <li class="topic-item">
+            <span class="topic-dot dot-foundation"></span>
+            <span class="topic-text">Knowledge cutoffs and temporal reasoning failures
+              <span class="topic-sub">Static training data; what models get wrong about recent events; mitigation strategies</span>
+            </span>
+          </li>
+          <li class="topic-item">
+            <span class="topic-dot dot-foundation"></span>
+            <span class="topic-text">Calibration: when the model doesn't know it doesn't know
+              <span class="topic-sub">Overconfidence; the spectrum from "I don't know" to confidently fabricated detail</span>
+            </span>
+          </li>
+          <li class="topic-item">
+            <span class="topic-dot dot-foundation"></span>
+            <span class="topic-text">Prompt injection: when external content hijacks the model's instructions
+              <span class="topic-sub">Direct and indirect injection; why agents with tool access are especially vulnerable</span>
+            </span>
+          </li>
+          <li class="topic-item">
+            <span class="topic-dot dot-foundation"></span>
+            <span class="topic-text">Bias from training data
+              <span class="topic-sub">Representation bias, recency bias; how it appears in real outputs</span>
+            </span>
+          </li>
+          <li class="topic-item">
+            <span class="topic-dot dot-foundation"></span>
+            <span class="topic-text">Practical defenses: grounding, verification, structured output, human-in-the-loop
+              <span class="topic-sub">Citation requirements; double-checking against source data; when to route to humans</span>
+            </span>
+          </li>
+        </ul>
+        <div class="lab-block">
+          <div class="lab-label">Hands-On Lab</div>
+          <div class="lab-desc">Stress-test an AI. In 30 minutes, try to produce: 3 hallucinations, 2 prompt injection attacks, 1 calibration failure (model is confidently wrong about something checkable). Document what worked. Then: for each failure you produced, describe one specific defense you'd build.</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- What comes next -->
+  <div class="next-step">
+    <div class="next-step-accent"></div>
+    <div class="next-step-inner">
+      <div class="next-step-label">Next Step</div>
+      <div class="next-step-heading">Ready for the Main Curriculum?</div>
+      <p class="next-step-text">
+        These six modules gave you the foundation. You understand how language models work, how to call them, how to structure data for them, and how they fail. Now you're ready to learn how to build agents — systems that perceive their environment, reason about goals, take actions via tools, and loop until they're done.
+      </p>
+      <a href="../agentic-ai-curriculum.html" class="next-step-cta">Begin: Agentic AI: From Zero to Frontier →</a>
+    </div>
+  </div>
+
+</div>
+
+<footer class="footer">
+  <div class="container">
+    <div class="footer-text">AI Foundations Curriculum · Prerequisites for Agentic AI · Updated May 2026 · v1.0</div>
+  </div>
+</footer>
+
+</body>
+</html>

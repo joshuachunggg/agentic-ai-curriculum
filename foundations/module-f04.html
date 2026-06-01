@@ -1,0 +1,1390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Module F04: Data, Storage, and How AI Finds Information — AI Foundations</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;500&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;500&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap');
+
+  :root {
+    --bg: #0a0a0f;
+    --surface: #111118;
+    --surface2: #18181f;
+    --border: #2a2a3a;
+    --accent: #7c6af7;
+    --accent2: #f7c36a;
+    --accent3: #6af7d4;
+    --text: #e8e8f0;
+    --muted: #6b6b80;
+    --danger: #f76a6a;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 300;
+    line-height: 1.7;
+    min-height: 100vh;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.4;
+  }
+
+  /* Sticky nav */
+  .top-nav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(10,10,15,0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .top-nav-inner {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 0 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 52px;
+    gap: 1rem;
+  }
+
+  .nav-back {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.05em;
+    color: var(--muted);
+    text-decoration: none;
+    transition: color 0.2s;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+  }
+
+  .nav-back:hover { color: var(--text); }
+
+  .nav-back-sep {
+    color: var(--border);
+    font-size: 0.8rem;
+  }
+
+  .nav-module-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    color: var(--muted);
+    text-transform: uppercase;
+    text-align: center;
+    flex: 1;
+  }
+
+  .nav-next {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.05em;
+    color: var(--muted);
+    text-decoration: none;
+    transition: color 0.2s;
+    white-space: nowrap;
+  }
+
+  .nav-next:hover { color: var(--accent); }
+
+  /* Container */
+  .container {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 0 2rem;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Hero */
+  .hero {
+    padding: 4.5rem 0 3.5rem;
+    border-bottom: 1px solid var(--border);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero::after {
+    content: '';
+    position: absolute;
+    top: -100px;
+    right: -200px;
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, rgba(107,107,128,0.10) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .hero-eyebrow {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.2em;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+  }
+
+  .module-badge {
+    display: inline-block;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.1em;
+    padding: 0.25rem 0.6rem;
+    border-radius: 4px;
+    margin-bottom: 1.2rem;
+    background: rgba(107, 107, 128, 0.2);
+    color: var(--muted);
+    border: 1px solid var(--border);
+  }
+
+  .hero h1 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: clamp(2rem, 4.5vw, 3.2rem);
+    line-height: 1.08;
+    margin-bottom: 1.4rem;
+    letter-spacing: -0.02em;
+  }
+
+  .hero-sub {
+    font-size: 1.05rem;
+    color: #a0a0b8;
+    max-width: 620px;
+    line-height: 1.8;
+    margin-bottom: 2rem;
+  }
+
+  .hero-meta {
+    display: flex;
+    gap: 2.5rem;
+    flex-wrap: wrap;
+  }
+
+  .meta-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+  }
+
+  .meta-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.15em;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+
+  .meta-value {
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    font-size: 1rem;
+    color: var(--text);
+  }
+
+  /* Main content */
+  .content {
+    padding: 4rem 0 6rem;
+  }
+
+  /* Topic sections */
+  .topic-section {
+    margin-bottom: 5rem;
+  }
+
+  .topic-section:last-child {
+    margin-bottom: 0;
+  }
+
+  .section-number {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+  }
+
+  .topic-section h2 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 1.65rem;
+    letter-spacing: -0.01em;
+    line-height: 1.2;
+    margin-bottom: 1.6rem;
+    color: var(--text);
+  }
+
+  .topic-section h3 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    font-size: 1.1rem;
+    letter-spacing: -0.01em;
+    margin-top: 2rem;
+    margin-bottom: 0.8rem;
+    color: var(--text);
+  }
+
+  .topic-section p {
+    font-size: 0.97rem;
+    color: #c8c8d8;
+    line-height: 1.8;
+    margin-bottom: 1.2rem;
+  }
+
+  .topic-section p:last-child {
+    margin-bottom: 0;
+  }
+
+  /* Section divider */
+  .section-divider {
+    height: 1px;
+    background: linear-gradient(to right, transparent, var(--border) 20%, var(--border) 80%, transparent);
+    margin: 4.5rem 0;
+  }
+
+  /* Callout boxes */
+  .callout {
+    border-radius: 10px;
+    padding: 1.3rem 1.6rem;
+    margin: 2rem 0;
+  }
+
+  .callout-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 0.6rem;
+    font-weight: 500;
+  }
+
+  .callout p {
+    font-size: 0.92rem;
+    line-height: 1.75;
+    margin-bottom: 0;
+  }
+
+  .callout p + p {
+    margin-top: 0.8rem;
+  }
+
+  .callout-insight {
+    background: rgba(124,106,247,0.07);
+    border: 1px solid rgba(124,106,247,0.25);
+  }
+
+  .callout-insight .callout-label {
+    color: var(--accent);
+  }
+
+  .callout-insight p {
+    color: #b8b0f0;
+  }
+
+  .callout-mistake {
+    background: rgba(247,106,106,0.07);
+    border: 1px solid rgba(247,106,106,0.25);
+  }
+
+  .callout-mistake .callout-label {
+    color: var(--danger);
+  }
+
+  .callout-mistake p {
+    color: #e0b0b0;
+  }
+
+  .callout-example {
+    background: rgba(106,247,212,0.06);
+    border: 1px solid rgba(106,247,212,0.2);
+  }
+
+  .callout-example .callout-label {
+    color: var(--accent3);
+  }
+
+  .callout-example p {
+    color: #a8e8d8;
+  }
+
+  /* Code blocks */
+  .code-block {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.4rem 1.6rem;
+    margin: 1.6rem 0;
+    overflow-x: auto;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.82rem;
+    line-height: 1.75;
+    color: #c0c0d8;
+  }
+
+  .code-block code {
+    font-family: inherit;
+  }
+
+  .code-note {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.78rem;
+    color: var(--muted);
+    line-height: 1.6;
+    margin-top: 0.6rem;
+    padding-left: 0.2rem;
+  }
+
+  /* Database comparison table */
+  .db-table-wrap {
+    margin: 2rem 0;
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+  }
+
+  .db-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--surface2);
+  }
+
+  .db-table thead tr {
+    background: rgba(124,106,247,0.12);
+    border-bottom: 1px solid rgba(124,106,247,0.25);
+  }
+
+  .db-table thead th {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--accent);
+    padding: 0.85rem 1.2rem;
+    text-align: left;
+    font-weight: 500;
+  }
+
+  .db-table tbody tr {
+    border-bottom: 1px solid var(--border);
+  }
+
+  .db-table tbody tr:last-child {
+    border-bottom: none;
+  }
+
+  .db-table tbody tr:hover {
+    background: rgba(124,106,247,0.04);
+  }
+
+  .db-table tbody td {
+    padding: 0.9rem 1.2rem;
+    font-size: 0.88rem;
+    color: #c8c8d8;
+    line-height: 1.6;
+    vertical-align: top;
+  }
+
+  .db-table tbody td:first-child {
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    color: var(--text);
+    font-size: 0.9rem;
+    white-space: nowrap;
+  }
+
+  .db-table .db-tag {
+    display: inline-block;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.68rem;
+    background: rgba(106,247,212,0.08);
+    border: 1px solid rgba(106,247,212,0.2);
+    color: var(--accent3);
+    border-radius: 3px;
+    padding: 0.1em 0.4em;
+    margin-left: 0.4rem;
+  }
+
+  @media (max-width: 640px) {
+    .db-table-wrap { overflow-x: auto; }
+    .db-table { min-width: 520px; }
+  }
+
+  /* Spectrum visualization */
+  .spectrum-row {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 0.75rem;
+    margin: 2rem 0;
+  }
+
+  @media (max-width: 640px) {
+    .spectrum-row {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .spectrum-item {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .spectrum-item::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+  }
+
+  .spec-1::before { background: var(--muted); opacity: 0.4; }
+  .spec-2::before { background: linear-gradient(to right, var(--muted), var(--accent)); opacity: 0.5; }
+  .spec-3::before { background: var(--accent); opacity: 0.6; }
+  .spec-4::before { background: linear-gradient(to right, var(--accent), var(--accent3)); opacity: 0.7; }
+  .spec-5::before { background: var(--accent3); opacity: 0.9; }
+
+  .spectrum-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 0.4rem;
+  }
+
+  .spectrum-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    font-size: 0.88rem;
+    color: var(--text);
+    margin-bottom: 0.4rem;
+  }
+
+  .spectrum-desc {
+    font-size: 0.75rem;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+
+  /* Pillars grid */
+  .pillars-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+    margin: 2rem 0;
+  }
+
+  @media (max-width: 540px) {
+    .pillars-grid { grid-template-columns: 1fr; }
+  }
+
+  .pillar-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.3rem 1.5rem;
+  }
+
+  .pillar-number {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.15em;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 0.4rem;
+  }
+
+  .pillar-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 1.1rem;
+    margin-bottom: 0.6rem;
+    color: var(--text);
+  }
+
+  .pillar-desc {
+    font-size: 0.85rem;
+    color: #9898b0;
+    line-height: 1.6;
+  }
+
+  .pillar-missing {
+    margin-top: 0.8rem;
+    padding-top: 0.8rem;
+    border-top: 1px solid var(--border);
+    font-size: 0.78rem;
+    color: var(--danger);
+    font-family: 'IBM Plex Mono', monospace;
+    letter-spacing: 0.02em;
+  }
+
+  /* Pipeline steps */
+  .pipeline-steps {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    margin: 2rem 0;
+  }
+
+  .pipeline-step {
+    display: flex;
+    gap: 1.2rem;
+    align-items: flex-start;
+    position: relative;
+  }
+
+  .pipeline-step:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    left: 1.1rem;
+    top: 2.4rem;
+    width: 1px;
+    height: calc(100% - 0.4rem);
+    background: var(--border);
+  }
+
+  .pipeline-step-num {
+    flex-shrink: 0;
+    width: 2.2rem;
+    height: 2.2rem;
+    border-radius: 50%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--accent);
+    font-weight: 500;
+    position: relative;
+    z-index: 1;
+  }
+
+  .pipeline-step-content {
+    padding: 0.2rem 0 1.6rem;
+  }
+
+  .pipeline-step-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: var(--text);
+    margin-bottom: 0.3rem;
+  }
+
+  .pipeline-step-desc {
+    font-size: 0.88rem;
+    color: #9898b0;
+    line-height: 1.65;
+  }
+
+  /* Exercise section */
+  .exercise-section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 5rem;
+  }
+
+  .exercise-header {
+    padding: 1.8rem 2rem;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface2);
+  }
+
+  .exercise-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+  }
+
+  .exercise-header h2 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 1.4rem;
+    color: var(--text);
+    margin-bottom: 0.6rem;
+  }
+
+  .exercise-header p {
+    font-size: 0.92rem;
+    color: #9898b0;
+    line-height: 1.7;
+  }
+
+  .exercise-body {
+    padding: 2rem;
+  }
+
+  .system-card {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.3rem 1.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .system-card:last-of-type {
+    margin-bottom: 0;
+  }
+
+  .system-number {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 0.4rem;
+  }
+
+  .system-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    font-size: 0.97rem;
+    color: var(--text);
+    margin-bottom: 0.5rem;
+  }
+
+  .system-desc {
+    font-size: 0.86rem;
+    color: #9898b0;
+    line-height: 1.65;
+    margin-bottom: 0.6rem;
+  }
+
+  .system-prompt {
+    font-size: 0.8rem;
+    color: var(--muted);
+    font-family: 'IBM Plex Mono', monospace;
+    letter-spacing: 0.02em;
+    line-height: 1.5;
+  }
+
+  .facil-section {
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--border);
+  }
+
+  .facil-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    font-size: 1rem;
+    color: var(--text);
+    margin-bottom: 1rem;
+  }
+
+  .facil-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+  }
+
+  .facil-list li {
+    font-size: 0.88rem;
+    color: #9898b0;
+    line-height: 1.65;
+    padding-left: 1.2rem;
+    position: relative;
+  }
+
+  .facil-list li::before {
+    content: '—';
+    position: absolute;
+    left: 0;
+    color: var(--muted);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.75rem;
+  }
+
+  /* Exercise steps */
+  .exercise-steps {
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+    margin-bottom: 1.6rem;
+  }
+
+  .exercise-step {
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.1rem 1.3rem;
+  }
+
+  .exercise-step-num {
+    flex-shrink: 0;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.68rem;
+    color: var(--accent);
+    letter-spacing: 0.1em;
+    padding-top: 0.1rem;
+    text-transform: uppercase;
+  }
+
+  .exercise-step-content {
+    flex: 1;
+  }
+
+  .exercise-step-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    font-size: 0.92rem;
+    color: var(--text);
+    margin-bottom: 0.4rem;
+  }
+
+  .exercise-step-desc {
+    font-size: 0.86rem;
+    color: #9898b0;
+    line-height: 1.65;
+  }
+
+  .exercise-step-list {
+    list-style: none;
+    margin-top: 0.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .exercise-step-list li {
+    font-size: 0.84rem;
+    color: var(--muted);
+    line-height: 1.6;
+    padding-left: 1rem;
+    position: relative;
+    font-family: 'IBM Plex Mono', monospace;
+  }
+
+  .exercise-step-list li::before {
+    content: '→';
+    position: absolute;
+    left: 0;
+    color: var(--border);
+    font-size: 0.75rem;
+  }
+
+  /* Summary section */
+  .summary-section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 2rem 2.2rem;
+    margin-bottom: 4rem;
+  }
+
+  .summary-section h2 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 1.25rem;
+    margin-bottom: 1.3rem;
+    color: var(--text);
+  }
+
+  .summary-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.7rem;
+  }
+
+  .summary-list li {
+    font-size: 0.93rem;
+    color: #b0b0c8;
+    line-height: 1.7;
+    padding-left: 1.5rem;
+    position: relative;
+  }
+
+  .summary-list li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0.58rem;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--muted);
+  }
+
+  /* Footer */
+  .footer {
+    border-top: 1px solid var(--border);
+    padding: 2.5rem 0;
+  }
+
+  .footer-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .footer-text {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.68rem;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+  }
+
+  .footer-next {
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    font-size: 0.92rem;
+    color: var(--accent);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: gap 0.2s;
+  }
+
+  .footer-next:hover { gap: 0.8rem; }
+
+  /* Inline code */
+  code {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.82em;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    padding: 0.1em 0.35em;
+    color: var(--accent3);
+  }
+
+  strong {
+    font-weight: 500;
+    color: var(--text);
+  }
+</style>
+</head>
+<body>
+
+<!-- Sticky top nav -->
+<nav class="top-nav">
+  <div class="top-nav-inner">
+    <div class="nav-back">
+      <a href="index.html" class="nav-back" style="display:inline;">← Back to Foundations</a>
+      <span class="nav-back-sep">|</span>
+      <a href="module-f03.html" class="nav-back" style="display:inline;">← Module F03</a>
+    </div>
+    <span class="nav-module-label">Module F04 · Data &amp; Storage</span>
+    <a href="module-f05.html" class="nav-next">Next: Module F05 →</a>
+  </div>
+</nav>
+
+<!-- Hero -->
+<div class="hero">
+  <div class="container">
+    <div class="hero-eyebrow">Module F04 · Foundation</div>
+    <div class="module-badge">FOUNDATION</div>
+    <h1>Data, Storage,<br>and How AI Finds Information</h1>
+    <p class="hero-sub">
+      Agents don't just generate text — they retrieve, store, and reason over information. Before you can understand RAG, vector stores, and context engineering (all central to the main curriculum), you need to understand how data is stored and how search actually works. This module builds that foundation.
+    </p>
+    <div class="hero-meta">
+      <div class="meta-item">
+        <span class="meta-label">Duration</span>
+        <span class="meta-value">3–4 days</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">Level</span>
+        <span class="meta-value">Foundation</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">Exercise</span>
+        <span class="meta-value">Semantic search comparison</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">Prerequisite</span>
+        <span class="meta-value">Modules F01–F03</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Main content -->
+<div class="container">
+<div class="content">
+
+  <!-- Running Example Context -->
+  <div class="callout callout-example" style="margin-bottom: 3rem;">
+    <div class="callout-label">Running Example · Maya</div>
+    <p>Maya wants her meeting summarizer to know about company-specific context: the team structure, internal project codenames, and a custom glossary of 200 internal terms. She also wants to build a recipe recommender that can search 300 recipes from the company cookbook project. Neither use case works well with a model that has no access to this private data. This module shows her why — and how retrieval solves it.</p>
+  </div>
+
+  <!-- TOPIC 1 -->
+  <div class="topic-section" id="topic-1">
+    <div class="section-number">Topic 01</div>
+    <h2>Structured vs. Unstructured Data: Why the Distinction Matters</h2>
+
+    <p>Not all data is the same shape. This seems obvious, but the failure to distinguish between structured and unstructured data is responsible for a surprising number of poorly designed AI tools. Understanding the difference tells you which tool to reach for — and when AI is solving a real problem versus adding unnecessary complexity.</p>
+
+    <h3>Structured Data</h3>
+
+    <p><strong>Structured data</strong> is organized into a defined schema — rows, columns, fixed fields. Every record has the same shape. A CRM database has fields for customer name, email, company, tier, and last contact date — and every customer record fills in those same fields. A spreadsheet of orders has columns for order ID, product, quantity, price, and date. A SQL database table for inventory has a fixed set of columns and every row conforms to them.</p>
+
+    <p>The defining property: you know the structure before you see the data. You can write a query against it without reading its contents first. "Give me all customers in the Enterprise tier who haven't been contacted in 90 days" is a precise, answerable SQL query. The database executes it in milliseconds and returns exact results.</p>
+
+    <h3>Unstructured Data</h3>
+
+    <p><strong>Unstructured data</strong> has no predefined schema. The content matters; the container is just a vessel. Meeting transcripts. Emails. PDFs. Slack messages. Wikipedia articles. Product reviews. Legal contracts. The information inside these is meaningful, but it isn't organized into consistent fields you can directly query.</p>
+
+    <p>You can't write a SQL query against a meeting transcript to find "all discussions about budget overruns." There's no "budget_overrun" column. The information might be there — buried in a sentence, phrased a dozen different ways — but extracting it requires reading and understanding language, not filtering a field.</p>
+
+    <h3>Semi-Structured Data</h3>
+
+    <p><strong>Semi-structured data</strong> sits in between. It has some structure — typically key-value pairs or nested objects — but not a rigid, consistent schema. JSON records where different records have different fields. A product catalog where some items have a <code>color</code> field and others don't. API responses that return varying keys depending on the resource type. You'll encounter this constantly when working with APIs and modern web data.</p>
+
+    <h3>Where AI Excels — and Where It Doesn't</h3>
+
+    <p>For structured data, traditional databases are exceptional. SQL queries retrieve exactly what you want, instantly, with zero hallucination risk. AI is overkill — and unreliable — for "give me all orders over $100." A database query does that faster, cheaper, and with perfect accuracy every time. Using an AI model to answer questions that are really just database queries is a common architectural mistake. It's slower, more expensive, and less reliable.</p>
+
+    <p>For unstructured data, the situation reverses. Traditional keyword search is weak here. AI is powerful — it can read a meeting transcript and extract semantic meaning, classify the discussion, summarize key decisions, and identify action items. No traditional database query can do that. The content has meaning that machines couldn't reliably extract until language models matured.</p>
+
+    <p>Most real AI applications bridge both worlds. Maya's meeting summarizer processes unstructured transcripts (the input) but produces structured outputs — a JSON record with fields for attendees, decisions, action items, and follow-ups. Her recipe recommender searches unstructured recipe descriptions but returns a structured list with names, match scores, and preparation times. Understanding this bridge is foundational.</p>
+
+    <h3>The Data Pipeline Pattern</h3>
+
+    <p>In practice, AI systems often follow a pipeline: unstructured data comes in, gets processed by a model, and its meaningful content gets stored in a structured or semi-structured format that can be retrieved and queried later. A transcript becomes a structured summary. A customer email becomes a classified ticket record. A product review becomes a sentiment score and extracted theme tags. This transformation — unstructured to structured — is one of the most valuable things AI makes possible at scale.</p>
+
+    <div class="callout callout-insight">
+      <div class="callout-label">Key Insight</div>
+      <p>AI doesn't replace databases for structured data — it complements them. The right architecture typically uses a traditional database for structured records (customer data, order history) and AI-powered retrieval for unstructured content (documents, transcripts, notes). Forcing AI to "remember" structured facts is unreliable. Querying a database for those facts and injecting them into the AI's context is reliable.</p>
+    </div>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <!-- TOPIC 2 -->
+  <div class="topic-section" id="topic-2">
+    <div class="section-number">Topic 02</div>
+    <h2>What Databases Actually Are: The Three Types You'll Encounter</h2>
+
+    <p>A database is not just "a place to store data." A filesystem stores data. What makes a database distinct is the ability to <strong>query, filter, sort, and retrieve data efficiently at scale</strong> — across millions or billions of records, in milliseconds, with precision. That querying capability is what makes a database useful. Everything else is organizational detail.</p>
+
+    <p>You'll encounter three main types of databases when building AI tools — plus a fourth category purpose-built for AI. Each is designed for a different kind of query and a different kind of data. Using the wrong one adds friction without solving anything.</p>
+
+    <div class="db-table-wrap">
+      <table class="db-table">
+        <thead>
+          <tr>
+            <th>Type</th>
+            <th>Best For</th>
+            <th>Examples</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Relational <span class="db-tag">SQL</span></td>
+            <td>Structured data with defined relationships. Customer records, order history, inventory, financial data. Any data where you know the schema upfront and need to join across tables.</td>
+            <td>PostgreSQL, MySQL, SQLite</td>
+          </tr>
+          <tr>
+            <td>Document Store</td>
+            <td>Flexible schemas where records don't all have the same fields. Blog posts, user profiles, product catalogs with varying attributes, API response caches. Natural for JSON-shaped data.</td>
+            <td>MongoDB, Firestore</td>
+          </tr>
+          <tr>
+            <td>Key-Value Store</td>
+            <td>Fast lookups by a known key. Session data, caching computed results, feature flags, simple counters. You know the key; you just want the value. No complex queries needed.</td>
+            <td>Redis, DynamoDB</td>
+          </tr>
+          <tr>
+            <td>Vector Store <span class="db-tag">AI</span></td>
+            <td>Semantic similarity search over embeddings. Finding documents, images, or records that are conceptually similar to a query — regardless of exact wording. The foundation of RAG systems.</td>
+            <td>Pinecone, Weaviate, Chroma, pgvector</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Relational Databases</h3>
+
+    <p>Relational databases have been the backbone of business software for 40+ years. Data lives in tables — rows and columns. Tables can reference each other through keys. A customer record in the <code>customers</code> table has a unique ID; orders in the <code>orders</code> table reference that ID. You can join them to answer "show me all orders for customers in California." This relational structure is powerful for exactly the kinds of queries that structured business data requires.</p>
+
+    <p>SQL — Structured Query Language — is the query language for relational databases. You don't need to write SQL to understand why relational databases matter. The key concept: structured data with relationships is exactly what relational databases were designed for, and they do it exceptionally well. Don't try to replace them with AI for this job.</p>
+
+    <h3>Document Stores</h3>
+
+    <p>Document stores store data as documents — usually JSON. Each document is self-contained and can have a different structure from the others. This flexibility is valuable when your data doesn't fit neatly into fixed columns. A product in an electronics catalog has a <code>wattage</code> field; a product in an apparel catalog has a <code>size_range</code> field. In a relational database, you'd need a complex schema to handle this. In a document store, each product just has whatever fields are relevant to it.</p>
+
+    <p>The tradeoff: document stores are less efficient at complex queries that cross-reference many records. Use them when schema flexibility matters more than complex relational querying.</p>
+
+    <h3>Key-Value Stores</h3>
+
+    <p>Key-value stores are the simplest database type: a key maps to a value, like a dictionary. Redis is the most common example. They're extremely fast — sub-millisecond lookups — but limited. You can only look up by the exact key you already know. No filtering, no sorting, no querying by content. Use them for caching (store the result of an expensive computation under a key, retrieve it instantly next time), session storage, and any pattern where "I know exactly what I'm looking for" holds true.</p>
+
+    <div class="callout callout-insight">
+      <div class="callout-label">Key Insight</div>
+      <p>Databases are not interchangeable. A relational database is excellent for "give me all customers in California who haven't renewed in 90 days." A vector store is excellent for "find me the 5 meeting transcripts most similar to this one." Using the wrong tool for the job — trying to do semantic search in a relational database, or storing relational data in a vector store — creates unnecessary complexity and poor performance. Knowing which category a problem belongs to is the first architectural decision.</p>
+    </div>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <!-- TOPIC 3 -->
+  <div class="topic-section" id="topic-3">
+    <div class="section-number">Topic 03</div>
+    <h2>How Traditional Search Works — and Why It Falls Short</h2>
+
+    <p>Before you can appreciate what semantic search does differently, you need to understand exactly how traditional search works. Most people interact with search daily without knowing what's happening under the hood. The mechanics are worth understanding — because they explain precisely where keyword search breaks down, and why AI-powered retrieval is genuinely different rather than just marketing language.</p>
+
+    <h3>Keyword Search and Inverted Indexes</h3>
+
+    <p>The foundation of most search is the <strong>inverted index</strong>. When you index a document collection, the system processes every word in every document and builds a mapping: word → list of documents containing that word. Search for "budget" → instantly retrieve all document IDs in the inverted index entry for "budget." This lookup is very fast, even at scale, because the index pre-computes the hard work.</p>
+
+    <p>The limitation is immediate and fundamental: the inverted index maps words to documents. Not concepts. Not meanings. Words. Search for "budget" and you get every document containing the exact string "budget." You get nothing for documents that discuss finances, expenditures, spending, costs, or allocation — unless those exact words are also in your query.</p>
+
+    <h3>TF-IDF: Better Ranking, Same Limitation</h3>
+
+    <p>TF-IDF (Term Frequency-Inverse Document Frequency) is the classic algorithm for ranking results. <strong>TF</strong> measures how often your search term appears in a specific document — a document that mentions "budget" fifteen times is probably more about budgets than one that mentions it once. <strong>IDF</strong> measures how rare the term is across the entire document collection — common words like "the" or "meeting" have low IDF and shouldn't dominate rankings; rare terms like "EBITDA" have high IDF and carry more signal.</p>
+
+    <p>Multiply TF by IDF and you get a relevance score for each document. This is meaningfully better than pure keyword count. It doesn't solve the fundamental problem: TF-IDF still operates entirely on word matches. A document about "Q3 financial planning" scores zero for a search for "third-quarter budget review" because "third-quarter" and "financial" don't overlap with "Q3" and "budget."</p>
+
+    <h3>Full-Text Search: Incremental Improvements</h3>
+
+    <p>Modern databases like PostgreSQL and search engines like Elasticsearch offer "full-text search" that goes beyond basic keyword matching. <strong>Stemming</strong> treats "run," "runs," and "running" as the same token. <strong>Phrase matching</strong> penalizes documents where your search terms appear in unrelated sentences. <strong>Relevance ranking</strong> combines multiple signals. These are meaningful improvements over basic inverted index lookup.</p>
+
+    <p>They're still fundamentally limited to finding matching words, not matching meaning. Full-text search closes some of the synonym gap — but it still misses the cases where natural language uses entirely different vocabulary to express the same concept.</p>
+
+    <div class="callout callout-example">
+      <div class="callout-label">Maya's Recipe Recommender Problem</div>
+      <p>Maya has 300 recipes in a spreadsheet. A user describes: "I want something healthy, vegetarian, that would work well for a team lunch, not too spicy." Keyword search returns every recipe that contains the word "vegetarian" — 40 recipes, unsorted by relevance. It finds nothing for "healthy" (the recipes don't use that word). It has no concept of "appropriate for a team lunch." The user gets a bad experience. Semantic search, which we'll cover next, handles this correctly.</p>
+    </div>
+
+    <h3>What Keyword Search Is Still Good For</h3>
+
+    <p>This isn't a case against keyword search — it's a case for knowing when it's the right tool. Keyword search excels when users know the exact terminology. Searching a codebase for a function name. Finding a specific email by subject line. Looking up a product by its SKU. In these cases, the user has the exact words, and keyword search is fast and precise. The limitation only appears when users search by meaning rather than by word — which is most of the time in natural language use cases.</p>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <!-- TOPIC 4 -->
+  <div class="topic-section" id="topic-4">
+    <div class="section-number">Topic 04</div>
+    <h2>Embeddings: Turning Text into Numbers That Capture Meaning</h2>
+
+    <p>This is the conceptually hardest topic in this module. Take it slowly. The payoff is understanding a mechanism that underlies most of what makes modern AI retrieval work — RAG, semantic search, recommendation systems, and more.</p>
+
+    <h3>The Problem to Solve</h3>
+
+    <p>Computers work with numbers. Text is not numbers. To do math on text — to measure whether two pieces of text have similar meaning — we need to convert text to numbers in a way that preserves semantic relationships. A naive encoding (assign every word a number: "the" = 1, "cat" = 2, "sat" = 3...) doesn't work. The numbers would be arbitrary. "Cat" (2) and "dog" (4) would seem as different as "cat" (2) and "democracy" (8741), even though cats and dogs are semantically related and cats and democracy are not.</p>
+
+    <p>What we need is a number representation where <strong>similar meanings produce similar numbers</strong>. That's exactly what embeddings are.</p>
+
+    <h3>What an Embedding Is</h3>
+
+    <p>An <strong>embedding</strong> is a list of numbers — a vector — that represents the meaning of a piece of text. Typically 768, 1536, or 3072 numbers long depending on the model. These numbers are produced by a neural network trained specifically to ensure that semantically similar text produces similar vectors.</p>
+
+    <p>The neural network learned these representations by training on enormous amounts of text. Through that training, it developed an internal representation of meaning — not rules anyone wrote, but patterns learned from billions of examples of language in use. The embedding is the output of that learned representation for a specific piece of text.</p>
+
+    <h3>The Geometric Intuition</h3>
+
+    <p>Think of each embedding as a point in a high-dimensional space. Two pieces of text with similar meaning end up close together in that space. Two pieces of text with very different meanings end up far apart.</p>
+
+    <p>"The meeting was postponed" and "We pushed the call back" end up close to each other — they express the same idea with different words. "Please forward the invoice" and "The cat sat on the mat" end up far apart — they have essentially nothing in common semantically.</p>
+
+    <p>This geometric relationship is meaningful and consistent. The word "king" minus "man" plus "woman" produces a vector close to "queen" — a famous example showing that the arithmetic of embeddings preserves semantic relationships. You don't need to understand the math to use embeddings. But understanding the geometry helps: <em>distance in embedding space corresponds to difference in meaning.</em></p>
+
+    <h3>Measuring Similarity: Cosine Similarity</h3>
+
+    <p>Once two pieces of text are both embeddings, you can measure how similar they are. <strong>Cosine similarity</strong> computes the angle between two vectors and returns a number between 0 and 1. A score of 1 means identical meaning. A score near 0 means completely unrelated. A score of 0.85 between a user's query and a recipe description suggests that recipe is highly relevant to what the user was asking for.</p>
+
+    <p>This single number — computable from two vectors in milliseconds — is what enables semantic search. Compare the user's query embedding to every document embedding, rank by cosine similarity, return the top results. That's the core of it.</p>
+
+    <h3>Embedding Models</h3>
+
+    <p>Embedding models are separate, specialized neural networks trained specifically to produce good vector representations. They're different from the models that generate text — they're purpose-built for representation quality, not generation quality. Common examples include OpenAI's <code>text-embedding-3-large</code>, Google's <code>gecko</code>, and open-source options like <code>BAAI/bge</code> or the <code>sentence-transformers</code> family.</p>
+
+    <p>Calling an embedding model is simple: send a string, receive an array of floating-point numbers. Here's what the API response looks like:</p>
+
+<pre class="code-block"><code>{
+  "object": "embedding",
+  "embedding": [
+    0.0023064255,
+    -0.009327292,
+    0.015987842,
+    ...  // 1535 more numbers
+  ],
+  "model": "text-embedding-3-small",
+  "usage": {"prompt_tokens": 8, "total_tokens": 8}
+}</code></pre>
+
+    <p class="code-note">That array has 1,536 numbers for this model. Each number encodes a dimension of meaning that the model learned during training. You don't need to understand what each number represents — you just need to know that similar texts produce similar arrays.</p>
+
+    <div class="callout callout-insight">
+      <div class="callout-label">Key Insight</div>
+      <p>Embeddings are the bridge between language and math. Once text is an embedding, you can use geometric operations to find "similar" content — without knowing what words were used. Two meeting transcripts about a budget discussion will have similar embeddings even if one says "allocation" and the other says "spending." This is the foundation of semantic search, RAG, and many other AI capabilities. The model isn't matching words. It's comparing meaning, represented as geometry.</p>
+    </div>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <!-- TOPIC 5 -->
+  <div class="topic-section" id="topic-5">
+    <div class="section-number">Topic 05</div>
+    <h2>Vector Stores: Databases Built for Similarity Search</h2>
+
+    <p>You now understand what an embedding is. The next problem is practical: how do you search across a large collection of embeddings efficiently? If Maya has 300 recipe embeddings, comparing her query embedding to all 300 is trivial. But what if you have 100,000 transcripts? Or 10 million product descriptions? Brute-force comparison becomes a bottleneck. Vector stores solve this.</p>
+
+    <h3>The Scale Problem</h3>
+
+    <p>Suppose you have 1 million document embeddings, each with 1,536 dimensions. To find the 5 most similar to a query embedding using exact comparison, you'd compute cosine similarity 1 million times. At scale, that takes seconds — too slow for a real-time search interface. At tens of millions of documents, it becomes impractical entirely.</p>
+
+    <h3>Approximate Nearest Neighbor (ANN) Algorithms</h3>
+
+    <p>The solution is <strong>Approximate Nearest Neighbor (ANN)</strong> algorithms. Instead of checking every embedding exactly, ANN algorithms use clever data structures — HNSW graphs (Hierarchical Navigable Small Worlds), inverted file indexes (IVF), product quantization — to find "close enough" neighbors very quickly. Instead of checking all 1 million embeddings, the algorithm might check only a few thousand strategically chosen ones, using the data structure to skip large portions of the space that are unlikely to contain close matches.</p>
+
+    <p>The tradeoff is explicit and known: you might miss the absolute closest vector 1–2% of the time. In practice, this is acceptable. Semantic search doesn't need to find the single mathematically closest embedding — it needs to return results that are genuinely relevant, and ANN delivers that at millisecond latency even at tens of millions of vectors.</p>
+
+    <h3>Purpose-Built Vector Databases</h3>
+
+    <p>Vector stores are databases designed from the ground up to store embeddings and serve ANN queries at scale. The major options each have tradeoffs worth knowing:</p>
+
+    <p><strong>Pinecone</strong> is fully managed — no infrastructure to run. You create an index, push embeddings to it, query it. Easy to start, scales well, no DevOps required. Popular for prototypes and production deployments that don't want to manage infrastructure.</p>
+
+    <p><strong>Weaviate</strong> is open source, self-hostable or cloud-managed. Strong support for hybrid search (combining keyword + semantic in a single query). Good choice when you need both semantic search and traditional filtering on structured metadata.</p>
+
+    <p><strong>Qdrant</strong> is open source with a high-performance Rust-based engine. Fast and resource-efficient. Good documentation. Popular for teams that want control over their infrastructure.</p>
+
+    <p><strong>Chroma</strong> is open source and designed to be easy to use locally. The default choice for getting a semantic search prototype running on a laptop in an afternoon. Less suited for production at scale.</p>
+
+    <p><strong>pgvector</strong> is a PostgreSQL extension — it adds vector search to a PostgreSQL database you might already be running. If your application already uses Postgres, pgvector lets you avoid running a separate database while still getting semantic search. Performance doesn't match dedicated vector stores at very large scale, but for most applications it's more than sufficient.</p>
+
+    <h3>Hybrid Search</h3>
+
+    <p>Sometimes you need both kinds of search at once. "Find me documents semantically similar to this query, but only from Q3 2025, and only from the engineering team's meetings." The date and team filters are exact — traditional structured filtering. The similarity match is semantic. <strong>Hybrid search</strong> combines both: filter by structured metadata first, then rank the filtered results by semantic similarity. Most modern vector stores support this pattern, and it's the practical design for most real-world retrieval systems where you have both structured metadata and unstructured content.</p>
+
+    <h3>The RAG Pipeline, End to End</h3>
+
+    <p>With all the pieces in place, here's how Retrieval-Augmented Generation (RAG) works — the pattern that underlies Maya's recipe recommender and most real AI retrieval applications:</p>
+
+    <div class="pipeline-steps">
+      <div class="pipeline-step">
+        <div class="pipeline-step-num">1</div>
+        <div class="pipeline-step-content">
+          <div class="pipeline-step-title">Preprocessing (done once, offline)</div>
+          <div class="pipeline-step-desc">Take all your documents. Chunk them into pieces — paragraphs, sections, or fixed-size windows with overlap. Embed each chunk using an embedding model. Store each embedding alongside its source text and any metadata (document ID, date, author) in a vector store.</div>
+        </div>
+      </div>
+      <div class="pipeline-step">
+        <div class="pipeline-step-num">2</div>
+        <div class="pipeline-step-content">
+          <div class="pipeline-step-title">Query Time (happens for each user request)</div>
+          <div class="pipeline-step-desc">Embed the user's question using the same embedding model. Search the vector store for the top-K most similar chunks. The vector store returns the actual text of those chunks, not just their IDs.</div>
+        </div>
+      </div>
+      <div class="pipeline-step">
+        <div class="pipeline-step-num">3</div>
+        <div class="pipeline-step-content">
+          <div class="pipeline-step-title">Context Injection</div>
+          <div class="pipeline-step-desc">Take the retrieved chunks and inject them into the LLM's context window, alongside the user's original question. "Here are the 5 most relevant documents from our knowledge base. Using only these documents, answer the user's question."</div>
+        </div>
+      </div>
+      <div class="pipeline-step">
+        <div class="pipeline-step-num">4</div>
+        <div class="pipeline-step-content">
+          <div class="pipeline-step-title">Generation</div>
+          <div class="pipeline-step-desc">The LLM reads the retrieved context and generates a grounded response. It isn't relying on its training data — it's reasoning over the specific documents you retrieved. Hallucination risk drops significantly because the model has the actual source material in front of it.</div>
+        </div>
+      </div>
+    </div>
+
+    <p>This is RAG. The main curriculum's Module 3 covers it in depth. What matters now is that you understand the pipeline — and that each step depends on the concepts from this module: embeddings to convert text to searchable vectors, a vector store to index and retrieve them efficiently, and context injection to give the model the retrieved information.</p>
+
+    <div class="callout callout-example">
+      <div class="callout-label">Maya Builds a Semantic Recipe Search</div>
+      <p>Maya embeds all 300 recipes — title + ingredients + description concatenated into a single string, producing a single embedding per recipe. She stores the embeddings in a local Chroma vector store running on her laptop. When a user says "something healthy and vegetarian for a team lunch," Maya's system embeds that query and finds the 5 most similar recipe embeddings. The results are coherent and relevant — not a keyword match, but a meaning match. She can now show those 5 recipes with a brief description. This works without any rule-writing on her part. She didn't define what "healthy" means or enumerate vegetarian recipes. The embedding model encoded those concepts during its training.</p>
+    </div>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <!-- TOPIC 6 -->
+  <div class="topic-section" id="topic-6">
+    <div class="section-number">Topic 06</div>
+    <h2>Why AI Doesn't Know About Last Week: Training Cutoffs and Runtime Retrieval</h2>
+
+    <p>Every language model has a training cutoff — a specific date after which the model has no knowledge of what happened in the world. This is a direct consequence of how these models are built: they're trained on a large static dataset, and that dataset has an end date. The weights — the billions of numerical parameters that encode the model's knowledge — are frozen once training is complete.</p>
+
+    <h3>What the Cutoff Means in Practice</h3>
+
+    <p>Ask a model about an event that happened after its training cutoff and one of two things happens. Either the model honestly says it doesn't know — which is the correct behavior. Or, more dangerously, the model generates a plausible-sounding response based on patterns in its training data, with no flag that the information might be outdated or fabricated. Models can't reliably distinguish "I know this" from "I don't know this but I'm pattern-matching something plausible." That second failure mode — confident-sounding but ungrounded responses about recent events — is one of the most common sources of AI errors in practice.</p>
+
+    <h3>The Gap Is Larger Than You Think</h3>
+
+    <p>Training large models takes months. There's typically a 6–12 month gap between when training data was collected and when a model becomes available to the public. After release, models often remain in production for one to two years before being replaced. Add it up: a user interacting with a deployed model today might be talking to a model whose knowledge stopped accumulating 18–24 months ago. In fast-moving domains — regulatory changes, competitive landscapes, technology releases, market events — that gap is significant.</p>
+
+    <p>This isn't a flaw that will be fixed with the next model release. It's a structural property of how models are built. The solution isn't to wait for a fresher model. The solution is retrieval.</p>
+
+    <h3>The Right Solutions</h3>
+
+    <p>When recency matters, plan for retrieval from an up-to-date source rather than relying on the model's parametric knowledge. The patterns for doing this are well-established:</p>
+
+    <p><strong>Web search tools:</strong> give the model a tool that can search the web in real time. Perplexity does this by default. You can build agents that call web search APIs before answering questions about current events. The model's knowledge cutoff becomes irrelevant when it can retrieve fresh information mid-conversation.</p>
+
+    <p><strong>RAG against a maintained database:</strong> for private or specialized knowledge that isn't on the public web, build a retrieval system against a database you keep updated. Internal documents, product specifications, customer records, recent research reports — maintain these in a vector store and retrieve at query time.</p>
+
+    <p><strong>Explicit context injection:</strong> for simple cases, just give the model the relevant recent information directly in the prompt. "Today is May 2026. Here is the current status of Project Orion: [recent document text]. Given this context, summarize the key risks." The model's training cutoff doesn't matter when you've injected the relevant facts.</p>
+
+    <h3>What Models Are Still Good At, Regardless of Cutoff</h3>
+
+    <p>Training cutoffs constrain factual knowledge about time-sensitive events. They don't constrain reasoning, language understanding, code writing, analysis, or synthesis. A model from two years ago can still write excellent code, analyze a document you provide, explain complex concepts, and reason through a problem. These capabilities don't expire. The limitation is narrow: factual claims about recent events, current prices, recent product releases, and similar time-sensitive specifics.</p>
+
+    <p>This distinction matters for how you design AI tools. If the tool involves reasoning over data you provide — summarizing a document, analyzing a contract, structuring a meeting transcript — the training cutoff is essentially irrelevant. If the tool involves making claims about current state of the world — "what is our competitor's current pricing?" or "what are the latest regulations in this space?" — build in retrieval from a current source.</p>
+
+    <div class="callout callout-mistake">
+      <div class="callout-label">Common Mistake</div>
+      <p>Asking the model "What's our competitor's current pricing?" without providing that data. The model will either say it doesn't know (useful) or generate pricing based on outdated training data or a reasonable guess (dangerous). The safe approach: retrieve the competitor's current pricing page using a web scraping tool or API, inject it into the prompt, and ask the model to analyze it. The model's strength is reasoning over data you provide — not knowing data it wasn't trained on. Build your systems to give it what it needs, rather than trusting it to have knowledge it structurally cannot have.</p>
+    </div>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <!-- EXERCISE SECTION -->
+  <div class="exercise-section" id="exercise">
+    <div class="exercise-header">
+      <div class="exercise-label">Module F04 · Hands-On Lab</div>
+      <h2>Keyword vs. Semantic Search — Side by Side</h2>
+      <p>This exercise doesn't require coding. You'll use existing tools to directly compare keyword search and semantic search on the same document set. Allow 45–60 minutes.</p>
+    </div>
+
+    <div class="exercise-body">
+
+      <div class="exercise-steps">
+        <div class="exercise-step">
+          <div class="exercise-step-num">Step 01</div>
+          <div class="exercise-step-content">
+            <div class="exercise-step-title">Create a document set</div>
+            <div class="exercise-step-desc">Write 15–20 short descriptions of different meeting topics — 2–3 sentences each. Mix them deliberately: some about Q3 planning, some about product roadmap, some about team structure, some about budget, some about customer feedback. Use varied vocabulary intentionally. Don't always use the word "budget" for financial discussions — sometimes write "cost," "expenditure," or "allocation." This variation is what will expose keyword search's limits. Save the descriptions somewhere easily searchable (a text file, a doc, a spreadsheet).</div>
+          </div>
+        </div>
+
+        <div class="exercise-step">
+          <div class="exercise-step-num">Step 02</div>
+          <div class="exercise-step-content">
+            <div class="exercise-step-title">Keyword search</div>
+            <div class="exercise-step-desc">Use Ctrl+F (or any search tool) to search your document set for each of the following queries. Record exactly which documents each query returns — and which relevant documents it misses.</div>
+            <ul class="exercise-step-list">
+              <li>"budget"</li>
+              <li>"cost"</li>
+              <li>"revenue"</li>
+              <li>"team"</li>
+              <li>"Q3"</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="exercise-step">
+          <div class="exercise-step-num">Step 03</div>
+          <div class="exercise-step-content">
+            <div class="exercise-step-title">Semantic search</div>
+            <div class="exercise-step-desc">Use a semantic search tool — Claude.ai with file upload works well here; Perplexity or any RAG tool you have access to also works — and ask the same conceptual questions against the same document set.</div>
+            <ul class="exercise-step-list">
+              <li>"Which meetings were about financial topics?"</li>
+              <li>"What discussions happened about people or organizational structure?"</li>
+              <li>"Which meetings had forward-looking planning discussions?"</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="exercise-step">
+          <div class="exercise-step-num">Step 04</div>
+          <div class="exercise-step-content">
+            <div class="exercise-step-title">Compare the results</div>
+            <div class="exercise-step-desc">Document three things: where keyword search and semantic search agree; where they differ; and what semantic search found that keyword search missed (or vice versa). Pay special attention to the financial topic query — did the semantic search surface documents that used "cost," "expenditure," and "allocation" without the word "budget"? Did the keyword search miss them?</div>
+          </div>
+        </div>
+
+        <div class="exercise-step">
+          <div class="exercise-step-num">Step 05</div>
+          <div class="exercise-step-content">
+            <div class="exercise-step-title">Design challenge: Maya's recipe recommender pipeline</div>
+            <div class="exercise-step-desc">For Maya's system with 300 recipes, sketch the full data pipeline in plain English — no code required. Think through each of the following questions and write down your answers:</div>
+            <ul class="exercise-step-list">
+              <li>How would you embed and store the recipes? What would you include in the text you embed — just the title? Title + ingredients? The full description? What metadata would you store alongside the embedding?</li>
+              <li>How would you handle a query like "something light and refreshing for summer, pescatarian"?</li>
+              <li>What would you return to the user? Just the recipe name? A short preview? Preparation time?</li>
+              <li>What would you do when the top semantic search result is actually a poor match — the similarity score is decent but the recipe doesn't fit the request?</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="facil-section">
+        <div class="facil-title">Facilitation Notes</div>
+        <ul class="facil-list">
+          <li>The gap between keyword and semantic search is most dramatic on queries about concepts that use varied vocabulary in the document set. Set up your document set to maximize this variation — deliberately avoid using the same word for the same concept across different documents.</li>
+          <li>Step 2 is often surprising for participants. The keyword searches return something — but the gaps become obvious when participants check whether relevant documents were missed.</li>
+          <li>The design challenge in Step 5 is where non-engineers often have their best ideas. Encourage creative thinking about chunking strategy, what metadata to store, and how to handle weak matches. There are no wrong answers — only tradeoffs to discuss.</li>
+          <li>A useful discussion prompt for Step 5: "What would make a semantic search result bad even if the similarity score is high?" (Possible answers: the model embedded noise in the description; the recipe has the right concepts but is wildly impractical; the description was misleading.) This opens up the idea that retrieval quality depends on both embedding quality and the quality of the source text.</li>
+          <li>Close with this reflection: "For Maya's use case, would you use only semantic search? Or would you combine it with keyword filtering?" Push toward the answer that hybrid search — semantic ranking + metadata filters like dietary tags or preparation time — usually outperforms either approach alone.</li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- SUMMARY SECTION -->
+  <div class="summary-section" id="summary">
+    <h2>By the End of This Module, You Should Be Able To...</h2>
+    <ul class="summary-list">
+      <li>Explain the difference between structured and unstructured data and describe where each type naturally appears in a real AI application — including the pipeline pattern where AI transforms unstructured input into structured output.</li>
+      <li>Describe the three main database types (relational, document, key-value) and explain which is appropriate for which use case — and why using the wrong type creates unnecessary friction.</li>
+      <li>Explain how keyword search works (inverted indexes, TF-IDF), articulate exactly why it falls short for semantic use cases, and identify the specific query patterns that expose its limits.</li>
+      <li>Explain what an embedding is: a vector representation of text meaning, produced by a neural network trained to ensure similar meanings produce similar vectors — the bridge between language and math.</li>
+      <li>Describe how a vector store works: storing embeddings and serving approximate nearest-neighbor queries to find semantically similar content at scale, using ANN algorithms rather than brute-force comparison.</li>
+      <li>Walk through the RAG pipeline end to end: embed documents at ingestion time, embed queries at retrieval time, inject the top-K retrieved chunks into the LLM's context window, and generate a grounded response — and explain why this reduces hallucination.</li>
+      <li>Explain training cutoffs structurally — not as a bug but as a property of how models are built — and describe practical retrieval-based strategies for providing models with information they weren't trained on.</li>
+    </ul>
+  </div>
+
+</div>
+</div>
+
+<!-- Footer -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer-inner">
+      <div class="footer-text">AI Foundations Curriculum · Module F04 · Foundation · Updated May 2026</div>
+      <a href="module-f05.html" class="footer-next">Next: Module F05 — Prompts &amp; Instructions →</a>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

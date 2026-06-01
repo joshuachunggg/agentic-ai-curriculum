@@ -1,0 +1,1322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Module F02: Tokens and Context — AI Foundations Curriculum</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;500&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;500&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap');
+
+  :root {
+    --bg: #0a0a0f;
+    --surface: #111118;
+    --surface2: #18181f;
+    --border: #2a2a3a;
+    --accent: #7c6af7;
+    --accent2: #f7c36a;
+    --accent3: #6af7d4;
+    --text: #e8e8f0;
+    --muted: #6b6b80;
+    --danger: #f76a6a;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 300;
+    line-height: 1.7;
+    min-height: 100vh;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.4;
+  }
+
+  /* Sticky nav */
+  .top-nav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(10,10,15,0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .top-nav-inner {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 0 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 52px;
+    gap: 1rem;
+  }
+
+  .nav-back {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.05em;
+    color: var(--muted);
+    text-decoration: none;
+    transition: color 0.2s;
+    white-space: nowrap;
+  }
+
+  .nav-back:hover { color: var(--text); }
+
+  .nav-module-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    color: var(--muted);
+    text-transform: uppercase;
+    text-align: center;
+    flex: 1;
+  }
+
+  .nav-next {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.05em;
+    color: var(--muted);
+    text-decoration: none;
+    transition: color 0.2s;
+    white-space: nowrap;
+  }
+
+  .nav-next:hover { color: var(--accent); }
+
+  /* Container */
+  .container {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 0 2rem;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Hero */
+  .hero {
+    padding: 4.5rem 0 3.5rem;
+    border-bottom: 1px solid var(--border);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero::after {
+    content: '';
+    position: absolute;
+    top: -100px;
+    right: -200px;
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, rgba(107,107,128,0.10) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .hero-eyebrow {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.2em;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+  }
+
+  .module-badge {
+    display: inline-block;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.1em;
+    padding: 0.25rem 0.6rem;
+    border-radius: 4px;
+    margin-bottom: 1.2rem;
+    background: rgba(107, 107, 128, 0.2);
+    color: var(--muted);
+    border: 1px solid var(--border);
+  }
+
+  .hero h1 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: clamp(2rem, 4.5vw, 3.2rem);
+    line-height: 1.08;
+    margin-bottom: 1.4rem;
+    letter-spacing: -0.02em;
+  }
+
+  .hero-sub {
+    font-size: 1.05rem;
+    color: #a0a0b8;
+    max-width: 620px;
+    line-height: 1.8;
+    margin-bottom: 2rem;
+  }
+
+  .hero-meta {
+    display: flex;
+    gap: 2.5rem;
+    flex-wrap: wrap;
+  }
+
+  .meta-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+  }
+
+  .meta-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.15em;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+
+  .meta-value {
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    font-size: 1rem;
+    color: var(--text);
+  }
+
+  /* Main content */
+  .content {
+    padding: 4rem 0 6rem;
+  }
+
+  /* Topic sections */
+  .topic-section {
+    margin-bottom: 5rem;
+  }
+
+  .topic-section:last-child {
+    margin-bottom: 0;
+  }
+
+  .section-number {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+  }
+
+  .topic-section h2 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 1.65rem;
+    letter-spacing: -0.01em;
+    line-height: 1.2;
+    margin-bottom: 1.6rem;
+    color: var(--text);
+  }
+
+  .topic-section h3 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    font-size: 1.1rem;
+    letter-spacing: -0.01em;
+    margin-top: 2rem;
+    margin-bottom: 0.8rem;
+    color: var(--text);
+  }
+
+  .topic-section p {
+    font-size: 0.97rem;
+    color: #c8c8d8;
+    line-height: 1.8;
+    margin-bottom: 1.2rem;
+  }
+
+  .topic-section p:last-child {
+    margin-bottom: 0;
+  }
+
+  /* Section divider */
+  .section-divider {
+    height: 1px;
+    background: linear-gradient(to right, transparent, var(--border) 20%, var(--border) 80%, transparent);
+    margin: 4.5rem 0;
+  }
+
+  /* Callout boxes */
+  .callout {
+    border-radius: 10px;
+    padding: 1.3rem 1.6rem;
+    margin: 2rem 0;
+  }
+
+  .callout-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 0.6rem;
+    font-weight: 500;
+  }
+
+  .callout p {
+    font-size: 0.92rem;
+    line-height: 1.75;
+    margin-bottom: 0;
+  }
+
+  .callout p + p {
+    margin-top: 0.8rem;
+  }
+
+  .callout-insight {
+    background: rgba(124,106,247,0.07);
+    border: 1px solid rgba(124,106,247,0.25);
+  }
+
+  .callout-insight .callout-label {
+    color: var(--accent);
+  }
+
+  .callout-insight p {
+    color: #b8b0f0;
+  }
+
+  .callout-mistake {
+    background: rgba(247,106,106,0.07);
+    border: 1px solid rgba(247,106,106,0.25);
+  }
+
+  .callout-mistake .callout-label {
+    color: var(--danger);
+  }
+
+  .callout-mistake p {
+    color: #e0b0b0;
+  }
+
+  .callout-example {
+    background: rgba(106,247,212,0.06);
+    border: 1px solid rgba(106,247,212,0.2);
+  }
+
+  .callout-example .callout-label {
+    color: var(--accent3);
+  }
+
+  .callout-example p {
+    color: #a8e8d8;
+  }
+
+  /* Code blocks */
+  .code-block {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.4rem 1.6rem;
+    margin: 1.6rem 0;
+    overflow-x: auto;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.82rem;
+    line-height: 1.75;
+    color: #c0c0d8;
+  }
+
+  .code-block code {
+    font-family: inherit;
+  }
+
+  /* Spectrum visualization */
+  .spectrum-row {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 0.75rem;
+    margin: 2rem 0;
+  }
+
+  @media (max-width: 640px) {
+    .spectrum-row {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .spectrum-item {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .spectrum-item::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+  }
+
+  .spec-1::before { background: var(--muted); opacity: 0.4; }
+  .spec-2::before { background: linear-gradient(to right, var(--muted), var(--accent)); opacity: 0.5; }
+  .spec-3::before { background: var(--accent); opacity: 0.6; }
+  .spec-4::before { background: linear-gradient(to right, var(--accent), var(--accent3)); opacity: 0.7; }
+  .spec-5::before { background: var(--accent3); opacity: 0.9; }
+
+  .spectrum-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 0.4rem;
+  }
+
+  .spectrum-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    font-size: 0.88rem;
+    color: var(--text);
+    margin-bottom: 0.4rem;
+  }
+
+  .spectrum-desc {
+    font-size: 0.75rem;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+
+  /* Pillars grid */
+  .pillars-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+    margin: 2rem 0;
+  }
+
+  @media (max-width: 540px) {
+    .pillars-grid { grid-template-columns: 1fr; }
+  }
+
+  .pillar-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.3rem 1.5rem;
+  }
+
+  .pillar-number {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.15em;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 0.4rem;
+  }
+
+  .pillar-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 1.1rem;
+    margin-bottom: 0.6rem;
+    color: var(--text);
+  }
+
+  .pillar-desc {
+    font-size: 0.85rem;
+    color: #9898b0;
+    line-height: 1.6;
+  }
+
+  .pillar-missing {
+    margin-top: 0.8rem;
+    padding-top: 0.8rem;
+    border-top: 1px solid var(--border);
+    font-size: 0.78rem;
+    color: var(--danger);
+    font-family: 'IBM Plex Mono', monospace;
+    letter-spacing: 0.02em;
+  }
+
+  /* Exercise section */
+  .exercise-section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 5rem;
+  }
+
+  .exercise-header {
+    padding: 1.8rem 2rem;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface2);
+  }
+
+  .exercise-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+  }
+
+  .exercise-header h2 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 1.4rem;
+    color: var(--text);
+    margin-bottom: 0.6rem;
+  }
+
+  .exercise-header p {
+    font-size: 0.92rem;
+    color: #9898b0;
+    line-height: 1.7;
+  }
+
+  .exercise-body {
+    padding: 2rem;
+  }
+
+  .system-card {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.3rem 1.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .system-card:last-of-type {
+    margin-bottom: 0;
+  }
+
+  .system-number {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 0.4rem;
+  }
+
+  .system-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    font-size: 0.97rem;
+    color: var(--text);
+    margin-bottom: 0.5rem;
+  }
+
+  .system-desc {
+    font-size: 0.86rem;
+    color: #9898b0;
+    line-height: 1.65;
+    margin-bottom: 0.6rem;
+  }
+
+  .system-prompt {
+    font-size: 0.8rem;
+    color: var(--muted);
+    font-family: 'IBM Plex Mono', monospace;
+    letter-spacing: 0.02em;
+    line-height: 1.5;
+  }
+
+  .facil-section {
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--border);
+  }
+
+  .facil-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    font-size: 1rem;
+    color: var(--text);
+    margin-bottom: 1rem;
+  }
+
+  .facil-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+  }
+
+  .facil-list li {
+    font-size: 0.88rem;
+    color: #9898b0;
+    line-height: 1.65;
+    padding-left: 1.2rem;
+    position: relative;
+  }
+
+  .facil-list li::before {
+    content: '—';
+    position: absolute;
+    left: 0;
+    color: var(--muted);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.75rem;
+  }
+
+  /* Summary section */
+  .summary-section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 2rem 2.2rem;
+    margin-bottom: 4rem;
+  }
+
+  .summary-section h2 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 1.25rem;
+    margin-bottom: 1.3rem;
+    color: var(--text);
+  }
+
+  .summary-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.7rem;
+  }
+
+  .summary-list li {
+    font-size: 0.93rem;
+    color: #b0b0c8;
+    line-height: 1.7;
+    padding-left: 1.5rem;
+    position: relative;
+  }
+
+  .summary-list li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0.58rem;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--muted);
+  }
+
+  /* Footer */
+  .footer {
+    border-top: 1px solid var(--border);
+    padding: 2.5rem 0;
+  }
+
+  .footer-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .footer-text {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.68rem;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+  }
+
+  .footer-next {
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    font-size: 0.92rem;
+    color: var(--accent);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: gap 0.2s;
+  }
+
+  .footer-next:hover { gap: 0.8rem; }
+
+  .footer-prev {
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    font-size: 0.92rem;
+    color: var(--muted);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: color 0.2s;
+  }
+
+  .footer-prev:hover { color: var(--text); }
+
+  /* Inline code */
+  code {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.82em;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    padding: 0.1em 0.35em;
+    color: var(--accent3);
+  }
+
+  strong {
+    font-weight: 500;
+    color: var(--text);
+  }
+
+  /* Token visualization */
+  .token-vis {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.4rem 1.6rem;
+    margin: 1.6rem 0;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.82rem;
+    line-height: 2;
+    color: #c0c0d8;
+  }
+
+  .token-vis .vis-label {
+    font-size: 0.62rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 0.8rem;
+    display: block;
+  }
+
+  .token-vis .token-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    align-items: baseline;
+  }
+
+  .token-chip {
+    display: inline-block;
+    padding: 0.1rem 0.45rem;
+    border-radius: 4px;
+    border: 1px solid rgba(124,106,247,0.3);
+    background: rgba(124,106,247,0.08);
+    color: #b8b0f0;
+    font-size: 0.82rem;
+    white-space: pre;
+  }
+
+  .token-chip.alt {
+    border-color: rgba(106,247,212,0.3);
+    background: rgba(106,247,212,0.06);
+    color: #a8e8d8;
+  }
+
+  .vis-note {
+    margin-top: 0.8rem;
+    font-size: 0.72rem;
+    color: var(--muted);
+    letter-spacing: 0.03em;
+  }
+
+  /* Context breakdown table */
+  .context-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1.6rem 0;
+    font-size: 0.88rem;
+  }
+
+  .context-table th {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    text-align: left;
+    padding: 0.6rem 1rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .context-table td {
+    padding: 0.7rem 1rem;
+    color: #c8c8d8;
+    border-bottom: 1px solid rgba(42,42,58,0.5);
+    vertical-align: top;
+    line-height: 1.6;
+  }
+
+  .context-table tr:last-child td {
+    border-bottom: none;
+  }
+
+  .context-table .td-name {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.8rem;
+    color: var(--accent3);
+    white-space: nowrap;
+  }
+
+  .context-table .td-tokens {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.8rem;
+    color: var(--accent2);
+    white-space: nowrap;
+  }
+
+  .context-table .td-total {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.8rem;
+    color: var(--text);
+    font-weight: 500;
+  }
+
+  .context-table tbody tr:hover td {
+    background: rgba(42,42,58,0.3);
+  }
+
+  /* Cost comparison cards */
+  .cost-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+    margin: 1.6rem 0;
+  }
+
+  @media (max-width: 540px) {
+    .cost-grid { grid-template-columns: 1fr; }
+  }
+
+  .cost-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.3rem 1.5rem;
+  }
+
+  .cost-card-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 0.4rem;
+  }
+
+  .cost-card-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 1rem;
+    color: var(--text);
+    margin-bottom: 0.8rem;
+  }
+
+  .cost-card-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    font-size: 0.83rem;
+    color: #9898b0;
+    padding: 0.25rem 0;
+    border-bottom: 1px solid rgba(42,42,58,0.5);
+  }
+
+  .cost-card-row:last-child {
+    border-bottom: none;
+  }
+
+  .cost-card-row .cost-val {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.8rem;
+    color: var(--accent2);
+  }
+
+  /* Nav left group */
+  .nav-left {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .nav-divider {
+    width: 1px;
+    height: 16px;
+    background: var(--border);
+  }
+</style>
+</head>
+<body>
+
+<!-- Sticky top nav -->
+<nav class="top-nav">
+  <div class="top-nav-inner">
+    <div class="nav-left">
+      <a href="../index.html" class="nav-back">← Back to Foundations</a>
+      <div class="nav-divider"></div>
+      <a href="module-f01.html" class="nav-back">← Module F01</a>
+    </div>
+    <span class="nav-module-label">Module F02 · Tokens and Context</span>
+    <a href="module-f03.html" class="nav-next">Next: Module F03 →</a>
+  </div>
+</nav>
+
+<!-- Hero -->
+<div class="hero">
+  <div class="container">
+    <div class="hero-eyebrow">Module F02 · Foundation</div>
+    <div class="module-badge">FOUNDATION</div>
+    <h1>Tokens and Context:<br>The Physics of Language Models</h1>
+    <p class="hero-sub">
+      Everything a language model does — reading your prompt, generating a response, knowing what tools returned — flows through two fundamental concepts: tokens and the context window. Understanding these isn't optional. They explain why agents fail at long tasks, why API costs work the way they do, and why context engineering is the core skill of the main curriculum.
+    </p>
+    <div class="hero-meta">
+      <div class="meta-item">
+        <span class="meta-label">Duration</span>
+        <span class="meta-value">3–4 days</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">Level</span>
+        <span class="meta-value">Foundation</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">Exercise</span>
+        <span class="meta-value">Find the limit</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">Prerequisite</span>
+        <span class="meta-value">Module F01</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Main content -->
+<div class="container">
+<div class="content">
+
+  <!-- TOPIC 1 -->
+  <div class="topic-section" id="topic-1">
+    <div class="section-number">Topic 01</div>
+    <h2>What Is a Token? Not a Word, Not a Character</h2>
+
+    <p>The first thing most people get wrong about language models is what they actually process. Ask someone what a "token" is and they'll say "a word." Ask a second person and they'll say "a character." Both are wrong, and the wrongness matters in practical ways — it affects how you write prompts, how you estimate costs, and why certain things that should be simple for the model turn out to be surprisingly difficult.</p>
+
+    <p>A language model doesn't see words. It doesn't see characters. It sees <strong>tokens</strong> — subword units produced by a process called tokenization, which runs on your text before any AI processing begins. Tokenization is deterministic: given the same text and the same tokenizer, you always get the same tokens. But the results are not intuitive.</p>
+
+    <h3>How Tokenization Actually Works: Byte-Pair Encoding</h3>
+
+    <p>The dominant algorithm used to build modern tokenizers is called Byte-Pair Encoding (BPE). Here's the intuition behind it: you start with individual characters (or bytes), and you repeatedly merge the most frequent pairs. Common sequences get merged into single tokens. Rare sequences stay as fragments. The result, after many merging rounds, is a vocabulary of roughly 50,000–100,000 tokens that can represent any text by combining these subword pieces.</p>
+
+    <p>In practice, this means: common English words like "the," "is," and "running" are single tokens. Less common words get split. "Tokenization" might become <code>["token", "ization"]</code>. A word like "preprocessing" might become <code>["pre", "process", "ing"]</code>. Long technical terms from specialized domains often fragment into many pieces. Numbers can be particularly unpredictable — "1234" might tokenize as <code>["12", "34"]</code>, or as four individual digit tokens, depending on the specific tokenizer and context.</p>
+
+    <p>Whitespace and punctuation are also tokenized — they're not free. A comma, a period, a newline: each adds to the token count. This is why JSON is a notoriously token-inefficient format: all those curly braces, quotes, colons, and commas add up fast. You'll pay for every one of them.</p>
+
+    <h3>Why Subword Tokenization?</h3>
+
+    <p>The subword approach is a deliberate engineering compromise. Consider the alternatives. If you tokenize at the word level, your vocabulary explodes — English alone has hundreds of thousands of words, and that's before you handle plurals, conjugations, compounds, and other languages. You'd need a token for "preprocessing," "preprocessed," "preprocessor," and "preprocesses" as separate entries. And any word you've never seen at training time is simply unknown.</p>
+
+    <p>If you tokenize at the character level, vocabulary is tiny (26 letters, some punctuation), but the model has to work much harder. Every word is now a sequence of characters, and the model must learn from scratch that "c-a-t" refers to the same concept as "cats" or "catlike." Sequences become very long, which is computationally expensive.</p>
+
+    <p>Subword tokenization threads the needle. Common patterns get single tokens (efficient). Rare words get decomposed into recognizable parts (still meaningful). New words can be represented. And the vocabulary stays manageable. It's not perfect — but it's the current dominant approach for a reason.</p>
+
+    <h3>The Rule of Thumb — and When It Breaks</h3>
+
+    <p>For English prose, a useful approximation: <strong>1 token ≈ 0.75 words</strong>, or roughly <strong>4 characters per token</strong>. A short paragraph of about 150 words is roughly 200 tokens. A page of dense text is roughly 400–600 tokens. A full novel of 80,000 words is roughly 100,000–110,000 tokens.</p>
+
+    <p>But these ratios break in predictable ways. Code is denser in tokens than English — punctuation-heavy syntax adds tokens. JSON is worse still. Languages other than English often tokenize less efficiently because the BPE vocabulary was trained primarily on English text: the same meaning expressed in French, German, or Japanese may cost 20–50% more tokens. Unicode characters outside the ASCII range — like accented letters — tokenize differently than their plain counterparts. "Résumé" and "resume" are not the same number of tokens.</p>
+
+    <p>These aren't academic subtleties. When Maya is building her meeting summarizer and the meeting includes a participant name in Korean script, those characters might each consume multiple tokens. When she pastes in a JSON export of attendee metadata, that "small" file might be twice as many tokens as the same information in plain prose. Understanding this shapes how she structures her prompts.</p>
+
+    <div class="token-vis">
+      <span class="vis-label">Token visualization — approximate, actual tokenization varies by model</span>
+      <div class="token-row">
+        <span class="token-chip">The</span>
+        <span class="token-chip alt"> meeting</span>
+        <span class="token-chip"> starts</span>
+        <span class="token-chip alt"> at</span>
+        <span class="token-chip"> 2</span>
+        <span class="token-chip alt">pm</span>
+        <span class="token-chip">.</span>
+      </div>
+      <div class="token-row" style="margin-top: 1rem;">
+        <span class="token-chip">token</span>
+        <span class="token-chip alt">ization</span>
+        <span class="token-chip"> is</span>
+        <span class="token-chip alt"> not</span>
+        <span class="token-chip"> word</span>
+        <span class="token-chip alt">-level</span>
+        <span class="token-chip">.</span>
+      </div>
+      <p class="vis-note">Alternating colors show token boundaries. "The meeting starts at 2pm." is 7 tokens. "Tokenization" alone is 2. Numbers, punctuation, and whitespace all count separately.</p>
+    </div>
+
+    <div class="callout callout-insight">
+      <div class="callout-label">Key Insight</div>
+      <p>The model never sees your text as words or characters — it sees a sequence of token IDs, integers that index into a vocabulary. "Hello, how are you?" might become something like <code>[9906, 11, 1268, 527, 499, 30]</code> depending on the tokenizer. The model processes these integers, not letters. This is why the model has no concept of spelling in the way humans do — it operates below the word level in a way that's genuinely unintuitive. When a model "misspells" something, it's not making a typo. It's selecting tokens whose combination happens to produce unexpected character sequences.</p>
+    </div>
+
+    <h3>How to See This for Yourself</h3>
+
+    <p>This is one of those concepts where seeing is understanding. OpenAI's tokenizer playground at <code>platform.openai.com/tokenizer</code> lets you paste any text and see exactly how it tokenizes — each token highlighted in a distinct color, with a total count. Anthropic's documentation includes similar examples for Claude's tokenizer. Spend 10 minutes pasting in different types of text — a paragraph of English prose, some Python code, a JSON blob, a sentence with accented characters — and you'll internalize the behavior faster than reading about it.</p>
+
+    <p>The practical upshot: before you build anything with an LLM, develop a feel for how your specific type of content tokenizes. It will affect your cost estimates, your context window planning, and occasionally your prompt design.</p>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <!-- TOPIC 2 -->
+  <div class="topic-section" id="topic-2">
+    <div class="section-number">Topic 02</div>
+    <h2>How Models Generate Text: One Token at a Time</h2>
+
+    <p>Once you understand what tokens are, the next thing to understand is how the model produces them. The answer is both simple and deeply consequential: it generates one token at a time, left to right, each token informed by everything that came before it. This process is called <strong>autoregressive generation</strong>, and its properties ripple through every practical concern you'll encounter — latency, quality, cost, and failure modes.</p>
+
+    <h3>The Mechanics of a Forward Pass</h3>
+
+    <p>Here's what happens each time the model generates a token. It takes the entire context — your system prompt, the conversation history, your current message, everything — and runs it through its neural network in what's called a forward pass. At the end of this pass, the model produces a probability distribution over its entire vocabulary: every token in the vocabulary gets a score representing how likely it is to come next. The model then samples from this distribution (or takes the most likely token, depending on settings like temperature). That sampled token is appended to the context. Then the whole process repeats for the next token.</p>
+
+    <p>This is not a draft-and-revise process. The model doesn't generate a rough version and then refine it. It makes one local decision at a time — "given everything I've seen, what's the most appropriate next token?" — and that decision is committed before the next begins. Once a token is generated, it becomes part of the context that influences all subsequent tokens. There is no going back.</p>
+
+    <h3>What This Means for Latency</h3>
+
+    <p>The time it takes to receive a full response is, roughly: (number of output tokens) × (time per forward pass). A 500-token response requires 500 forward passes. If each takes 50 milliseconds, the full response takes 25 seconds. This is why APIs expose <strong>streaming</strong> — rather than waiting for all 500 tokens to be generated before you see anything, tokens are sent to you as they're produced. You see the beginning of the response almost immediately, while generation continues in the background. For interactive applications, streaming is not optional; it's what makes the experience feel responsive.</p>
+
+    <p>This also explains why model size and hardware matter. Smaller models have fewer parameters, so each forward pass is cheaper computationally and faster in wall-clock time. Frontier models (with hundreds of billions of parameters) do more sophisticated computation per pass, which is part of why they produce better output — but each pass takes longer. The relationship between model quality and latency is real, and it's a design tradeoff every production system navigates.</p>
+
+    <h3>What This Means for Quality</h3>
+
+    <p>The left-to-right, no-revision nature of autoregressive generation has a direct effect on output quality. If the model's early tokens set up a reasoning path that turns out to be wrong, all subsequent tokens are built on that foundation. The model can't "notice" it went wrong and restart — it's committed. This is the deeper reason why chain-of-thought reasoning improves quality: by prefixing the actual answer with explicit reasoning steps, you force the early tokens to be deliberate intermediate conclusions rather than hasty final answers. The model works through the problem before committing to a response. Those early tokens then serve as a strong foundation for the tokens that follow.</p>
+
+    <p>It also explains why certain prompt formats produce systematically better results. Asking the model to "think step by step" before answering is not a magic incantation — it's engineering that takes advantage of how autoregressive generation works. You're shaping the early part of the output to constrain the later part in useful ways.</p>
+
+    <h3>What This Means for Cost</h3>
+
+    <p>You pay for output tokens. Every token the model generates is a forward pass, and forward passes cost compute, which costs money. A model instructed to respond concisely costs less to run than the same model allowed to ramble. This is not a trivial observation for Maya. If her meeting summarizer generates a 1,000-token summary when a 300-token summary would serve equally well, she's spending 3× the output token budget for each summarization call. At scale — hundreds of meetings per month — that difference adds up.</p>
+
+    <p>This drives a real design practice: specify the desired length and format of outputs explicitly. Not just for aesthetics, but for economics. "Provide a 3–5 bullet summary" and "respond in under 200 words" are cost controls as much as they are formatting instructions.</p>
+
+    <div class="callout callout-insight">
+      <div class="callout-label">Key Insight</div>
+      <p>The model's output is a sequence of local decisions, each dependent on everything before it. Once a token is generated, it's committed — it shapes all subsequent tokens. This is fundamentally different from how humans write, where we draft, revise, and restructure. It's also why models sometimes "paint themselves into a corner" mid-response — they've generated tokens that logically constrain what can come next, and the only escape is to start over. When you see a model produce a confident but wrong answer, often the problem happened in the first few tokens of the response, not the last few.</p>
+    </div>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <!-- TOPIC 3 -->
+  <div class="topic-section" id="topic-3">
+    <div class="section-number">Topic 03</div>
+    <h2>The Context Window: Everything the Model Sees at Once</h2>
+
+    <p>This is the most important topic in the module. Everything else we've covered — tokens, autoregressive generation — is background that makes the context window make sense. The context window is the primary resource constraint you will manage as someone building AI tools. Get comfortable with it now, because it comes up constantly in the main curriculum.</p>
+
+    <h3>What the Context Window Is</h3>
+
+    <p>The <strong>context window</strong> is the total amount of text the model can "see" at any single inference call. It's the model's working memory — the full set of information available to it when it generates each token. Everything you want the model to know or consider must be in the context window. If it's not there, the model doesn't know it exists.</p>
+
+    <p>The size of the context window is measured in tokens, and it's a hard limit. Modern frontier models have large windows: Claude 3.5 Sonnet has 200,000 tokens, GPT-4o has 128,000 tokens, Gemini 1.5 Pro has 1,000,000 tokens. To put 200,000 tokens in human terms: that's roughly 150,000 words — a full novel. But the size of the window doesn't mean you should fill it, for reasons we'll cover in the next topic.</p>
+
+    <h3>What Goes Into the Context Window</h3>
+
+    <p>This is where people often underestimate how quickly the window fills. A context window isn't just your user's current message. It contains everything the model needs to process that message in context:</p>
+
+    <table class="context-table">
+      <thead>
+        <tr>
+          <th>Component</th>
+          <th>Typical Token Range</th>
+          <th>Notes</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="td-name">System prompt</td>
+          <td class="td-tokens">100 – 2,000</td>
+          <td>Your instructions to the model: its role, constraints, output format. Grows with complexity.</td>
+        </tr>
+        <tr>
+          <td class="td-name">Conversation history</td>
+          <td class="td-tokens">500 – 20,000+</td>
+          <td>Every prior message in the session — user and assistant turns both. Grows with each exchange.</td>
+        </tr>
+        <tr>
+          <td class="td-name">Injected documents</td>
+          <td class="td-tokens">1,000 – 50,000+</td>
+          <td>Any data you explicitly provide: a meeting transcript, a policy document, a customer record.</td>
+        </tr>
+        <tr>
+          <td class="td-name">Tool results</td>
+          <td class="td-tokens">200 – 5,000+ per call</td>
+          <td>When an agent calls a tool, the result is appended. Web search results, database records, API responses — all land here.</td>
+        </tr>
+        <tr>
+          <td class="td-name">Prior assistant responses</td>
+          <td class="td-tokens">200 – 2,000+ per turn</td>
+          <td>The model's previous responses in a multi-turn session are included in subsequent calls for continuity.</td>
+        </tr>
+        <tr>
+          <td class="td-name"><strong>Total (simple session)</strong></td>
+          <td class="td-total">~2,000 – 10,000</td>
+          <td>A modest chatbot exchange with a small document. Easily fits.</td>
+        </tr>
+        <tr>
+          <td class="td-name"><strong>Total (agentic session)</strong></td>
+          <td class="td-total">20,000 – 150,000+</td>
+          <td>After 10–15 tool calls with substantial results. Context management becomes essential.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p>The key thing to internalize: in a long-running agentic loop, context accumulates automatically. Each tool call appends its result. Each turn appends user and assistant messages. After enough iterations, even a seemingly simple task can fill most of the context window. This is not a bug — it's the natural consequence of the model needing to "remember" what it's done. Managing this accumulation is one of the primary engineering challenges for agent systems, which is why the main curriculum dedicates an entire module to context engineering.</p>
+
+    <div class="callout callout-example">
+      <div class="callout-label">Maya Hits the Limit</div>
+      <p>Maya's company has a weekly 3-hour all-hands meeting. The transcript is roughly 18,000 words — about 24,000 tokens. Add her system prompt (~500 tokens telling the model to summarize in a specific format and extract action items), and the assistant's prior responses if she's asking follow-up questions in the same session (~2,000 tokens): she's at roughly 26,500 tokens total. That fits comfortably in any modern context window. So far, so good.</p>
+      <p>But suppose Maya wants to process three back-to-back meetings in a single session, comparing themes across weeks. That's 72,000 tokens of transcripts alone, plus growing history. Or suppose she adds a 10,000-token company glossary to help the model understand internal terminology. Or her meeting includes long tool outputs — she asked the model to look up action items in her project management system and got back 5,000 tokens of task data. Suddenly the context is 90,000+ tokens and climbing. Even before hitting hard limits, performance can degrade. We'll explore the specific engineering patterns to handle this in the main curriculum under context engineering.</p>
+    </div>
+
+    <h3>The Context Window Is Not Infinite Memory</h3>
+
+    <p>It's tempting to think of a large context window as solving the memory problem. It doesn't. It changes the economics and raises the threshold, but the fundamental constraint remains: the model only knows what's in the window. Anything that happened in a previous session — a meeting Maya summarized yesterday, preferences she expressed last week — is gone unless you explicitly load it back in. There is no persistent "background memory" that accumulates across calls. Every call starts fresh with whatever you put in the context.</p>
+
+    <p>This is why agents that need long-term memory require external storage — a database, a vector store — to persist information across sessions and retrieve it when relevant. The context window is short-term working memory. External storage is long-term memory. Managing the handoff between them is a distinct engineering problem from managing the context window itself. Both matter for production agents.</p>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <!-- TOPIC 4 -->
+  <div class="topic-section" id="topic-4">
+    <div class="section-number">Topic 04</div>
+    <h2>Why Bigger Context Windows Don't Solve Everything</h2>
+
+    <p>Every few months, a new model announces a dramatically larger context window and a wave of articles declares that context management is a solved problem. It isn't. The naive expectation — if the window is large enough, just dump everything in and let the model use what it needs — fails in practice, for several interconnected reasons. Understanding why is important, because it shapes how you design your systems even when you have access to large-context models.</p>
+
+    <h3>The "Lost in the Middle" Problem</h3>
+
+    <p>This is perhaps the most counterintuitive finding in recent LLM research: models don't attend uniformly to all parts of a long context. Information at the <strong>beginning</strong> of the context and at the <strong>end</strong> tends to be used more reliably. Information buried in the <strong>middle</strong> of a very long context is recalled less accurately, even when the context fits within the window.</p>
+
+    <p>If Maya puts the most important meeting agenda item at the top of a 50,000-token context, the model will likely use it. If it appears at position 25,000 tokens — deep in the middle — the model may effectively "miss" it, even though it technically fits. This finding, demonstrated empirically across multiple model families, means that having a 200,000-token window doesn't give you 200,000 tokens of uniform quality. You have reliable attention near the edges and degrading quality toward the center of long contexts.</p>
+
+    <p>The practical implication: if you have information that must be used reliably, position it near the start or end of the context. Don't bury key instructions deep in a wall of retrieved documents. The order of information in your prompt is a quality variable, not just a formatting preference.</p>
+
+    <h3>Attention Complexity</h3>
+
+    <p>The transformer architecture that underlies all modern LLMs computes attention between every pair of tokens — conceptually an O(n²) operation in sequence length. If you double the number of tokens in the context, you quadruple the attention computation. In practice, this is aggressively mitigated with engineering techniques (Flash Attention, sliding window attention, and others), and modern models have become much more efficient. But the fundamental challenge of giving each position equally good attention at very long sequence lengths remains a genuine research problem, not a solved one.</p>
+
+    <p>The consequence: very long contexts are not just slower and more expensive — they're also harder for the model to reason over. The model has to "hold together" more information simultaneously, and the signal from any individual piece of context competes with more noise from surrounding material.</p>
+
+    <h3>Quality vs. Quantity</h3>
+
+    <p>Here is the central tension that makes context engineering a real discipline: a focused, well-curated 5,000-token context frequently produces better output than a sprawling 50,000-token context containing the same relevant information buried in noise.</p>
+
+    <p>This is because the model's reasoning degrades with context noise, not just context length. Irrelevant content in the context isn't neutral — it occupies attention that could have gone to relevant content. It introduces distractors. In some cases, it can even actively mislead the model by providing plausible but wrong information alongside the correct information. The discipline of deciding what belongs in context — and what to evict, compress, or summarize — produces measurably better outputs, and that discipline remains important regardless of how large the window is.</p>
+
+    <p>A useful mental model: the context window is not a dump bin. It's a briefing document. You wouldn't hand a colleague a briefing document containing every email ever sent about a project and expect them to distill it accurately in 30 seconds. You'd distill it for them, surfacing the 10 most relevant facts. The same logic applies to the context window.</p>
+
+    <div class="callout callout-mistake">
+      <div class="callout-label">Common Mistake</div>
+      <p>Thinking you've solved context management by switching to a model with a larger context window. You've delayed the problem, not solved it. A 1M-token context is expensive — input tokens cost money, and at frontier model pricing, filling a million-token window can cost several dollars per call. It's also slower to process, and suffers from the "lost in the middle" quality degradation at scale. The discipline of deciding what belongs in context — and what to evict or summarize — remains important regardless of window size. The teams building the best production agents treat context management as a design craft, not a hardware problem to throw money at.</p>
+    </div>
+
+    <h3>The Signal-to-Noise Framing</h3>
+
+    <p>A better way to think about context management: you're optimizing for signal-to-noise ratio, not for volume. High-signal context contains only what the model needs to do the current task well. Low-signal context adds length while contributing little or nothing to quality. Adding more context only helps when the additional content is signal. When it's noise, you're paying more for worse results.</p>
+
+    <p>This reframe makes context engineering feel less like an arbitrary technical constraint and more like a genuine intellectual discipline: what, exactly, does the model need to know right now? Not everything you could possibly provide — just what's needed for this specific step, in this specific task, at this specific moment.</p>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <!-- TOPIC 5 -->
+  <div class="topic-section" id="topic-5">
+    <div class="section-number">Topic 05</div>
+    <h2>Tokens as Currency: Cost, Latency, and Economics</h2>
+
+    <p>Every token has a price. This is one of the most practically important facts about working with language model APIs, and it's one that surprises people who move from using consumer AI products (where costs are hidden in a subscription fee) to building on APIs (where you see every dollar). Once you understand token economics, you start making design decisions differently.</p>
+
+    <h3>How API Pricing Works</h3>
+
+    <p>LLM API pricing is per token, billed separately for input and output. The standard unit is <strong>dollars per million tokens</strong>, and there are two line items: input tokens (everything in the context you send to the model) and output tokens (everything the model generates in response). Output tokens are almost always more expensive than input tokens — typically <strong>3–5× more per token</strong>.</p>
+
+    <div class="cost-grid">
+      <div class="cost-card">
+        <div class="cost-card-label">Frontier Tier</div>
+        <div class="cost-card-title">Claude Sonnet, GPT-4o</div>
+        <div class="cost-card-row">
+          <span>Input tokens</span>
+          <span class="cost-val">~$3–15 / M tokens</span>
+        </div>
+        <div class="cost-card-row">
+          <span>Output tokens</span>
+          <span class="cost-val">~$15–60 / M tokens</span>
+        </div>
+        <div class="cost-card-row">
+          <span>10K input + 500 output</span>
+          <span class="cost-val">~$0.10–0.15 / call</span>
+        </div>
+      </div>
+      <div class="cost-card">
+        <div class="cost-card-label">Mid-Tier</div>
+        <div class="cost-card-title">Claude Haiku, GPT-4o-mini</div>
+        <div class="cost-card-row">
+          <span>Input tokens</span>
+          <span class="cost-val">~$0.10–1 / M tokens</span>
+        </div>
+        <div class="cost-card-row">
+          <span>Output tokens</span>
+          <span class="cost-val">~$0.40–4 / M tokens</span>
+        </div>
+        <div class="cost-card-row">
+          <span>10K input + 500 output</span>
+          <span class="cost-val">~$0.001–0.01 / call</span>
+        </div>
+      </div>
+    </div>
+
+    <p>These are approximate ranges as of 2026 — exact prices change frequently and vary by provider. The important thing is the <em>ratio</em>: mid-tier models can cost 10–100× less than frontier models for the same task. That difference is why model tier selection is a real design decision, not just a "use the best model" default. For simple, high-volume tasks, a mid-tier model at one-fiftieth the cost that produces 90% of the quality of a frontier model is often the right answer.</p>
+
+    <h3>The Math at Scale</h3>
+
+    <p>Abstract pricing becomes concrete when you run the numbers at scale. Consider Maya's meeting summarizer. A single meeting: ~24,000 input tokens (the transcript) + ~1,000 output tokens (the summary) on a frontier model ≈ roughly $0.25–$0.50 per meeting. That's fine for occasional use.</p>
+
+    <p>Now suppose the company processes 200 meetings per month across all teams. That's $50–$100/month on the frontier model. On a mid-tier model — still producing good summaries for a task this well-defined — that same workload might cost $1–$5/month. The difference is meaningful, especially when multiplied across an organization with dozens of automated workflows.</p>
+
+    <p>For agentic systems, the numbers can escalate further. Each agent step is an LLM call. An agent with 20 steps, each with 20,000 tokens of context, is processing 400,000 input tokens per task run — plus output tokens for each step. At frontier model pricing, that's $4–$20 per task run. At 1,000 runs per month: $4,000–$20,000. This is not hypothetical — it's a real constraint that production agent teams manage actively. Model tier selection, covered in depth in M6 of the main curriculum, is fundamentally a token economics problem.</p>
+
+    <h3>Latency: Time to First Token and Tokens Per Second</h3>
+
+    <p>Cost is one axis. Latency is another. There are two latency metrics that matter for LLM applications:</p>
+
+    <p><strong>Time to first token (TTFT)</strong> is how long you wait before any output appears. For streaming applications, this is the user-visible delay before the response starts. TTFT grows with context length — longer inputs take longer to process before generation begins. Frontier models tend to have higher TTFT than smaller models, for the same reason they cost more per token.</p>
+
+    <p><strong>Tokens per second (TPS)</strong> is how fast tokens generate once output starts. Smaller models generate faster. This is why an application that needs real-time responsiveness (a live meeting assistant, a conversational tool) has different model requirements than one that runs in the background (overnight batch processing, a nightly report agent).</p>
+
+    <p>These two metrics — TTFT and TPS — create a latency budget that varies by application type. Maya's meeting summarizer probably runs after the meeting ends, so a 30-second generation time is fine. A tool that's supposed to answer questions live during the meeting has a very different tolerance. Design your system with the latency requirements in mind before selecting a model, not after.</p>
+
+    <h3>Prompt Caching: A Meaningful Cost Optimization</h3>
+
+    <p>Many LLM APIs now offer <strong>prompt caching</strong>: if you make multiple calls that share a common prefix — the same system prompt, the same document header — the API can cache the key-value computations for that prefix and avoid recomputing them on subsequent calls. Cached input tokens are substantially cheaper than uncached ones, often 50–90% cheaper depending on the provider.</p>
+
+    <p>For agents with long system prompts or large static documents that are reused across many calls, caching is a significant cost optimization. Maya's meeting summarizer has the same system prompt on every call. If she's processing 200 meetings a month, she's sending that system prompt 200 times — or she's caching it and paying for it once (effectively). At scale, caching can cut input token costs by 30–50% for well-structured prompts.</p>
+
+    <p>This is not a feature to bolt on later. It's worth understanding when you're designing the structure of your prompts, because caching works best when the shared prefix is as large and stable as possible. Frequent changes to the system prompt invalidate the cache. Stable, well-crafted system prompts cache well and compound savings over time.</p>
+
+    <div class="callout callout-insight">
+      <div class="callout-label">Key Insight</div>
+      <p>Output tokens cost more than input tokens because generating tokens requires sequential computation — you can't batch them. Each output token is a separate forward pass that depends on all previous tokens. Reading input tokens, by contrast, is a single parallel operation: the entire input is processed simultaneously across the model's layers. Writing is inherently serial; reading is inherently parallel. This is also why concise output formatting — instructing the model to be brief, using structured data instead of verbose prose — is not just a readability choice. It's a cost optimization and a latency optimization at once.</p>
+    </div>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <!-- EXERCISE SECTION -->
+  <div class="exercise-section" id="exercise">
+    <div class="exercise-header">
+      <div class="exercise-label">Module F02 · Hands-On Lab</div>
+      <h2>Find the Limit — and Design a Solution</h2>
+      <p>This exercise takes 30–45 minutes. You'll explore context limits in practice, measure token usage, and design a chunking strategy for a real problem. No engineering background required — the goal is conceptual fluency, not code.</p>
+    </div>
+
+    <div class="exercise-body">
+
+      <div class="system-card">
+        <div class="system-number">Step 01</div>
+        <div class="system-title">Get a Long Document</div>
+        <div class="system-desc">Find or generate a long document to work with. Options: a real meeting transcript from your own work (anonymized if needed), a lengthy email thread, a policy document, or a research report. If you don't have one handy, use an AI to generate one: ask Claude or ChatGPT to "write a 5,000-word summary of a fictional all-hands meeting for a mid-size SaaS company, including discussion of Q3 revenue, product roadmap decisions, hiring plans, and 12 action items." Save the result — this is your test document.</div>
+        <div class="system-prompt">Goal: a realistic document of at least 3,000–5,000 words. The longer the better for the next steps.</div>
+      </div>
+
+      <div class="system-card">
+        <div class="system-number">Step 02</div>
+        <div class="system-title">Count the Tokens</div>
+        <div class="system-desc">Before sending anything to a model, use a tokenizer tool to count how many tokens your document contains. Go to platform.openai.com/tokenizer, paste your document, and note the token count. Also note how the tokenizer breaks it up — are there any surprises? Does any section of the document tokenize more densely than expected? Try pasting just the action items section separately and note its token count relative to word count.</div>
+        <div class="system-prompt">Goal: develop intuition for the document's token footprint before you start spending money or hitting limits.</div>
+      </div>
+
+      <div class="system-card">
+        <div class="system-number">Step 03</div>
+        <div class="system-title">Try to Summarize It in One Shot</div>
+        <div class="system-desc">Send your document to an LLM with a prompt like: "You are a meeting notes assistant. Summarize this meeting transcript and extract all action items with their owners and due dates." Include your full document. Check the response — did it work? Did the model capture all the action items accurately? If you have API access, look at the usage data returned in the response (input_tokens and output_tokens). If you're using a consumer product, estimate based on the rule of thumb: your word count ÷ 0.75 = approximate input tokens.</div>
+        <div class="system-prompt">Goal: a baseline experience of single-shot summarization, and a concrete token count to work with.</div>
+      </div>
+
+      <div class="system-card">
+        <div class="system-number">Step 04</div>
+        <div class="system-title">Make It Fail</div>
+        <div class="system-desc">Now push past the limit. Keep appending more text to your document — add the same document a second time, or add three more fictional meeting transcripts, until you exceed the context window. What happens? You should see one of two things: an error message saying the input is too long (the API rejected it), or — more subtly — the model starts producing degraded output (missing action items, confusing names, omitting entire sections) before any hard error appears. Document both failure modes if you can produce them.</div>
+        <div class="system-prompt">Goal: visceral understanding that context limits are real, and that degradation precedes hard failure.</div>
+      </div>
+
+      <div class="system-card">
+        <div class="system-number">Step 05</div>
+        <div class="system-title">Design a Chunking Strategy</div>
+        <div class="system-desc">Without writing any code, sketch out in plain language how you would process a 200,000-word archive of meeting transcripts (roughly one year of weekly all-hands meetings) to produce a reliable index of action items. Consider: How would you break the archive into manageable pieces? How large would each chunk be? Would you process meetings individually and combine results, or use some other strategy? How would you handle action items that span multiple meetings (e.g., a recurring item)? How would you merge partial results without losing information or creating duplicates? Write a half-page description of your approach — as if explaining it to a colleague, not a developer.</div>
+        <div class="system-prompt">Goal: context engineering thinking at the conceptual level. This exact reasoning is what the main curriculum formalizes into architecture patterns.</div>
+      </div>
+
+      <div class="system-card">
+        <div class="system-number">Step 06 · Bonus</div>
+        <div class="system-title">Cost Calculation</div>
+        <div class="system-desc">Using the token count from Step 02 and the approximate pricing tiers from Topic 05 of this module, calculate the per-call cost for your original document on a frontier model and a mid-tier model. Then: at 200 meetings per month (a plausible number for a medium-sized organization), what is the monthly cost difference between tiers? At what volume does the cost difference become significant enough to justify the extra work of evaluating whether a mid-tier model produces acceptable quality? This is the real cost-quality tradeoff analysis you'd do before a production deployment.</div>
+        <div class="system-prompt">Goal: hands-on experience with the token economics math that shapes every production AI architecture decision.</div>
+      </div>
+
+      <!-- Facilitation guide -->
+      <div class="facil-section">
+        <div class="facil-title">Facilitation Notes (for Group Settings)</div>
+        <ul class="facil-list">
+          <li>Step 02 (counting tokens) often produces the first genuine surprise — participants discover that their "short" document is much longer in tokens than expected, especially if it contains code snippets, JSON, or non-English text. Let the group share their counts and compare. Why did some documents tokenize more densely?</li>
+          <li>Step 03 (single-shot summarization) sets the baseline. Ask participants: did the model get everything? Were any action items missing or attributed to the wrong person? Start building the intuition that context quality affects output quality even when you're within limits.</li>
+          <li>Step 04 (making it fail) is the most visceral part of the exercise. The model degrading before the hard error is the important lesson — push participants to articulate what they observed when the context got long but hadn't failed yet. "Lost in the middle" is easier to understand after you've seen it happen.</li>
+          <li>Step 05 (designing a chunking strategy) is where non-engineers often get creative and propose solutions that work at the conceptual level. Encourage it — this is context engineering thinking without the code. Common proposals include: process each meeting separately and maintain a running action item list; use summaries of prior meetings as compressed context for new ones; break very long meetings into segments. All of these correspond to real architectural patterns covered in the main curriculum.</li>
+          <li>The cost calculation (Step 06) often produces genuine surprise at the scale of savings from mid-tier models. Bring it back to the design implication: cost shapes which model tier you use for which steps in an agentic system. Simple, high-volume tasks should default to cheaper models unless there's a specific quality reason not to.</li>
+          <li>Close with a discussion prompt: "Given what you now know about context windows, how would you redesign Maya's meeting summarizer to be both reliable and cost-efficient at 200 meetings per month?" This is a synthesis question — there's no single right answer, but the best answers will incorporate chunking, model tier selection, and prompt caching.</li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- SUMMARY SECTION -->
+  <div class="summary-section" id="summary">
+    <h2>By the End of This Module, You Should Be Able To...</h2>
+    <ul class="summary-list">
+      <li>Define a token in practical terms — the subword unit a model sees, produced by Byte-Pair Encoding, distinct from words or characters — and use the rule of thumb (1 token ≈ 0.75 English words, or ~4 characters) to estimate token counts for different types of content.</li>
+      <li>Explain autoregressive generation: why models produce text sequentially one token at a time, what this means for latency (response time scales with output length), and why prompting the model to "think before answering" improves quality by shaping the early tokens of the output.</li>
+      <li>Describe what the context window is and enumerate what goes into it: system prompt, conversation history, injected documents, tool results, and prior assistant responses — and explain why context accumulates in agentic sessions.</li>
+      <li>Explain the "lost in the middle" problem and articulate why a larger context window doesn't eliminate the need for good context management — it changes the economics and raises the threshold, but the discipline of curating what's in context remains essential for quality.</li>
+      <li>Calculate approximate API costs for a given token volume, explain the input/output token pricing asymmetry and why it exists (serial vs. parallel computation), and describe how prompt caching reduces costs for stable, reused context.</li>
+      <li>Design a high-level chunking strategy for processing documents that exceed practical context limits — explaining how to break the problem into manageable pieces, how to avoid losing cross-chunk context, and how to merge partial results reliably.</li>
+    </ul>
+  </div>
+
+</div>
+</div>
+
+<!-- Footer -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer-inner">
+      <a href="module-f01.html" class="footer-prev">← Module F01</a>
+      <div class="footer-text">AI Foundations Curriculum · Module F02 · Foundation · Updated May 2026</div>
+      <a href="module-f03.html" class="footer-next">Next: Module F03 — APIs →</a>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

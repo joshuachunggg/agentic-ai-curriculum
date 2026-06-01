@@ -1,0 +1,1273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Module F05: Prompts, Instructions, and Model Behavior — AI Foundations</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;500&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;500&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap');
+
+  :root {
+    --bg: #0a0a0f;
+    --surface: #111118;
+    --surface2: #18181f;
+    --border: #2a2a3a;
+    --accent: #7c6af7;
+    --accent2: #f7c36a;
+    --accent3: #6af7d4;
+    --text: #e8e8f0;
+    --muted: #6b6b80;
+    --danger: #f76a6a;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 300;
+    line-height: 1.7;
+    min-height: 100vh;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.4;
+  }
+
+  /* Sticky nav */
+  .top-nav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(10,10,15,0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .top-nav-inner {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 0 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 52px;
+    gap: 1rem;
+  }
+
+  .nav-back {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.05em;
+    color: var(--muted);
+    text-decoration: none;
+    transition: color 0.2s;
+    white-space: nowrap;
+  }
+
+  .nav-back:hover { color: var(--text); }
+
+  .nav-module-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    color: var(--muted);
+    text-transform: uppercase;
+    text-align: center;
+    flex: 1;
+  }
+
+  .nav-next {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.05em;
+    color: var(--muted);
+    text-decoration: none;
+    transition: color 0.2s;
+    white-space: nowrap;
+  }
+
+  .nav-next:hover { color: var(--accent); }
+
+  /* Container */
+  .container {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 0 2rem;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Hero */
+  .hero {
+    padding: 4.5rem 0 3.5rem;
+    border-bottom: 1px solid var(--border);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero::after {
+    content: '';
+    position: absolute;
+    top: -100px;
+    right: -200px;
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, rgba(107,107,128,0.10) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .hero-eyebrow {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.2em;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+  }
+
+  .module-badge {
+    display: inline-block;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.1em;
+    padding: 0.25rem 0.6rem;
+    border-radius: 4px;
+    margin-bottom: 1.2rem;
+    background: rgba(107, 107, 128, 0.2);
+    color: var(--muted);
+    border: 1px solid var(--border);
+  }
+
+  .hero h1 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: clamp(2rem, 4.5vw, 3.2rem);
+    line-height: 1.08;
+    margin-bottom: 1.4rem;
+    letter-spacing: -0.02em;
+  }
+
+  .hero-sub {
+    font-size: 1.05rem;
+    color: #a0a0b8;
+    max-width: 620px;
+    line-height: 1.8;
+    margin-bottom: 2rem;
+  }
+
+  .hero-meta {
+    display: flex;
+    gap: 2.5rem;
+    flex-wrap: wrap;
+  }
+
+  .meta-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+  }
+
+  .meta-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.15em;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+
+  .meta-value {
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    font-size: 1rem;
+    color: var(--text);
+  }
+
+  /* Main content */
+  .content {
+    padding: 4rem 0 6rem;
+  }
+
+  /* Topic sections */
+  .topic-section {
+    margin-bottom: 5rem;
+  }
+
+  .topic-section:last-child {
+    margin-bottom: 0;
+  }
+
+  .section-number {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+  }
+
+  .topic-section h2 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 1.65rem;
+    letter-spacing: -0.01em;
+    line-height: 1.2;
+    margin-bottom: 1.6rem;
+    color: var(--text);
+  }
+
+  .topic-section h3 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    font-size: 1.1rem;
+    letter-spacing: -0.01em;
+    margin-top: 2rem;
+    margin-bottom: 0.8rem;
+    color: var(--text);
+  }
+
+  .topic-section p {
+    font-size: 0.97rem;
+    color: #c8c8d8;
+    line-height: 1.8;
+    margin-bottom: 1.2rem;
+  }
+
+  .topic-section p:last-child {
+    margin-bottom: 0;
+  }
+
+  /* Section divider */
+  .section-divider {
+    height: 1px;
+    background: linear-gradient(to right, transparent, var(--border) 20%, var(--border) 80%, transparent);
+    margin: 4.5rem 0;
+  }
+
+  /* Callout boxes */
+  .callout {
+    border-radius: 10px;
+    padding: 1.3rem 1.6rem;
+    margin: 2rem 0;
+  }
+
+  .callout-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 0.6rem;
+    font-weight: 500;
+  }
+
+  .callout p {
+    font-size: 0.92rem;
+    line-height: 1.75;
+    margin-bottom: 0;
+  }
+
+  .callout p + p {
+    margin-top: 0.8rem;
+  }
+
+  .callout-insight {
+    background: rgba(124,106,247,0.07);
+    border: 1px solid rgba(124,106,247,0.25);
+  }
+
+  .callout-insight .callout-label {
+    color: var(--accent);
+  }
+
+  .callout-insight p {
+    color: #b8b0f0;
+  }
+
+  .callout-mistake {
+    background: rgba(247,106,106,0.07);
+    border: 1px solid rgba(247,106,106,0.25);
+  }
+
+  .callout-mistake .callout-label {
+    color: var(--danger);
+  }
+
+  .callout-mistake p {
+    color: #e0b0b0;
+  }
+
+  .callout-example {
+    background: rgba(106,247,212,0.06);
+    border: 1px solid rgba(106,247,212,0.2);
+  }
+
+  .callout-example .callout-label {
+    color: var(--accent3);
+  }
+
+  .callout-example p {
+    color: #a8e8d8;
+  }
+
+  /* Code blocks */
+  .code-block {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.4rem 1.6rem;
+    margin: 1.6rem 0;
+    overflow-x: auto;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.82rem;
+    line-height: 1.75;
+    color: #c0c0d8;
+  }
+
+  .code-block code {
+    font-family: inherit;
+  }
+
+  /* Code block label */
+  .code-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 0.5rem;
+    margin-top: 1.8rem;
+  }
+
+  /* Prompt anatomy */
+  .prompt-anatomy {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin: 2rem 0;
+  }
+
+  .pa-layer {
+    border-radius: 8px;
+    padding: 1rem 1.2rem;
+    border-left: 3px solid;
+  }
+
+  .pa-system {
+    background: rgba(124,106,247,0.08);
+    border-color: var(--accent);
+  }
+
+  .pa-user {
+    background: var(--surface2);
+    border-color: var(--border);
+  }
+
+  .pa-assistant {
+    background: rgba(107,107,128,0.1);
+    border-color: var(--muted);
+  }
+
+  .pa-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 0.3rem;
+    font-weight: 500;
+  }
+
+  .pa-system .pa-label { color: var(--accent); }
+  .pa-user .pa-label { color: var(--muted); }
+  .pa-assistant .pa-label { color: #6b6b80; }
+
+  .pa-desc {
+    font-size: 0.85rem;
+    color: var(--muted);
+  }
+
+  /* Temperature table */
+  .temp-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 2rem 0;
+    font-size: 0.88rem;
+  }
+
+  .temp-table th {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--accent);
+    background: rgba(124,106,247,0.10);
+    padding: 0.75rem 1rem;
+    text-align: left;
+    border-bottom: 1px solid rgba(124,106,247,0.25);
+  }
+
+  .temp-table td {
+    padding: 0.75rem 1rem;
+    color: #c8c8d8;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface2);
+    vertical-align: top;
+    line-height: 1.6;
+  }
+
+  .temp-table tr:last-child td {
+    border-bottom: none;
+  }
+
+  .temp-table td:first-child {
+    font-weight: 400;
+    color: var(--text);
+  }
+
+  .temp-table td:nth-child(2) {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.8rem;
+    color: var(--accent3);
+    white-space: nowrap;
+  }
+
+  .temp-table td:nth-child(3) {
+    color: var(--muted);
+    font-size: 0.84rem;
+  }
+
+  /* Spectrum visualization */
+  .spectrum-row {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 0.75rem;
+    margin: 2rem 0;
+  }
+
+  @media (max-width: 640px) {
+    .spectrum-row {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .spectrum-item {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .spectrum-item::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+  }
+
+  .spec-1::before { background: var(--muted); opacity: 0.4; }
+  .spec-2::before { background: linear-gradient(to right, var(--muted), var(--accent)); opacity: 0.5; }
+  .spec-3::before { background: var(--accent); opacity: 0.6; }
+  .spec-4::before { background: linear-gradient(to right, var(--accent), var(--accent3)); opacity: 0.7; }
+  .spec-5::before { background: var(--accent3); opacity: 0.9; }
+
+  .spectrum-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 0.4rem;
+  }
+
+  .spectrum-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    font-size: 0.88rem;
+    color: var(--text);
+    margin-bottom: 0.4rem;
+  }
+
+  .spectrum-desc {
+    font-size: 0.75rem;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+
+  /* Pillars grid */
+  .pillars-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+    margin: 2rem 0;
+  }
+
+  @media (max-width: 540px) {
+    .pillars-grid { grid-template-columns: 1fr; }
+  }
+
+  .pillar-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.3rem 1.5rem;
+  }
+
+  .pillar-number {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.15em;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 0.4rem;
+  }
+
+  .pillar-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 1.1rem;
+    margin-bottom: 0.6rem;
+    color: var(--text);
+  }
+
+  .pillar-desc {
+    font-size: 0.85rem;
+    color: #9898b0;
+    line-height: 1.6;
+  }
+
+  /* Prompt comparison blocks */
+  .prompt-compare {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin: 1.6rem 0;
+  }
+
+  .prompt-compare-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 0.4rem;
+  }
+
+  .prompt-compare-poor .prompt-compare-label { color: var(--danger); }
+  .prompt-compare-good .prompt-compare-label { color: var(--accent3); }
+
+  /* Exercise section */
+  .exercise-section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 5rem;
+  }
+
+  .exercise-header {
+    padding: 1.8rem 2rem;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface2);
+  }
+
+  .exercise-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+  }
+
+  .exercise-header h2 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 1.4rem;
+    color: var(--text);
+    margin-bottom: 0.6rem;
+  }
+
+  .exercise-header p {
+    font-size: 0.92rem;
+    color: #9898b0;
+    line-height: 1.7;
+  }
+
+  .exercise-body {
+    padding: 2rem;
+  }
+
+  .system-card {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.3rem 1.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .system-card:last-of-type {
+    margin-bottom: 0;
+  }
+
+  .system-number {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 0.4rem;
+  }
+
+  .system-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    font-size: 0.97rem;
+    color: var(--text);
+    margin-bottom: 0.5rem;
+  }
+
+  .system-desc {
+    font-size: 0.86rem;
+    color: #9898b0;
+    line-height: 1.65;
+    margin-bottom: 0.6rem;
+  }
+
+  .system-prompt {
+    font-size: 0.8rem;
+    color: var(--muted);
+    font-family: 'IBM Plex Mono', monospace;
+    letter-spacing: 0.02em;
+    line-height: 1.5;
+  }
+
+  .facil-section {
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--border);
+  }
+
+  .facil-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    font-size: 1rem;
+    color: var(--text);
+    margin-bottom: 1rem;
+  }
+
+  .facil-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+  }
+
+  .facil-list li {
+    font-size: 0.88rem;
+    color: #9898b0;
+    line-height: 1.65;
+    padding-left: 1.2rem;
+    position: relative;
+  }
+
+  .facil-list li::before {
+    content: '—';
+    position: absolute;
+    left: 0;
+    color: var(--muted);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.75rem;
+  }
+
+  /* Summary section */
+  .summary-section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 2rem 2.2rem;
+    margin-bottom: 4rem;
+  }
+
+  .summary-section h2 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 1.25rem;
+    margin-bottom: 1.3rem;
+    color: var(--text);
+  }
+
+  .summary-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.7rem;
+  }
+
+  .summary-list li {
+    font-size: 0.93rem;
+    color: #b0b0c8;
+    line-height: 1.7;
+    padding-left: 1.5rem;
+    position: relative;
+  }
+
+  .summary-list li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0.58rem;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--muted);
+  }
+
+  /* Footer */
+  .footer {
+    border-top: 1px solid var(--border);
+    padding: 2.5rem 0;
+  }
+
+  .footer-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .footer-text {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.68rem;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+  }
+
+  .footer-next {
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    font-size: 0.92rem;
+    color: var(--accent);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: gap 0.2s;
+  }
+
+  .footer-next:hover { gap: 0.8rem; }
+
+  /* Inline code */
+  code {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.82em;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    padding: 0.1em 0.35em;
+    color: var(--accent3);
+  }
+
+  strong {
+    font-weight: 500;
+    color: var(--text);
+  }
+
+  /* Nav left group */
+  .nav-left {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-shrink: 0;
+  }
+
+  .nav-sep {
+    color: var(--border);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.7rem;
+  }
+</style>
+</head>
+<body>
+
+<!-- Sticky top nav -->
+<nav class="top-nav">
+  <div class="top-nav-inner">
+    <div class="nav-left">
+      <a href="index.html" class="nav-back">← Back to Foundations</a>
+      <span class="nav-sep">|</span>
+      <a href="module-f04.html" class="nav-back">← Module F04</a>
+    </div>
+    <span class="nav-module-label">Module F05 · Prompts &amp; Instructions</span>
+    <a href="module-f06.html" class="nav-next">Next: Module F06 →</a>
+  </div>
+</nav>
+
+<!-- Hero -->
+<div class="hero">
+  <div class="container">
+    <div class="hero-eyebrow">Module F05 · Foundation</div>
+    <div class="module-badge badge-foundation">FOUNDATION</div>
+    <h1>Prompts, Instructions,<br>and Model Behavior</h1>
+    <p class="hero-sub">
+      You will write prompts for every agent you build. Understanding how they influence model behavior — not as folk wisdom but as an engineering discipline — is what separates prompts that work once from prompts that work consistently in production.
+    </p>
+    <div class="hero-meta">
+      <div class="meta-item">
+        <span class="meta-label">Duration</span>
+        <span class="meta-value">3–4 days</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">Level</span>
+        <span class="meta-value">Foundation</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">Exercise</span>
+        <span class="meta-value">Prompt iteration sprint</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">Prerequisite</span>
+        <span class="meta-value">Modules F01–F04</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Main content -->
+<div class="container">
+<div class="content">
+
+  <!-- TOPIC 1 -->
+  <div class="topic-section" id="topic-1">
+    <div class="section-number">Topic 01</div>
+    <h2>The Anatomy of a Prompt</h2>
+
+    <p>Every interaction with a language model has the same underlying structure, whether you're typing into a chat interface or orchestrating a 10-agent pipeline. There are three layers: the system message, the user message, and the conversation history. Most beginners focus entirely on the user message — what they type in. That's the least engineered layer. The leverage lives in the system message, and understanding why is the first step toward prompts that behave reliably.</p>
+
+    <p>The <strong>system message</strong> is sent once, before any conversation, and applies to every response the model produces in that session. Think of it as standing instructions: the model reads these before it reads anything you say. In production systems, the system prompt is typically written by the developer, not the user. It establishes what the model is, what it's supposed to do, what it's not allowed to do, and how it should format its responses. It's where engineering effort belongs.</p>
+
+    <p>The <strong>user message</strong> is what the human — or the calling code — sends each turn. In a consumer chatbot, this is literally what a person types. In an agentic system, the "user" turn often contains no human input at all. It might be a retrieved document, the output of a previous tool call, a task dispatched by an orchestrator, or a chunk of data that needs processing. The model treats everything in the user turn as input from the current interaction, regardless of where it actually came from.</p>
+
+    <p>The <strong>conversation history</strong> is the record of prior turns — alternating user and assistant messages — that the model sees as context for the current response. In multi-turn conversations, this is how the model knows what was said before. In single-turn agent calls (which are very common), there may be no history at all. In long-running agent loops, managing history carefully — what to keep, what to summarize, what to drop — becomes one of the central engineering challenges. That's the context engineering problem introduced in F03.</p>
+
+    <div class="prompt-anatomy">
+      <div class="pa-layer pa-system">
+        <div class="pa-label">System Message</div>
+        <div class="pa-desc">Your instructions, persona, format requirements, and constraints — written by the developer, applied to every turn</div>
+      </div>
+      <div class="pa-layer pa-user">
+        <div class="pa-label">User Message</div>
+        <div class="pa-desc">Transcript / document / question / task — from a human or from orchestrating code</div>
+      </div>
+      <div class="pa-layer pa-assistant">
+        <div class="pa-label">Assistant Message</div>
+        <div class="pa-desc">Prior response (in multi-turn conversations) — part of the history the model reads</div>
+      </div>
+      <div class="pa-layer pa-user">
+        <div class="pa-label">User Message</div>
+        <div class="pa-desc">Next turn — the current input the model is now responding to</div>
+      </div>
+    </div>
+
+    <p>The three-layer structure has a practical consequence that surprises many beginners: the model does not have a separate "mind" for instructions vs. content. Everything — your instructions, the user's question, the transcript you're asking it to summarize — exists in one flat sequence of tokens. The model attends to all of it simultaneously. This is why the placement, clarity, and specificity of your instructions matter so much. A vague instruction buried in a long system prompt will be weighted less than a clear, specific one near the top. Order and phrasing both affect what the model does.</p>
+
+    <div class="callout callout-insight">
+      <div class="callout-label">Key Insight</div>
+      <p>The system prompt is your contract with the model. Everything in it applies to every message. Well-designed system prompts specify: what the model is (persona), what it should do (task), what constraints it operates under (limits), and what format to respond in. Missing any of these — the model fills in defaults that may not be what you want.</p>
+    </div>
+
+    <p>Our running example for this module is Maya. She's built a meeting summarizer that technically works: paste in a transcript, get a summary. The problem is that the output format changes on every run. Sometimes bullet points, sometimes prose paragraphs. Sometimes three action items, sometimes twelve. Sometimes the model invents an owner for a task nobody was assigned. Maya can't parse this output programmatically. She can't trust it in production. Everything in this module teaches her — and you — how to fix that, layer by layer.</p>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <!-- TOPIC 2 -->
+  <div class="topic-section" id="topic-2">
+    <div class="section-number">Topic 02</div>
+    <h2>How Models Follow Instructions: Instruction Tuning Explained</h2>
+
+    <p>A language model fresh off pretraining doesn't follow instructions. It continues text. Show it "Summarize this meeting:" and it will likely generate more meeting content, not a summary — because statistically, text that looks like that tends to be followed by more of the same kind of text. The instruction-following behavior you rely on every day is not a property of the base model. It was trained in afterward.</p>
+
+    <p>That training process is called <strong>instruction tuning</strong> (sometimes called supervised fine-tuning, or SFT). The model is trained on large datasets of (instruction → good response) pairs: thousands of examples of prompts followed by the kind of response a knowledgeable, helpful assistant would give. The model learns, through gradient descent, to associate the pattern "someone has given me an instruction" with "produce a response that completes that instruction." This is why models like GPT-4, Claude, and Gemini behave fundamentally differently from the base models they were built on.</p>
+
+    <p>After instruction tuning comes <strong>reinforcement learning from human feedback</strong> (RLHF), which refines the model further using human preferences. Human raters compare pairs of model responses and indicate which one is better — more helpful, more accurate, better formatted, safer. The model is trained to produce responses that a human rater would prefer. This is where a lot of the polished, conversational quality of modern models comes from. It's also where models learn to be cautious about certain requests, hedge uncertainty, and match common conventions around tone and format.</p>
+
+    <p>There's an important implication for how you write prompts. The system prompt, in practice, carries more interpretive weight than the user message. Models are trained to treat the system prompt as higher-authority instructions — closer to "what the developer wants" and further from "what the user just typed." This hierarchy matters in practice: if your system prompt says "respond only in English" and a user writes in French, the model will generally follow the system prompt. If there's a contradiction, the system prompt usually wins. You can use this. It means well-designed system prompts can override user inputs that would otherwise steer the model in unwanted directions.</p>
+
+    <p>The key word here is <em>probabilistic</em>. Instruction-following is a learned behavior, not a mechanical one. The model is more likely to follow your instructions when they are specific, unambiguous, and phrased in patterns that resemble the training data it learned from. "Respond only in valid JSON" is more reliably followed than "please try to use JSON if you can." Specific constraints are more reliably followed than vague aspirational ones. Short, clear sentences are more reliably followed than long, nested ones. These aren't arbitrary stylistic preferences — they reflect how instruction-following actually works at a technical level.</p>
+
+    <div class="callout callout-insight">
+      <div class="callout-label">Key Insight</div>
+      <p>Instruction-following is a learned capability, not a mechanical one. The model is more likely to comply with clear, specific, format-constrained instructions than vague aspirational ones. "Always respond in valid JSON" is more likely to be followed than "respond in the format I prefer."</p>
+    </div>
+
+    <p>This is also why iterating on prompts is a legitimate engineering discipline, not just trial and error. When a model doesn't follow an instruction, the question isn't "why is the model broken" — it's "how can I write this instruction so it's clearer, more specific, and more consistent with the patterns the model learned to follow." That's a diagnostic question with systematic answers. We'll practice this in the exercise at the end of this module.</p>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <!-- TOPIC 3 -->
+  <div class="topic-section" id="topic-3">
+    <div class="section-number">Topic 03</div>
+    <h2>System Prompts: Your Engineering Layer</h2>
+
+    <p>Most teams underinvest in system prompt design. They write a sentence or two, notice the model mostly works, and move on. Then they hit production and find that the model's output varies widely, breaks in edge cases they didn't anticipate, and produces output that downstream code can't parse. The system prompt is where you prevent all of that — and fixing it later is harder than getting it right the first time.</p>
+
+    <p>A well-designed system prompt has five elements. First, <strong>identity and persona</strong>: who the model is in this context. Not a general "helpful assistant" — a specific actor with a specific role. "You are a meeting summarizer for Acme Corp." This grounds every response in a specific context. Second, <strong>task definition</strong>: what the model is supposed to do with the input it receives. Third, <strong>constraints</strong> — what the model should not do, what it should not infer, what it should not invent. Constraints are as important as the task description; they define the boundary of acceptable behavior. Fourth, <strong>format specification</strong>: the exact shape of the output. If you need JSON, say so, show the schema. If you need bullet points under specific headers, specify the headers. The more precisely you describe the format, the more consistently the model will produce it. Fifth, <strong>edge case handling</strong>: what the model should do when the input is ambiguous, malformed, empty, or doesn't fit the expected pattern. Models that hit edge cases without instructions will improvise — and improvisation is what you're trying to avoid.</p>
+
+    <p>The difference between a vague system prompt and a well-specified one is not stylistic. It's the difference between output Maya can parse programmatically and output she has to read manually every time. Here's what that looks like in practice.</p>
+
+    <div class="code-label">Poor system prompt — too vague</div>
+    <pre class="code-block"><code>You are a helpful AI assistant. Summarize meetings accurately and be concise.</code></pre>
+
+    <div class="code-label">Well-designed system prompt — Maya's meeting summarizer</div>
+    <pre class="code-block"><code>System: You are a meeting summarizer for Acme Corp.
+
+Your task: Extract structured information from meeting transcripts.
+
+Output format: Respond ONLY with a valid JSON object. No prose outside the JSON.
+{
+  "summary": "string (max 150 words)",
+  "action_items": [
+    {
+      "task": "string",
+      "owner": "string (exact name from transcript)",
+      "due_date": "string (ISO date or 'unspecified')"
+    }
+  ],
+  "attendees": ["string"],
+  "decisions": ["string"]
+}
+
+Constraints:
+- Only attribute action items to people explicitly named in the transcript
+- If a due date is not mentioned, use "unspecified"
+- If a field has no data, return an empty array or empty string, not null
+- Do not include discussion points that did not result in a decision or action item
+
+Edge case handling:
+If the transcript is empty or too short to contain meaningful content, return:
+{"summary": "Insufficient transcript content", "action_items": [], "attendees": [], "decisions": []}</code></pre>
+
+    <p>Compare these two. The first one leaves the model to decide what "accurate" and "concise" mean, what format to use, how many action items to include, whether to invent owners when none are specified, and what to do with an empty transcript. The second removes all of that ambiguity. The model now has a clear schema, explicit constraints, and an explicit fallback. The output of the second version can be parsed with <code>JSON.parse()</code> on the first try. The output of the first version cannot.</p>
+
+    <p>One additional technique that becomes essential in production: <strong>dynamic variable injection</strong>. Static system prompts treat every invocation as identical. Real use cases often need context that changes per call: today's date (so the model can use relative time references), the list of people expected in the meeting (so the model knows whose names to watch for), the company's internal project codes (so the model recognizes them as action item labels). Inject these as variables at call time, before the system prompt is sent. A typical pattern is to have a base template with slots — <code>{{TODAY_DATE}}</code>, <code>{{KNOWN_ATTENDEES}}</code> — that your application layer fills in before each API call. This keeps the core instructions stable while making each call contextually aware.</p>
+
+    <div class="callout callout-mistake">
+      <div class="callout-label">Common Mistake</div>
+      <p>Writing a system prompt that says "Be helpful, accurate, and concise." This gives the model almost no constraint. Replace vague instructions with specific ones: "Respond only in valid JSON. Do not include any prose outside the JSON object. The JSON must contain exactly these fields: summary, action_items, attendees, decisions." Specific wins over aspirational every time.</p>
+    </div>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <!-- TOPIC 4 -->
+  <div class="topic-section" id="topic-4">
+    <div class="section-number">Topic 04</div>
+    <h2>Temperature and Sampling: Controlling Randomness</h2>
+
+    <p>When a language model generates a response, it's not retrieving a stored answer — it's sampling from a probability distribution over possible next tokens, one token at a time. Temperature is the parameter that controls how concentrated or spread out that distribution is. At temperature 0, the model always picks the single most probable next token. At higher temperatures, lower-probability tokens get a proportionally larger chance of being selected, which produces more varied, less predictable output.</p>
+
+    <p>This has a direct and practical implication: temperature is not a quality dial. It's a diversity dial. Turning it down doesn't make the model smarter or more accurate — it makes the model more consistent. Turning it up doesn't make the model more creative in some deep sense — it makes it more willing to select lower-probability, less expected tokens, which sometimes produces novel output and sometimes produces incorrect or incoherent output. The right temperature depends entirely on what you need the output to do.</p>
+
+    <p>For Maya's meeting summarizer, the correct temperature is 0 or very close to it. She needs the output to be valid JSON, every single time, on every single call, with the same fields in the same structure. Variance is not a feature here — it's a bug. Any deviation from the expected JSON structure means her downstream code fails. Low temperature eliminates the probability mass on unusual output shapes and concentrates it on the expected format.</p>
+
+    <table class="temp-table">
+      <thead>
+        <tr>
+          <th>Task type</th>
+          <th>Recommended temperature</th>
+          <th>Why</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Structured JSON output</td>
+          <td>0–0.1</td>
+          <td>Format violations are bugs. Minimize variance.</td>
+        </tr>
+        <tr>
+          <td>Factual summarization</td>
+          <td>0.1–0.3</td>
+          <td>Accuracy over variety. Slight warmth avoids robotic phrasing.</td>
+        </tr>
+        <tr>
+          <td>Analysis / classification</td>
+          <td>0.2–0.5</td>
+          <td>Some nuance is acceptable; consistency still matters.</td>
+        </tr>
+        <tr>
+          <td>Customer-facing responses</td>
+          <td>0.5–0.7</td>
+          <td>Natural, human-sounding tone. Some response variation is fine.</td>
+        </tr>
+        <tr>
+          <td>Brainstorming</td>
+          <td>0.7–1.0</td>
+          <td>Variety is the goal. Explore the distribution.</td>
+        </tr>
+        <tr>
+          <td>Creative writing</td>
+          <td>0.8–1.2</td>
+          <td>Novelty matters. Unexpected word choices can be valuable.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p>Two related parameters are worth knowing. <strong>Top-p</strong> (nucleus sampling) caps the pool of tokens the model samples from to those that collectively account for a given probability mass — at top-p 0.9, the model only samples from tokens whose combined probability is 90%, ignoring the long tail. This is a softer constraint than temperature alone and works well when you want variety but want to prevent genuinely unlikely tokens. <strong>Top-k</strong> is simpler: it limits the pool to the k most probable tokens, regardless of their individual probabilities. In practice, most production systems set temperature and leave top-p and top-k at their defaults, unless they have a specific reason to tune the sampling distribution further.</p>
+
+    <p>One practical caution: temperature 0 is not literally deterministic on all implementations. Floating-point arithmetic and hardware differences can produce slight variation even at temperature 0. If your application absolutely requires reproducible output (for testing, for example), use temperature 0 and compare outputs at the semantic level rather than expecting character-for-character identity across runs.</p>
+
+    <div class="callout callout-insight">
+      <div class="callout-label">Key Insight</div>
+      <p>Temperature is not a quality dial — it's a diversity dial. Turning it down doesn't make the model smarter. It makes it more consistent. For agent systems where you need reliable parseable output on every call, temperature 0 is almost always correct. Save higher temperatures for explicitly creative use cases.</p>
+    </div>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <!-- TOPIC 5 -->
+  <div class="topic-section" id="topic-5">
+    <div class="section-number">Topic 05</div>
+    <h2>Few-Shot Examples: Showing the Model What You Want</h2>
+
+    <p>There are three basic prompting strategies, named for how many examples you include. <strong>Zero-shot</strong> prompting provides instructions only — no examples. <strong>One-shot</strong> includes one complete example of the input and the expected output. <strong>Few-shot</strong> includes two to five examples. The model uses the examples to infer the pattern you want, filling in details that your instructions may not have fully specified. This is a form of in-context learning — the model is updating its interpretation of the task based on the examples, without any weight updates.</p>
+
+    <p>When should you use examples instead of, or in addition to, detailed instructions? The clearest case is when the output format is complex and hard to describe precisely in prose. Describing a nested JSON schema in words is possible but error-prone; showing one complete example of a valid output is unambiguous. The second case is when the task involves conventions that are unusual or domain-specific — the model may not have seen enough of them in training to infer what you want from instructions alone. The third case is when you've written a detailed system prompt and the model is still producing inconsistent output — adding a well-chosen example often stabilizes behavior faster than adding more instructions.</p>
+
+    <p>Example quality matters as much as example quantity. A poor example teaches poor behavior. If your one-shot example contains a field with a value of <code>null</code> when you actually want an empty array, the model will learn to return <code>null</code>. If your example uses a slightly different field name than your schema, the model will use that name sometimes. The example is the ground truth the model pattern-matches against — it needs to be exactly what you want, in exactly the format you want it.</p>
+
+    <p>Here's the practical difference for Maya's summarizer. Without an example, even a detailed system prompt leaves room for interpretation about how the JSON is formatted, what counts as a decision vs. a discussion point, and how action item descriptions should be phrased. With one well-chosen example, all of that is disambiguated.</p>
+
+    <div class="code-label">Before — zero-shot (no example)</div>
+    <pre class="code-block"><code>System: You are a meeting summarizer for Acme Corp.
+Output format: Respond only with a valid JSON object containing
+summary, action_items, attendees, and decisions.
+
+User: [transcript of Q3 planning call...]
+
+// Output: varies. Sometimes prose bleeds in. Sometimes action_items
+// contains 1 entry, sometimes 8. "owner" field sometimes null,
+// sometimes "N/A", sometimes missing entirely.
+// Downstream JSON.parse() fails intermittently.</code></pre>
+
+    <div class="code-label">After — one-shot (one complete example added to system prompt)</div>
+    <pre class="code-block"><code>System: You are a meeting summarizer for Acme Corp.
+Output format: Respond only with a valid JSON object. No prose outside the JSON.
+
+Here is an example of a correctly formatted response:
+
+Input transcript excerpt:
+"...Sarah said she'd have the budget proposal ready by Friday.
+Jake will follow up with legal by EOD Thursday.
+We decided to delay the product launch to Q4..."
+
+Expected output:
+{
+  "summary": "Team aligned on Q4 product launch delay. Budget and legal tasks assigned with near-term deadlines.",
+  "action_items": [
+    {"task": "Finalize budget proposal", "owner": "Sarah", "due_date": "2026-06-06"},
+    {"task": "Follow up with legal team", "owner": "Jake", "due_date": "2026-06-05"}
+  ],
+  "attendees": ["Sarah", "Jake"],
+  "decisions": ["Product launch delayed to Q4"]
+}
+
+Now process the following transcript and respond with a JSON object in exactly this format.
+
+User: [transcript of Q3 planning call...]
+
+// Output: consistent. Valid JSON every time. Fields match the schema.
+// Downstream JSON.parse() succeeds. action_items uses exact names.
+// Decisions are decisions, not discussion points.</code></pre>
+
+    <div class="callout callout-insight">
+      <div class="callout-label">Key Insight</div>
+      <p>A single well-chosen example often does more work than a paragraph of instructions. When the output format is complex or conventions are hard to describe, include at least one complete example. The model will pattern-match against it. This is especially important in agent systems where output will be parsed programmatically.</p>
+    </div>
+
+    <p>Two nuances worth knowing. First, few-shot examples occupy context window space — in high-volume production systems, you're paying for every token in every system prompt on every call. A 500-token example in a system prompt that's called 100,000 times per day is 50 million tokens of example overhead per day. Keep examples as concise as they can be while still being unambiguous. Second, when using few-shot examples with real data, make sure the examples are representative of the actual input distribution. An example that's atypically short or clean will cause the model to handle messy real-world transcripts less consistently than an example drawn from actual data.</p>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <!-- TOPIC 6 -->
+  <div class="topic-section" id="topic-6">
+    <div class="section-number">Topic 06</div>
+    <h2>Structured Output: Getting Machine-Readable Responses</h2>
+
+    <p>Getting a language model to produce structured output that a downstream system can reliably parse is one of the most common practical challenges in building AI tools. The model was trained primarily on natural language — prose, dialogue, code. Getting it to produce perfectly valid JSON, every single time, with exactly the right fields, takes deliberate effort. There are three methods, in increasing order of reliability.</p>
+
+    <p>The first method is <strong>system prompt instruction with low temperature</strong>. This is what we've been building toward in this module: specify the exact output format in the system prompt, optionally add a one-shot example, and set temperature to 0 or near 0. This works well in most cases. The limitation is that the model is still generating text freely — it's just been instructed to make that text look like JSON. Occasionally it will add a preamble ("Here is the JSON output:"), put extra whitespace in unusual places, or, in rare cases, produce slightly malformed JSON when the content is ambiguous or the context window is very long. In practice, this method handles 95–99% of calls correctly, which may be sufficient for many applications.</p>
+
+    <p>The second method is <strong>JSON mode</strong>, available as an API parameter on most major model providers. When JSON mode is enabled, the model's decoding is constrained such that the output is guaranteed to be valid JSON — the provider enforces this at the generation level, not just through instructions. This eliminates the risk of preamble text or syntactically malformed JSON. What it does not guarantee is that the JSON matches your specific schema — the model might produce a valid JSON object with different field names, missing fields, or additional fields you didn't ask for. JSON mode is a significant improvement over pure instruction-based prompting for format reliability, but it's not a complete solution when you need a specific schema.</p>
+
+    <p>The third method — and the most reliable — is <strong>structured output via response schema or tool use</strong>. This goes by different names depending on the provider: "structured output" (OpenAI), "tool use" or "response schema" (Anthropic and others). The principle is the same: you provide a JSON Schema definition of exactly the object you expect, and the model's decoding is constrained to only produce tokens that could be valid according to that schema. The model cannot produce a response that violates the schema — it's enforced at the token selection level. This is the right method for any production system where downstream code depends on parsing the output.</p>
+
+    <p>Here's Maya's full JSON Schema for the meeting summarizer, and a valid response conforming to it.</p>
+
+    <div class="code-label">JSON Schema definition</div>
+    <pre class="code-block"><code>{
+  "type": "object",
+  "required": ["summary", "action_items", "attendees", "decisions"],
+  "properties": {
+    "summary": {
+      "type": "string"
+    },
+    "action_items": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["task", "owner", "due_date"],
+        "properties": {
+          "task":     {"type": "string"},
+          "owner":    {"type": "string"},
+          "due_date": {"type": "string"}
+        }
+      }
+    },
+    "attendees": {
+      "type": "array",
+      "items": {"type": "string"}
+    },
+    "decisions": {
+      "type": "array",
+      "items": {"type": "string"}
+    }
+  }
+}</code></pre>
+
+    <div class="code-label">Valid response conforming to the schema</div>
+    <pre class="code-block"><code>{
+  "summary": "Q3 planning call focused on launch timing and resource allocation. Team agreed to delay product launch to Q4 and assigned pre-launch tasks to Sarah and Jake. Legal review is the critical path item.",
+  "action_items": [
+    {
+      "task": "Finalize and submit budget proposal",
+      "owner": "Sarah",
+      "due_date": "2026-06-06"
+    },
+    {
+      "task": "Complete legal review of product launch materials",
+      "owner": "Jake",
+      "due_date": "2026-06-05"
+    }
+  ],
+  "attendees": ["Sarah Chen", "Jake Morrison", "Priya Anand", "Marcus Webb"],
+  "decisions": [
+    "Product launch delayed from Q3 to Q4 2026",
+    "Legal review required before any public-facing launch materials are released"
+  ]
+}</code></pre>
+
+    <p>Using a schema enforces the structure, but it doesn't automatically make the content correct. The model might fill a required <code>owner</code> field with a name it infers rather than a name that appears in the transcript. It might summarize inaccurately. Schema enforcement solves the format problem — the machine-readability problem. The content accuracy problem is separate and is addressed through good system prompt constraints, good examples, and evaluation (covered in later modules).</p>
+
+    <p>Regardless of which method you use, always validate programmatically. Parse the response as JSON, confirm all required fields are present, confirm types are correct, and fail loudly when validation fails. Do not propagate malformed data silently downstream — a silent failure in a data pipeline is far harder to debug than a loud one at the point of generation. When validation fails, log the raw model output alongside the input that produced it. That's your debugging data for improving the prompt.</p>
+
+    <div class="callout callout-insight">
+      <div class="callout-label">Key Insight</div>
+      <p>The three methods form a hierarchy: instruction + low temperature gives you good behavior most of the time; JSON mode gives you valid JSON always; response schema gives you the exact structure you specified, always. For any agent system that parses model output in code, use the highest-reliability method your provider supports. Catching format failures at generation time is always cheaper than catching them after bad data has propagated through your system.</p>
+    </div>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <!-- EXERCISE SECTION -->
+  <div class="exercise-section" id="exercise">
+    <div class="exercise-header">
+      <div class="exercise-label">Module F05 · Hands-On Lab</div>
+      <h2>The Prompt Iteration Sprint</h2>
+      <p>Five rounds, same meeting summarization task, documented improvements each round. Use a real meeting transcript if you have one — an actual internal Zoom or Teams transcript works better than a synthetic one, because real transcripts are messier. If you don't have one, generate a synthetic transcript of a 10-person planning meeting with at least three action items, two decisions, and some ambiguous discussion.</p>
+    </div>
+
+    <div class="exercise-body">
+
+      <div class="system-card">
+        <div class="system-number">Round 01</div>
+        <div class="system-title">Baseline — no format guidance</div>
+        <div class="system-desc">Use only: "Summarize this meeting." Paste in your transcript as the user message. Record the full output verbatim. Do not edit it. This is your baseline.</div>
+        <div class="system-prompt">Document: What format did the model choose? How many action items did it find? How did it handle missing information (no owner, no due date)? Did it add anything you didn't ask for?</div>
+      </div>
+
+      <div class="system-card">
+        <div class="system-number">Round 02</div>
+        <div class="system-title">Add format requirements</div>
+        <div class="system-desc">Update the system prompt to specify output format: separate sections for Summary, Action Items (bullet list), Decisions, and Attendees. Run on the same transcript. Record the output.</div>
+        <div class="system-prompt">Document: What changed vs. Round 1? Did the model follow the structure? What remained inconsistent? If you ran it a second time, did you get the same structure?</div>
+      </div>
+
+      <div class="system-card">
+        <div class="system-number">Round 03</div>
+        <div class="system-title">Add constraints</div>
+        <div class="system-desc">Add explicit constraints to your Round 2 system prompt: only attribute action items to people explicitly named in the transcript; use "TBD" for missing due dates; do not include discussion points that did not result in a decision or action. Run on the same transcript.</div>
+        <div class="system-prompt">Document: What changed? Did the model stop inventing owners? Did it handle the "TBD" instruction correctly? Are there any constraints that don't seem to be working?</div>
+      </div>
+
+      <div class="system-card">
+        <div class="system-number">Round 04</div>
+        <div class="system-title">Switch to JSON output + one-shot example</div>
+        <div class="system-desc">Replace the prose format instructions with a JSON schema in the system prompt. Add one complete example: a short synthetic transcript excerpt and the exact JSON output you want. Set temperature to 0.2. Run on the same transcript.</div>
+        <div class="system-prompt">Document: Is the output valid JSON? Does it parse without errors? Do the fields match your schema? Does the example seem to have changed the model's behavior compared to Round 3?</div>
+      </div>
+
+      <div class="system-card">
+        <div class="system-number">Round 05</div>
+        <div class="system-title">JSON mode + temperature 0.1, consistency test</div>
+        <div class="system-desc">Enable JSON mode (if your API supports it) or use a response schema. Reduce temperature to 0.1. Run the same transcript three times in a row without changing anything. Validate each output with jsonlint.com or a JSON validator of your choice.</div>
+        <div class="system-prompt">Document: Did all three outputs pass JSON validation? Are the outputs semantically consistent (same action items, same owners, same decisions)? If they differ, where do they differ and why?</div>
+      </div>
+
+      <!-- Facilitation guide -->
+      <div class="facil-section">
+        <div class="facil-title">Facilitation Notes</div>
+        <ul class="facil-list">
+          <li>Use a real transcript if at all possible. Real transcripts are messy: people interrupt, names are spelled inconsistently, action items are implied rather than stated. A synthetic transcript will underrepresent the problems you'll face in production.</li>
+          <li>The Round 3 to Round 4 jump (adding JSON format plus a one-shot example) is typically the biggest behavioral improvement. If it's not producing a jump for your group, the example quality is likely the issue — examine whether the example is truly representative and correctly formatted.</li>
+          <li>Round 4 to Round 5 (JSON mode plus lower temperature) typically improves consistency rather than correctness. If outputs are still inconsistent at temperature 0.1, the issue is usually an under-specified system prompt or an ambiguous edge case in the transcript, not the temperature setting.</li>
+          <li>Ask participants to write down, after Round 5: which single change across all five rounds had the biggest impact? For most participants, the answer is either adding the JSON schema (Round 4) or adding explicit constraints about ownership attribution (Round 3). The answer tells them where to invest their prompting effort on future tasks.</li>
+          <li>Close with a discussion of the validation step. What happens if you don't validate? Walk through what downstream failures look like when a malformed JSON object is passed to code that expects a valid one. Silent failures are expensive — make the point that failing loudly at generation time is always preferable.</li>
+          <li>If time allows, have participants introduce one deliberate edge case: an empty transcript, a transcript where no one is named, or a transcript where someone is mentioned but no action item is assigned to them. This pressure-tests the edge case handling they wrote in Round 3.</li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- SUMMARY SECTION -->
+  <div class="summary-section" id="summary">
+    <h2>By the End of This Module, You Should Be Able To...</h2>
+    <ul class="summary-list">
+      <li>Explain the three prompt layers — system message, user message, and conversation history — and describe each one's role and where engineering leverage lives.</li>
+      <li>Describe how instruction tuning and RLHF produce instruction-following behavior, and explain why system prompt instructions carry higher authority than user messages.</li>
+      <li>Write a well-structured system prompt with all five elements: identity/persona, task definition, constraints, format specification, and edge case handling.</li>
+      <li>Select the appropriate temperature for a given task — temperature 0 for structured output and factual extraction, 0.5–0.7 for conversational responses, 0.8–1.0 for brainstorming and creative writing.</li>
+      <li>Explain the difference between zero-shot, one-shot, and few-shot prompting, and identify the conditions under which adding examples beats adding more instructions.</li>
+      <li>Design a JSON output schema for a production use case and explain the three levels of structured output enforcement: system prompt instruction, JSON mode, and response schema.</li>
+      <li>Iterate on a prompt systematically — diagnosing what's wrong after each run and identifying which type of change (constraint, format spec, example, temperature) fixes each specific class of problem.</li>
+    </ul>
+  </div>
+
+</div>
+</div>
+
+<!-- Footer -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer-inner">
+      <div class="footer-text">AI Foundations Curriculum · Module F05 · Foundation · Updated May 2026</div>
+      <a href="module-f06.html" class="footer-next">Next: Module F06 — Failure Modes →</a>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

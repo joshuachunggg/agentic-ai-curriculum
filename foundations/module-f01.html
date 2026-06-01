@@ -1,0 +1,1318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Module F01: What Language Models Actually Are — AI Foundations</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;500&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;500&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap');
+
+  :root {
+    --bg: #0a0a0f;
+    --surface: #111118;
+    --surface2: #18181f;
+    --border: #2a2a3a;
+    --accent: #7c6af7;
+    --accent2: #f7c36a;
+    --accent3: #6af7d4;
+    --text: #e8e8f0;
+    --muted: #6b6b80;
+    --danger: #f76a6a;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 300;
+    line-height: 1.7;
+    min-height: 100vh;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.4;
+  }
+
+  /* Sticky nav */
+  .top-nav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(10,10,15,0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .top-nav-inner {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 0 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 52px;
+    gap: 1rem;
+  }
+
+  .nav-back {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.05em;
+    color: var(--muted);
+    text-decoration: none;
+    transition: color 0.2s;
+    white-space: nowrap;
+  }
+
+  .nav-back:hover { color: var(--text); }
+
+  .nav-module-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    color: var(--muted);
+    text-transform: uppercase;
+    text-align: center;
+    flex: 1;
+  }
+
+  .nav-next {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.05em;
+    color: var(--muted);
+    text-decoration: none;
+    transition: color 0.2s;
+    white-space: nowrap;
+  }
+
+  .nav-next:hover { color: var(--accent); }
+
+  /* Container */
+  .container {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 0 2rem;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Hero */
+  .hero {
+    padding: 4.5rem 0 3.5rem;
+    border-bottom: 1px solid var(--border);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero::after {
+    content: '';
+    position: absolute;
+    top: -100px;
+    right: -200px;
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, rgba(107,107,128,0.10) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .hero-eyebrow {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.2em;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+  }
+
+  .module-badge {
+    display: inline-block;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.1em;
+    padding: 0.25rem 0.6rem;
+    border-radius: 4px;
+    margin-bottom: 1.2rem;
+    background: rgba(107, 107, 128, 0.2);
+    color: var(--muted);
+    border: 1px solid var(--border);
+  }
+
+  .badge-foundation {
+    background: rgba(107, 107, 128, 0.2);
+    color: var(--muted);
+    border: 1px solid var(--border);
+  }
+
+  .hero h1 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: clamp(2rem, 4.5vw, 3.2rem);
+    line-height: 1.08;
+    margin-bottom: 1.4rem;
+    letter-spacing: -0.02em;
+  }
+
+  .hero-sub {
+    font-size: 1.05rem;
+    color: #a0a0b8;
+    max-width: 620px;
+    line-height: 1.8;
+    margin-bottom: 2rem;
+  }
+
+  .hero-meta {
+    display: flex;
+    gap: 2.5rem;
+    flex-wrap: wrap;
+  }
+
+  .meta-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+  }
+
+  .meta-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.15em;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+
+  .meta-value {
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    font-size: 1rem;
+    color: var(--text);
+  }
+
+  /* Main content */
+  .content {
+    padding: 4rem 0 6rem;
+  }
+
+  /* Topic sections */
+  .topic-section {
+    margin-bottom: 5rem;
+  }
+
+  .topic-section:last-child {
+    margin-bottom: 0;
+  }
+
+  .section-number {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+  }
+
+  .topic-section h2 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 1.65rem;
+    letter-spacing: -0.01em;
+    line-height: 1.2;
+    margin-bottom: 1.6rem;
+    color: var(--text);
+  }
+
+  .topic-section h3 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    font-size: 1.1rem;
+    letter-spacing: -0.01em;
+    margin-top: 2rem;
+    margin-bottom: 0.8rem;
+    color: var(--text);
+  }
+
+  .topic-section p {
+    font-size: 0.97rem;
+    color: #c8c8d8;
+    line-height: 1.8;
+    margin-bottom: 1.2rem;
+  }
+
+  .topic-section p:last-child {
+    margin-bottom: 0;
+  }
+
+  /* Section divider */
+  .section-divider {
+    height: 1px;
+    background: linear-gradient(to right, transparent, var(--border) 20%, var(--border) 80%, transparent);
+    margin: 4.5rem 0;
+  }
+
+  /* Callout boxes */
+  .callout {
+    border-radius: 10px;
+    padding: 1.3rem 1.6rem;
+    margin: 2rem 0;
+  }
+
+  .callout-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 0.6rem;
+    font-weight: 500;
+  }
+
+  .callout p {
+    font-size: 0.92rem;
+    line-height: 1.75;
+    margin-bottom: 0;
+  }
+
+  .callout p + p {
+    margin-top: 0.8rem;
+  }
+
+  .callout-insight {
+    background: rgba(124,106,247,0.07);
+    border: 1px solid rgba(124,106,247,0.25);
+  }
+
+  .callout-insight .callout-label {
+    color: var(--accent);
+  }
+
+  .callout-insight p {
+    color: #b8b0f0;
+  }
+
+  .callout-mistake {
+    background: rgba(247,106,106,0.07);
+    border: 1px solid rgba(247,106,106,0.25);
+  }
+
+  .callout-mistake .callout-label {
+    color: var(--danger);
+  }
+
+  .callout-mistake p {
+    color: #e0b0b0;
+  }
+
+  .callout-example {
+    background: rgba(106,247,212,0.06);
+    border: 1px solid rgba(106,247,212,0.2);
+  }
+
+  .callout-example .callout-label {
+    color: var(--accent3);
+  }
+
+  .callout-example p {
+    color: #a8e8d8;
+  }
+
+  /* Code blocks */
+  .code-block {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.4rem 1.6rem;
+    margin: 1.6rem 0;
+    overflow-x: auto;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.82rem;
+    line-height: 1.75;
+    color: #c0c0d8;
+  }
+
+  .code-block code {
+    font-family: inherit;
+  }
+
+  /* Spectrum visualization */
+  .spectrum-row {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 0.75rem;
+    margin: 2rem 0;
+  }
+
+  @media (max-width: 640px) {
+    .spectrum-row {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .spectrum-item {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .spectrum-item::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+  }
+
+  .spec-1::before { background: var(--muted); opacity: 0.4; }
+  .spec-2::before { background: linear-gradient(to right, var(--muted), var(--accent)); opacity: 0.5; }
+  .spec-3::before { background: var(--accent); opacity: 0.6; }
+  .spec-4::before { background: linear-gradient(to right, var(--accent), var(--accent3)); opacity: 0.7; }
+  .spec-5::before { background: var(--accent3); opacity: 0.9; }
+
+  .spectrum-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 0.4rem;
+  }
+
+  .spectrum-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    font-size: 0.88rem;
+    color: var(--text);
+    margin-bottom: 0.4rem;
+  }
+
+  .spectrum-desc {
+    font-size: 0.75rem;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+
+  /* Pillars grid */
+  .pillars-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+    margin: 2rem 0;
+  }
+
+  @media (max-width: 540px) {
+    .pillars-grid { grid-template-columns: 1fr; }
+  }
+
+  .pillar-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.3rem 1.5rem;
+  }
+
+  .pillar-number {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.15em;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 0.4rem;
+  }
+
+  .pillar-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 1.1rem;
+    margin-bottom: 0.6rem;
+    color: var(--text);
+  }
+
+  .pillar-desc {
+    font-size: 0.85rem;
+    color: #9898b0;
+    line-height: 1.6;
+  }
+
+  .pillar-missing {
+    margin-top: 0.8rem;
+    padding-top: 0.8rem;
+    border-top: 1px solid var(--border);
+    font-size: 0.78rem;
+    color: var(--danger);
+    font-family: 'IBM Plex Mono', monospace;
+    letter-spacing: 0.02em;
+  }
+
+  /* Exercise section */
+  .exercise-section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 5rem;
+  }
+
+  .exercise-header {
+    padding: 1.8rem 2rem;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface2);
+  }
+
+  .exercise-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+  }
+
+  .exercise-header h2 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 1.4rem;
+    color: var(--text);
+    margin-bottom: 0.6rem;
+  }
+
+  .exercise-header p {
+    font-size: 0.92rem;
+    color: #9898b0;
+    line-height: 1.7;
+  }
+
+  .exercise-body {
+    padding: 2rem;
+  }
+
+  .system-card {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.3rem 1.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .system-card:last-of-type {
+    margin-bottom: 0;
+  }
+
+  .system-number {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 0.4rem;
+  }
+
+  .system-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    font-size: 0.97rem;
+    color: var(--text);
+    margin-bottom: 0.5rem;
+  }
+
+  .system-desc {
+    font-size: 0.86rem;
+    color: #9898b0;
+    line-height: 1.65;
+    margin-bottom: 0.6rem;
+  }
+
+  .system-prompt {
+    font-size: 0.8rem;
+    color: var(--muted);
+    font-family: 'IBM Plex Mono', monospace;
+    letter-spacing: 0.02em;
+    line-height: 1.5;
+  }
+
+  .facil-section {
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--border);
+  }
+
+  .facil-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    font-size: 1rem;
+    color: var(--text);
+    margin-bottom: 1rem;
+  }
+
+  .facil-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+  }
+
+  .facil-list li {
+    font-size: 0.88rem;
+    color: #9898b0;
+    line-height: 1.65;
+    padding-left: 1.2rem;
+    position: relative;
+  }
+
+  .facil-list li::before {
+    content: '—';
+    position: absolute;
+    left: 0;
+    color: var(--muted);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.75rem;
+  }
+
+  /* Numbered exercise steps */
+  .exercise-steps {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+
+  .exercise-steps li {
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+  }
+
+  .step-num {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.12em;
+    color: var(--accent);
+    background: rgba(124,106,247,0.1);
+    border: 1px solid rgba(124,106,247,0.2);
+    border-radius: 4px;
+    padding: 0.2rem 0.5rem;
+    white-space: nowrap;
+    margin-top: 0.15rem;
+    flex-shrink: 0;
+  }
+
+  .step-text {
+    font-size: 0.9rem;
+    color: #b0b0c8;
+    line-height: 1.7;
+  }
+
+  /* Summary section */
+  .summary-section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 2rem 2.2rem;
+    margin-bottom: 4rem;
+  }
+
+  .summary-section h2 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 1.25rem;
+    margin-bottom: 1.3rem;
+    color: var(--text);
+  }
+
+  .summary-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.7rem;
+  }
+
+  .summary-list li {
+    font-size: 0.93rem;
+    color: #b0b0c8;
+    line-height: 1.7;
+    padding-left: 1.5rem;
+    position: relative;
+  }
+
+  .summary-list li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0.58rem;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--muted);
+  }
+
+  /* Footer */
+  .footer {
+    border-top: 1px solid var(--border);
+    padding: 2.5rem 0;
+  }
+
+  .footer-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .footer-text {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.68rem;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+  }
+
+  .footer-next {
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    font-size: 0.92rem;
+    color: var(--accent);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: gap 0.2s;
+  }
+
+  .footer-next:hover { gap: 0.8rem; }
+
+  /* Inline code */
+  code {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.82em;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    padding: 0.1em 0.35em;
+    color: var(--accent3);
+  }
+
+  strong {
+    font-weight: 500;
+    color: var(--text);
+  }
+
+  /* Two-column compare */
+  .compare-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin: 2rem 0;
+  }
+
+  @media (max-width: 560px) {
+    .compare-grid { grid-template-columns: 1fr; }
+  }
+
+  .compare-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.3rem 1.5rem;
+  }
+
+  .compare-card-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+  }
+
+  .compare-card-label.label-before { color: var(--muted); }
+  .compare-card-label.label-after { color: var(--accent3); }
+
+  .compare-card-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 1rem;
+    color: var(--text);
+    margin-bottom: 0.7rem;
+  }
+
+  .compare-card p {
+    font-size: 0.84rem;
+    color: #9898b0;
+    line-height: 1.65;
+    margin-bottom: 0;
+  }
+
+  /* Probability bar */
+  .prob-table {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.4rem 1.6rem;
+    margin: 1.6rem 0;
+  }
+
+  .prob-table-title {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 1rem;
+  }
+
+  .prob-row {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 0.65rem;
+  }
+
+  .prob-row:last-child { margin-bottom: 0; }
+
+  .prob-token {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.82rem;
+    color: var(--accent3);
+    width: 80px;
+    flex-shrink: 0;
+  }
+
+  .prob-bar-wrap {
+    flex: 1;
+    height: 6px;
+    background: var(--border);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+
+  .prob-bar {
+    height: 100%;
+    border-radius: 3px;
+    background: var(--accent);
+    transition: width 0.3s;
+  }
+
+  .prob-pct {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--muted);
+    width: 38px;
+    text-align: right;
+    flex-shrink: 0;
+  }
+
+  /* Model landscape table */
+  .model-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 2rem 0;
+    font-size: 0.86rem;
+  }
+
+  .model-table th {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    text-align: left;
+    padding: 0.6rem 1rem;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface2);
+  }
+
+  .model-table td {
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid rgba(42,42,58,0.6);
+    color: #b0b0c8;
+    line-height: 1.5;
+    vertical-align: top;
+  }
+
+  .model-table tr:last-child td {
+    border-bottom: none;
+  }
+
+  .model-table tr:hover td {
+    background: rgba(255,255,255,0.015);
+  }
+
+  .model-name {
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    font-size: 0.88rem;
+    color: var(--text);
+  }
+
+  .model-tag {
+    display: inline-block;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.58rem;
+    letter-spacing: 0.08em;
+    padding: 0.15rem 0.45rem;
+    border-radius: 3px;
+    margin-left: 0.4rem;
+    vertical-align: middle;
+  }
+
+  .tag-open {
+    background: rgba(106,247,212,0.1);
+    color: var(--accent3);
+    border: 1px solid rgba(106,247,212,0.2);
+  }
+
+  .tag-frontier {
+    background: rgba(124,106,247,0.1);
+    color: var(--accent);
+    border: 1px solid rgba(124,106,247,0.2);
+  }
+
+  .tag-efficient {
+    background: rgba(247,195,106,0.1);
+    color: var(--accent2);
+    border: 1px solid rgba(247,195,106,0.2);
+  }
+</style>
+</head>
+<body>
+
+<!-- Sticky top nav -->
+<nav class="top-nav">
+  <div class="top-nav-inner">
+    <a href="index.html" class="nav-back">← Back to Foundations</a>
+    <span class="nav-module-label">Module F01 · What Language Models Actually Are</span>
+    <a href="module-f02.html" class="nav-next">Next: Module F02 →</a>
+  </div>
+</nav>
+
+<!-- Hero -->
+<div class="hero">
+  <div class="container">
+    <div class="hero-eyebrow">Module F01 · Foundation</div>
+    <div class="module-badge badge-foundation">FOUNDATION</div>
+    <h1>What Language Models<br>Actually Are</h1>
+    <p class="hero-sub">
+      Most practitioners use AI tools every day without understanding what's actually happening when they type a message and get a response. This module closes that gap — not with hand-waving, but with the real mechanics. Once you understand how models learn and generate text, every design decision in the main curriculum stops seeming arbitrary.
+    </p>
+    <div class="hero-meta">
+      <div class="meta-item">
+        <span class="meta-label">Duration</span>
+        <span class="meta-value">1 week</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">Level</span>
+        <span class="meta-value">Foundation</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">Exercise</span>
+        <span class="meta-value">Temperature test</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">Running Example</span>
+        <span class="meta-value">Maya (marketing analyst)</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Running example setup -->
+<div class="container">
+<div class="content">
+
+  <!-- Running example intro -->
+  <div class="callout callout-example" style="margin-bottom: 0;">
+    <div class="callout-label">Running Example · Meet Maya</div>
+    <p>Maya is a marketing analyst at a mid-size SaaS company. She's been using ChatGPT and Claude for 18 months and has been asked to build the company's first internal AI tools: a meeting notes summarizer and a recipe recommender for a team-building project. No engineering background — just curiosity and a deadline.</p>
+    <p>Her core frustration: the meeting summarizer sometimes produces action items that were never actually discussed. She's seen it attribute tasks to people who weren't even in the meeting. She wants to know why — and whether she can fix it. By the end of this module, she'll have the vocabulary to diagnose exactly what's happening. By the end of the main curriculum, she'll have the tools to build something better.</p>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <!-- TOPIC 1 -->
+  <div class="topic-section" id="topic-1">
+    <div class="section-number">Topic 01</div>
+    <h2>The Shift from Rules to Learning</h2>
+
+    <p>To understand language models, you first have to understand what came before them — and why it failed for anything involving human language.</p>
+
+    <p>Traditional software is rule-based. You tell the computer exactly what to do for every case you can anticipate. If the customer says "refund," route to the refund team. If the email contains "unsubscribe," remove them from the list. The program is only as capable as the rules you write, and the programmer is responsible for every branch. This works beautifully for well-defined, closed domains: accounting software, sorting algorithms, network routing protocols. Rules scale when the problem space is finite and predictable.</p>
+
+    <p>Language is neither finite nor predictable. A single customer complaint can be phrased ten thousand different ways. The same sentence — "that's not what I expected" — can mean delight, disappointment, or sarcasm depending on context. No programmer can write enough rules to handle this. The rule-based approach to natural language processing, dominant through the 1990s and into the 2000s, required enormous hand-crafted grammars, lexicons, and disambiguation systems — and still broke constantly on real-world text. The fundamental problem wasn't insufficient engineering effort. The problem was that language resists enumeration. You cannot write down all the rules because no one knows what all the rules are.</p>
+
+    <p><strong>Machine learning flipped the model.</strong> Instead of writing rules, you show the system thousands — or millions, or billions — of examples and let it find patterns. The programmer specifies the learning algorithm, not the rules themselves. The rules emerge from the data. This shift is more profound than it sounds. It means the behavior of the system is not something the programmer explicitly designed. It's something the system discovered, abstracted from examples, encoded in numbers.</p>
+
+    <h3>Neural Networks and Deep Learning</h3>
+
+    <p>The specific type of machine learning that powers modern language models is <strong>deep learning</strong>, built on <strong>neural networks</strong>. The name is borrowed loosely from neuroscience — a neural network is a mathematical function organized into layers, where each layer transforms its input and passes the result to the next layer. The "deep" in deep learning refers to the number of those layers: modern models have dozens or hundreds of them.</p>
+
+    <p>Concretely, a neural network is a very large mathematical function with millions or billions of numerical parameters — called <strong>weights</strong>. You train the network by running it on known examples, measuring how wrong its output is, and adjusting the weights slightly in the direction that reduces the error. Do this billions of times across enormous amounts of data, and the weights converge toward values that produce good predictions on new examples. The programmer didn't specify the weights. The training process found them.</p>
+
+    <p>One important implication: nobody — including the people who built the model — can read the weights and understand what rules the model has learned. There's no lookup table, no decision tree, no interpretable logic you can point to. There are billions of floating-point numbers that collectively encode patterns extracted from training data. This is not a deficiency of current models that will be fixed later. It's fundamental to how neural networks work. When someone asks "why did the model say that?" the honest answer is often: we can observe what it said, and we can probe its behavior, but we cannot read the reasoning from the weights directly.</p>
+
+    <h3>The Transformer Architecture</h3>
+
+    <p>Prior to 2017, most neural networks for language tasks used architectures that processed text sequentially — reading one word at a time, left to right. This worked, but it made it hard for the model to relate words that were far apart in a sentence. By the time the model got to the end of a 50-word sentence, its representation of the first word had been diluted through many intermediate processing steps.</p>
+
+    <p>The <strong>transformer architecture</strong>, introduced in the 2017 paper "Attention Is All You Need," solved this with a mechanism called <strong>attention</strong>. Attention allows the model to directly weigh how relevant every word in a sequence is to every other word — simultaneously, not sequentially. When processing the word "it" in the sentence "The trophy didn't fit in the suitcase because it was too big," attention allows the model to correctly associate "it" with "trophy" rather than "suitcase" by attending to the full context at once. This is what lets transformers understand long-range dependencies, nuanced pronoun references, implicit subject changes, and the kind of contextual disambiguation that makes language so hard for rules-based systems.</p>
+
+    <p>Every major language model in production today — GPT-4, Claude, Gemini, Llama — is a transformer. The architecture has been scaled enormously since 2017, but the core mechanism is the same. When people talk about "how language models work," they're talking about transformers.</p>
+
+    <div class="callout callout-insight">
+      <div class="callout-label">Key Insight</div>
+      <p>Machine learning doesn't produce a list of rules the programmer can read. It produces a set of numerical weights — billions of floating-point numbers — that collectively encode patterns found in the training data. There's no lookup table. There's no "if the customer says X, respond Y." There are patterns, abstracted into numbers, applied dynamically to each new input. This is why model behavior can surprise even the people who built the model.</p>
+    </div>
+
+    <div class="callout callout-example">
+      <div class="callout-label">Maya's Situation</div>
+      <p>Maya's meeting summarizer is built on a large language model — meaning its behavior comes from patterns learned from training, not from rules a programmer wrote. When it produces a hallucinated action item, it's not a bug in the traditional sense. There's no line of code that says "add a fake task here." It's the model generating a plausible-sounding continuation based on patterns it learned from enormous amounts of text that included meeting summaries, action item lists, and business correspondence. Understanding this changes how you think about defending against it.</p>
+    </div>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <!-- TOPIC 2 -->
+  <div class="topic-section" id="topic-2">
+    <div class="section-number">Topic 02</div>
+    <h2>Training vs. Inference: Two Completely Different Things</h2>
+
+    <p>The lifecycle of a language model has two sharply distinct phases: <strong>training</strong> and <strong>inference</strong>. Conflating them is one of the most common sources of confusion about what models can and can't do. They are not versions of the same process — they are fundamentally different operations that happen at different times, at different scales, with different effects on the model.</p>
+
+    <h3>Training: Where the Model Is Built</h3>
+
+    <p>Training is the one-time (or periodic) process of building the model — adjusting its weights by exposing it to massive amounts of text. Training a frontier model like GPT-4 or Claude 3 took months, thousands of specialized AI accelerator chips (GPUs and TPUs), and hundreds of billions or trillions of tokens of text data. The output of this process is a file: the trained model weights. That file is the model. It's typically measured in tens or hundreds of gigabytes.</p>
+
+    <p>What does training data look like? Web pages crawled from the internet, digitized books, code repositories, academic papers, Wikipedia, forums, news archives, and millions of conversations — essentially, a large slice of human written output. The model learns patterns across all of it: grammar, facts, reasoning styles, coding conventions, conversational register, scientific notation, legal phrasing. This is where the model's "knowledge" comes from. Not from a database, not from a curated fact store — from patterns abstracted from an enormous corpus of text.</p>
+
+    <p>The mechanism that makes training work is called <strong>gradient descent</strong>. Conceptually: run the model on a known example (say, a sentence with the last word masked out), measure how wrong its prediction is, and nudge each weight slightly in the direction that would have made the prediction less wrong. The "gradient" is the mathematical measure of how each weight contributes to the error. "Descent" means moving downhill on the error surface — reducing the mistake. Do this billions of times and the model gets very good at predicting what text should come next. That's the core task the model is trained on: next-token prediction. Everything else — the ability to answer questions, write code, summarize documents — emerges from getting extremely good at that one thing at scale.</p>
+
+    <h3>Inference: Where the Model Is Used</h3>
+
+    <p>Inference is what happens when you actually use the model. You send a prompt — a question, an instruction, a conversation history — and the model runs a <strong>forward pass</strong> through its weights: each layer processes the input and passes results to the next, until the final layer produces a probability distribution over what token should come next. That token is sampled, appended to the input, and the process repeats until the response is complete.</p>
+
+    <p>The critical thing about inference: <strong>it doesn't change the weights</strong>. The model you're using today is identical to the model that completed training. Inference is purely a read operation on the weights — you apply what was learned to a new input, but you don't update anything. The model's "knowledge" is frozen at training time.</p>
+
+    <div class="compare-grid">
+      <div class="compare-card">
+        <div class="compare-card-label label-before">Training</div>
+        <div class="compare-card-title">Building the Model</div>
+        <p>Months of compute. Thousands of GPUs. Trillions of tokens. Adjusts weights based on prediction errors. Happens rarely — once for a base model, periodically for updates. The output is the weights file.</p>
+      </div>
+      <div class="compare-card">
+        <div class="compare-card-label label-after">Inference</div>
+        <div class="compare-card-title">Using the Model</div>
+        <p>Milliseconds to seconds. One prompt in, one response out. Reads the frozen weights, applies them to the input, generates tokens. Happens billions of times per day across all users. Does not modify the weights.</p>
+      </div>
+    </div>
+
+    <p>The practical implication: <strong>the model cannot learn during a conversation</strong>. When you tell it something new in a chat — "our product is called Apex and it launched in 2024" — it uses that information in the current session because it can read it in the context window. But it doesn't update its weights. The next conversation: same model, no memory of what you told it, no updated understanding of Apex. The weights are frozen.</p>
+
+    <p>This is also why the same base model can feel dramatically different depending on how you prompt it, what system instructions you give it, or what information you inject into the context. You're not changing the model — you're changing what the model sees when it runs inference. The behavior changes because the input changes, not because the model changed.</p>
+
+    <div class="callout callout-insight">
+      <div class="callout-label">Key Insight</div>
+      <p>Training is expensive and rare. Inference is cheap and constant. When you call an AI API, you're running inference — applying a frozen set of weights to your input. The model doesn't update based on your usage. It doesn't get better at your specific use case just because you use it a lot. Improvement comes from retraining or fine-tuning — separate, deliberate, expensive processes that require intentional investment.</p>
+    </div>
+
+    <div class="callout callout-mistake">
+      <div class="callout-label">Common Mistake</div>
+      <p>Thinking that a model "learns from conversations" in real-time. It doesn't. The weights are frozen at deployment. What looks like the model "remembering" your preferences across a session is actually the model reading the conversation history in its context window — not updated knowledge. Close the chat and start a new one: the model has no memory of you. This has direct consequences for building AI products: any user-specific memory must be explicitly engineered, stored externally, and injected into the context at the start of each session.</p>
+    </div>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <!-- TOPIC 3 -->
+  <div class="topic-section" id="topic-3">
+    <div class="section-number">Topic 03</div>
+    <h2>What the Model "Knows" — and What It's Making Up</h2>
+
+    <p>Language models are often described as "knowing" things. That framing is useful but misleading if you take it too literally. Understanding what "knowing" actually means for a language model — and how it differs from database knowledge — is the key to understanding hallucinations. Not as a mysterious failure, but as an architectural consequence.</p>
+
+    <h3>Parametric Knowledge</h3>
+
+    <p>The information encoded in a model's weights during training is called <strong>parametric knowledge</strong>. The model "knows" things the way a well-read person knows things: patterns, associations, facts, and conventions absorbed over years of reading enormous amounts of text. Not in the way a database knows things — as exact records, retrievable on demand, with a defined schema and a clear notion of present vs. absent.</p>
+
+    <p>This distinction matters enormously. A relational database is deterministic and verifiable. Ask it for a customer's order history and it either returns exactly that record or returns an error — never a plausible-sounding fabrication. A language model generates a plausible response based on patterns. If it has seen many examples of what an order history looks like, it will generate something that looks like an order history. Whether that output corresponds to any real order is a separate question entirely, and the model has no internal mechanism for checking it.</p>
+
+    <p>The model's parametric knowledge is also uneven. Topics that were heavily represented in training data — popular programming languages, widely-covered historical events, well-documented scientific concepts — are well-supported. The predictions are good because the patterns are dense. Topics that were sparsely represented — obscure company financials, niche technical domains, local news, recent events close to the training cutoff — are poorly supported. The prediction machinery keeps running, but it's drawing on thin or absent patterns.</p>
+
+    <h3>Knowledge Cutoffs</h3>
+
+    <p>Every model has a <strong>knowledge cutoff</strong> — the date beyond which its training data stops. Claude's, GPT-4's, and Gemini's cutoffs are documented and publicly available, usually somewhere between 12 and 24 months before the model's public release. The model genuinely does not know about events after that date. This isn't a fixable bug or a lazy engineering decision. It's inherent to how training works: you train on a fixed corpus, the corpus has a most-recent date, and the weights encode what was in the corpus.</p>
+
+    <p>When you ask a model about something that happened after its cutoff, it has two failure modes. The honest one: it says "I don't have information about that." The dangerous one: it generates a plausible-sounding answer anyway, drawn from similar patterns it does know about. Which failure mode you get depends on the model's alignment training, how directly the query targets a knowledge gap, and sometimes, frankly, luck. You cannot rely on a model to know that it doesn't know something. The absence of reliable self-knowledge about gaps is one of the foundational limitations of current architectures.</p>
+
+    <h3>What "Making It Up" Actually Means Architecturally</h3>
+
+    <p>When a language model produces a confident, specific, wrong answer — a hallucination — it's not lying in the intentional sense. It has no mechanism for intentional deception. What it has is a single generation process: predict the next most likely token given the context, repeat. That process doesn't have a separate "fact-checking module" that gets consulted before output is produced. The model always does the same thing. For well-represented topics, the predictions are well-calibrated and the output is accurate. For obscure, recent, or niche topics, the prediction process keeps running on sparse or mismatched patterns — and produces output that looks plausible but isn't grounded in reality.</p>
+
+    <p>The word "hallucination" captures the phenomenology but obscures the mechanism. The model isn't imagining things. It's predicting plausible continuations. For a prompt that sets up the pattern of "here is a business executive's biography," the model will generate a plausible-looking biography. If the person is well-known and well-represented in training data, the biography will be mostly accurate. If the person is obscure or fictional, the biography will be mostly fabricated — but with the same confident, fluent, specific-sounding style. The model cannot tell the difference between "I know this" and "I'm pattern-matching to something that sounds like this." That distinction doesn't exist in the architecture.</p>
+
+    <div class="callout callout-insight">
+      <div class="callout-label">Key Insight</div>
+      <p>The model doesn't have a separate "fact-checking module" that it consults before generating. It just generates. The same mechanism that produces a perfectly accurate answer to "what is the capital of France" produces a confidently wrong answer to "what are the SEC filings for this obscure company from last month." There's no internal alarm that fires when it's about to be wrong. The output will look and read identically — fluent, specific, confident — regardless of whether it's accurate.</p>
+    </div>
+
+    <div class="callout callout-example">
+      <div class="callout-label">Why Maya's Summarizer Hallucinated</div>
+      <p>When Maya's meeting summarizer attributed an action item to "John from Sales," John wasn't in the meeting. But John's name appeared in the transcript in a different context — he was mentioned as a stakeholder who would need to be briefed. The model, having learned from training on enormous numbers of meeting summaries that action items often reference named people with role qualifiers, generated a plausible attribution. It wasn't looking up "who owns this action item" against a source of truth. It was continuing the pattern of text that looks like a meeting summary, drawing on John's presence in the document as a named entity. The attribution was statistically plausible. It was not factually true.</p>
+      <p>This is the specific failure mode that structured prompting, constrained output formats, and explicit instructions to only attribute tasks to named participants in the meeting can partially address. We cover those defenses in the main curriculum. But defending against it starts with understanding what it actually is.</p>
+    </div>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <!-- TOPIC 4 -->
+  <div class="topic-section" id="topic-4">
+    <div class="section-number">Topic 04</div>
+    <h2>Why Models Are Probabilistic, Not Deterministic</h2>
+
+    <p>A calculator is deterministic. Enter <code>4 + 4</code> and you always get <code>8</code>. Every time. Given the same input, deterministic software produces the same output. This is what we typically expect from computers.</p>
+
+    <p>Language models are different by design. At each step of generation, the model doesn't output a single token — it outputs a <strong>probability distribution</strong> over all possible next tokens in its vocabulary (which might be 50,000 to 100,000 tokens). For the prompt "the sky is," the distribution might assign 40% probability to "blue," 15% to "clear," 10% to "getting," 8% to "filled," and so on, spread across the rest of the vocabulary. The model then <strong>samples</strong> from that distribution to select the actual next token. Different samples of the same distribution produce different completions.</p>
+
+    <div class="prob-table">
+      <div class="prob-table-title">Prompt: "the sky is ___" — example next-token distribution</div>
+      <div class="prob-row">
+        <div class="prob-token">"blue"</div>
+        <div class="prob-bar-wrap"><div class="prob-bar" style="width: 40%;"></div></div>
+        <div class="prob-pct">40%</div>
+      </div>
+      <div class="prob-row">
+        <div class="prob-token">"clear"</div>
+        <div class="prob-bar-wrap"><div class="prob-bar" style="width: 15%;"></div></div>
+        <div class="prob-pct">15%</div>
+      </div>
+      <div class="prob-row">
+        <div class="prob-token">"getting"</div>
+        <div class="prob-bar-wrap"><div class="prob-bar" style="width: 10%;"></div></div>
+        <div class="prob-pct">10%</div>
+      </div>
+      <div class="prob-row">
+        <div class="prob-token">"filled"</div>
+        <div class="prob-bar-wrap"><div class="prob-bar" style="width: 8%;"></div></div>
+        <div class="prob-pct">8%</div>
+      </div>
+      <div class="prob-row">
+        <div class="prob-token">"overcast"</div>
+        <div class="prob-bar-wrap"><div class="prob-bar" style="width: 5%;"></div></div>
+        <div class="prob-pct">5%</div>
+      </div>
+      <div class="prob-row">
+        <div class="prob-token">(other)</div>
+        <div class="prob-bar-wrap"><div class="prob-bar" style="width: 22%;"></div></div>
+        <div class="prob-pct">22%</div>
+      </div>
+    </div>
+
+    <h3>Temperature: Controlling the Distribution</h3>
+
+    <p><strong>Temperature</strong> is the parameter that controls how sharp or flat the distribution is before sampling. It's one of the most important parameters you'll configure when building with language models — and one of the most misunderstood.</p>
+
+    <p><strong>Temperature 0</strong> (or close to it): always pick the highest-probability token. The model becomes nearly deterministic — it will produce the same output for the same input almost every time. This is predictable and consistent, but it sacrifices all variation. The model is always taking the most likely path.</p>
+
+    <p><strong>Temperature 1</strong>: sample from the distribution proportionally. A token with 40% probability gets chosen 40% of the time across many runs. The model produces varied outputs — sometimes "blue," sometimes "clear," sometimes something more unexpected. This is the default for most conversational uses.</p>
+
+    <p><strong>Temperature above 1</strong>: flatten the distribution further. High-probability tokens become less dominant; lower-probability tokens get more weight. The model becomes increasingly unpredictable and, past a certain point, incoherent — it starts selecting tokens that are genuinely unlikely for the context. Temperature above 1.5 is rarely useful in practice.</p>
+
+    <p>Why probabilistic generation at all? It's not a bug. For creative tasks — brainstorming, writing fiction, generating variations — you want the model to explore the space of possibilities, not always converge on the single most likely completion. For precision tasks — extracting structured data, generating JSON, answering math questions — you want consistency. Temperature is the knob that trades between exploration and exploitation. The same model, at temperature 0, produces reliable structured output. At temperature 1, it produces varied creative output. Neither is "more correct" — it depends entirely on what you're building.</p>
+
+    <h3>Top-p and Top-k Sampling</h3>
+
+    <p>Temperature isn't the only way to control sampling. Two related methods are worth knowing:</p>
+
+    <p><strong>Top-k sampling</strong> restricts token selection to the <em>k</em> highest-probability candidates. If <code>k=50</code>, only the 50 most likely tokens can be sampled, regardless of what the full distribution looks like. This prevents extremely low-probability tokens from being selected even at high temperatures.</p>
+
+    <p><strong>Top-p (nucleus) sampling</strong> — more commonly used — takes the smallest set of tokens whose cumulative probability exceeds <em>p</em>. If <code>p=0.9</code>, the model samples only from tokens that together account for 90% of the total probability mass, excluding the long tail of unlikely candidates. This is adaptive: for a peaked distribution (the model is confident), the nucleus is small; for a flat distribution (the model is uncertain), the nucleus is large. Most production APIs let you set both top-p and temperature, and they interact.</p>
+
+    <p>For most practical use cases, the only setting you need to reason about carefully is temperature. Top-p defaults are usually reasonable, and adjusting them is an advanced optimization. The fundamental concept — that models sample from distributions, and you can control the shape of those distributions — is what matters.</p>
+
+    <div class="callout callout-mistake">
+      <div class="callout-label">Common Mistake</div>
+      <p>Testing a prompt once, deciding it works, and shipping. One good response doesn't mean consistent good responses. At temperature 1, run the same prompt 10–20 times and look at the variance. If outputs vary too much for your use case — inconsistent structure, different conclusions, variable quality — your options are: reduce temperature toward 0, add more specific constraints to your system prompt, switch to a structured output mode that forces a defined schema, or accept the variance and build downstream logic that handles it. What you cannot do is assume one good result means reliable good results.</p>
+    </div>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <!-- TOPIC 5 -->
+  <div class="topic-section" id="topic-5">
+    <div class="section-number">Topic 05</div>
+    <h2>The Model Landscape: What GPT, Claude, and Gemini Actually Differ On</h2>
+
+    <p>By mid-2026, there are dozens of publicly available language models across a handful of major families. The headlines describe them as competitors, the marketing describes each as uniquely capable, and the reality is more nuanced. Here's how to think about them without the hype.</p>
+
+    <h3>The Major Families</h3>
+
+    <p>The four model families that matter most in production deployments are: <strong>GPT</strong> (OpenAI), <strong>Claude</strong> (Anthropic), <strong>Gemini</strong> (Google), and <strong>Llama</strong> (Meta). All four are large language models built on transformer architectures. The high-level architecture is essentially the same — transformer, attention mechanism, next-token prediction, trained on large text corpora. The differences are in training data composition, training methodology, fine-tuning choices, alignment techniques, and the specific capabilities each lab has optimized for.</p>
+
+    <p>Llama is meaningfully different from the others in one key respect: it's open-weights. Meta releases the model weights publicly, which means anyone can download them, run them locally, fine-tune them, and deploy them without API costs or usage restrictions. This makes Llama the default choice for teams with strong privacy requirements, very high volume use cases where per-token costs matter, or applications that require custom fine-tuning at a level API providers don't support.</p>
+
+    <table class="model-table">
+      <thead>
+        <tr>
+          <th>Family</th>
+          <th>Provider</th>
+          <th>Access</th>
+          <th>Notable for</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="model-name">GPT-4o</span><span class="model-tag tag-frontier">frontier</span></td>
+          <td style="color: #9898b0;">OpenAI</td>
+          <td style="color: #9898b0;">API</td>
+          <td style="color: #9898b0;">Multimodal (text, image, audio), large deployment footprint, tool use</td>
+        </tr>
+        <tr>
+          <td><span class="model-name">Claude 3.5 Sonnet</span><span class="model-tag tag-frontier">frontier</span></td>
+          <td style="color: #9898b0;">Anthropic</td>
+          <td style="color: #9898b0;">API</td>
+          <td style="color: #9898b0;">Coding, long-context, instruction following, constitutional alignment</td>
+        </tr>
+        <tr>
+          <td><span class="model-name">Gemini 1.5 Pro</span><span class="model-tag tag-frontier">frontier</span></td>
+          <td style="color: #9898b0;">Google</td>
+          <td style="color: #9898b0;">API</td>
+          <td style="color: #9898b0;">Very long context window (1M+ tokens), multimodal</td>
+        </tr>
+        <tr>
+          <td><span class="model-name">Llama 3.x</span><span class="model-tag tag-open">open</span></td>
+          <td style="color: #9898b0;">Meta</td>
+          <td style="color: #9898b0;">Open weights</td>
+          <td style="color: #9898b0;">Self-hosted, fine-tunable, no usage costs, privacy-sensitive deployments</td>
+        </tr>
+        <tr>
+          <td><span class="model-name">Claude Haiku</span><span class="model-tag tag-efficient">efficient</span></td>
+          <td style="color: #9898b0;">Anthropic</td>
+          <td style="color: #9898b0;">API</td>
+          <td style="color: #9898b0;">Low cost, low latency, adequate for many classification and extraction tasks</td>
+        </tr>
+        <tr>
+          <td><span class="model-name">GPT-4o mini</span><span class="model-tag tag-efficient">efficient</span></td>
+          <td style="color: #9898b0;">OpenAI</td>
+          <td style="color: #9898b0;">API</td>
+          <td style="color: #9898b0;">Low cost, strong benchmark performance per dollar</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>What "Parameters" Actually Means</h3>
+
+    <p>You'll see models described by parameter count: "70B model," "175B model," "8B model." A <strong>parameter</strong> is a single weight in the model — one floating-point number. A 70-billion-parameter model has 70 billion of these weights. More parameters generally means more capacity to encode patterns — the model can store more nuanced associations and handle a wider range of tasks. But it's not a simple linear relationship with capability. A 70B model trained carefully on high-quality data can outperform a poorly-trained 175B model on many benchmarks. Architecture choices, training data quality, and fine-tuning all matter as much or more than raw parameter count.</p>
+
+    <p>Parameter count also predicts resource requirements. Larger models require more memory to store and more compute to run inference — which means higher cost and higher latency. A 70B parameter model running on a single high-end GPU will be slower and more expensive per token than a 7B model. This tradeoff is central to practical deployment decisions.</p>
+
+    <h3>Fine-Tuning and Instruction Tuning</h3>
+
+    <p>The base model produced by pre-training — the raw next-token predictor — is not what you interact with when you use ChatGPT or Claude. It's been through additional training steps that dramatically change its behavior.</p>
+
+    <p><strong>Fine-tuning</strong> takes a pre-trained base model and continues training it on a smaller, more specific dataset. This specializes the model for a domain: a base model fine-tuned on medical literature becomes better at clinical reasoning; one fine-tuned on legal documents becomes better at contract analysis. Most production deployments use some form of fine-tuning to improve performance on their specific task, whether they're doing it themselves or relying on fine-tuned variants provided by the model labs.</p>
+
+    <p><strong>Instruction tuning</strong> is a specific type of fine-tuning that teaches the model to follow instructions — to respond to prompts as a helpful assistant rather than completing text in the style of whatever it was trained on. A raw pre-trained model given the prompt "What is the capital of France?" might complete it as "is a question asked in many geography classes" — treating it as the start of an article rather than a question requiring an answer. An instruction-tuned model understands "answer this question" without being told explicitly. This step is what transformed base models into the conversational assistants people use today.</p>
+
+    <h3>RLHF: How Models Learn to Be Helpful</h3>
+
+    <p><strong>Reinforcement Learning from Human Feedback (RLHF)</strong> is the technique most major labs use to align models with human preferences after instruction tuning. Human raters evaluate pairs of model outputs — "which of these two responses is better?" — and those judgments become training signal. The model learns to produce outputs that human raters prefer: more helpful, more honest, less harmful, better structured.</p>
+
+    <p>RLHF is how models learn not just to follow instructions but to do so in ways that feel natural and trustworthy to users. It's also the mechanism through which safety behaviors are instilled — the model learns to decline certain requests, express uncertainty, avoid producing harmful content. Different labs make different RLHF choices, which is a large part of why Claude, GPT-4, and Gemini feel different in practice even though they're all transformer-based instruction-tuned models.</p>
+
+    <h3>Capability vs. Cost: The Real Tradeoff</h3>
+
+    <p>For most production applications, the choice between models is not "which is smartest" but "what's the right capability-cost tradeoff for this specific task." Frontier models — GPT-4o, Claude 3.5 Sonnet, Gemini 1.5 Pro — deliver the highest capability but cost meaningfully more per token and have higher latency. Efficient models — Claude Haiku, GPT-4o mini — cost a fraction of the price and are fast, but they have capability ceilings that matter for complex reasoning tasks.</p>
+
+    <p>In well-designed systems, different tasks use different model tiers. An agent that performs complex multi-step reasoning — synthesizing research, debugging subtle code, managing ambiguous requirements — warrants a frontier model. A subagent that's extracting named entities from text, classifying a support ticket's category, or reformatting a data structure can use an efficient model at one-tenth the cost. Building systems that make this distinction deliberately, rather than using the most capable model for everything, is one of the clearest marks of mature AI engineering. The main curriculum's final module covers this in depth.</p>
+
+    <div class="callout callout-insight">
+      <div class="callout-label">Key Insight</div>
+      <p>Choosing a model is not just a "which is best" question. It's a cost, latency, and capability tradeoff calibrated to each specific task. An orchestrator agent that does complex reasoning might warrant a frontier model. A subagent that's just extracting named entities from a text can use a much smaller, cheaper model. Getting this right is the difference between a product that's economically viable and one that burns budget without providing proportional value. The main curriculum's Module 06 covers this in depth — by then, you'll have the vocabulary to make those decisions precisely.</p>
+    </div>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <!-- EXERCISE SECTION -->
+  <div class="exercise-section" id="exercise">
+    <div class="exercise-header">
+      <div class="exercise-label">Module F01 · Exercise</div>
+      <h2>The Temperature Test</h2>
+      <p>The most direct way to understand probabilistic generation is to observe it directly. This exercise takes 20–30 minutes. You'll need access to any LLM API or playground — Claude's console at console.anthropic.com, OpenAI Playground at platform.openai.com, or any similar interface that exposes a temperature control.</p>
+    </div>
+
+    <div class="exercise-body">
+
+      <ol class="exercise-steps">
+        <li>
+          <span class="step-num">Step 01</span>
+          <span class="step-text"><strong>Choose a prompt</strong> that could reasonably have multiple good answers. Suggestion: <em>"What's one specific piece of advice for someone giving their first presentation to senior leadership?"</em> Or use any prompt relevant to your work — a common task you'd actually want AI help with. Avoid questions with single correct factual answers for the first three steps.</span>
+        </li>
+        <li>
+          <span class="step-num">Step 02</span>
+          <span class="step-text"><strong>Send the prompt 5 times at temperature 0.</strong> In Claude Console or OpenAI Playground, find the temperature slider and set it to 0 (or the minimum value). Submit the same prompt, unmodified, five times. Document the outputs. How similar are they? Are they identical? Subtly different in phrasing but identical in structure? Note not just what varies but what stays consistent across all five runs.</span>
+        </li>
+        <li>
+          <span class="step-num">Step 03</span>
+          <span class="step-text"><strong>Send the same prompt 5 times at temperature 1.0.</strong> Document the outputs. How much variance is there? Are all five responses equally good, or does quality vary? Does the advice itself change, or just the phrasing? Are some outputs more useful than others? If so, what distinguishes the better ones?</span>
+        </li>
+        <li>
+          <span class="step-num">Step 04</span>
+          <span class="step-text"><strong>Now try a factual prompt at temperature 1.0.</strong> Use: <em>"What is the capital of Japan?"</em> Run it 5 times. Does the answer vary? If the answer is always "Tokyo," why? What does this tell you about the relationship between temperature and topics where probability mass is highly concentrated on a single correct answer?</span>
+        </li>
+        <li>
+          <span class="step-num">Step 05</span>
+          <span class="step-text"><strong>Discussion:</strong> Why does temperature affect creative prompts more than factual ones? What does this tell you about how the model handles "known" vs. "uncertain" answers? What would you set temperature to for a meeting summarizer that needs to output consistent JSON? What do you give up by making that choice?</span>
+        </li>
+      </ol>
+
+      <div class="facil-section">
+        <div class="facil-title">Facilitation Notes (Group Setting)</div>
+        <ul class="facil-list">
+          <li>Start with individual runs before comparing. People anchor on the first output they see. Give everyone 10–12 minutes to run all five steps independently before any group discussion.</li>
+          <li>The factual prompt at temperature 1 often surprises people — the answer doesn't vary because the probability mass is so concentrated on "Tokyo" that sampling strategy barely matters. Use this to introduce the idea of a "peaked" vs. "flat" distribution. Factual questions the model has strong patterns for are like asking it to pick from a jar that's 95% red marbles — the sampling method barely affects the outcome.</li>
+          <li>Push beyond "they're different" when discussing the creative prompt results. Ask participants to characterize the nature of the difference. Does the advice itself change, or just the phrasing? Does the structure change? Does one version feel more specific than another? Understanding what varies is more useful than noting that variance exists.</li>
+          <li>Ask a follow-up on temperature 0: if it produces "the same" output across 5 runs, is the output better or worse than the best temperature-1 output? This surfaces the exploration/exploitation tradeoff concretely — determinism gives you reliability, not necessarily quality.</li>
+          <li>Close with this question: "If you were building a meeting summarizer that needs to output consistent JSON, what temperature would you use? What does that cost you in exchange?" The answer surfaces one of the key design tensions in the main curriculum: consistency vs. creativity, structure vs. fluency, determinism vs. coverage of edge cases.</li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- SUMMARY SECTION -->
+  <div class="summary-section" id="summary">
+    <h2>By the End of This Module, You Should Be Able To...</h2>
+    <ul class="summary-list">
+      <li>Explain the difference between rule-based programming and machine learning in one clear sentence — including why the ML approach was necessary for language tasks that resist enumeration of rules.</li>
+      <li>Describe what training and inference are, why the distinction matters, and what it implies about what a model can and can't do in real-time — including why conversations don't update the model's weights.</li>
+      <li>Explain parametric knowledge: what the model "knows" from training, how it fundamentally differs from a database lookup, and why this difference is the architectural root cause of hallucinations.</li>
+      <li>Explain temperature and why models are probabilistic, not deterministic — and identify concretely when you'd want temperature close to 0 (consistency, structured output) vs. temperature near 1 (variation, creative exploration).</li>
+      <li>Name the major model families (GPT, Claude, Gemini, Llama) and explain what "parameters," "fine-tuning," "instruction tuning," and "RLHF" actually mean — not as buzzwords but as real processes that produced the models you're using.</li>
+      <li>Articulate why Maya's meeting summarizer hallucinated an action item — not as "a bug" but as an architectural consequence of how next-token prediction works on named entities in a document, and what class of mitigations that diagnosis points toward.</li>
+    </ul>
+  </div>
+
+</div>
+</div>
+
+<!-- Footer -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer-inner">
+      <div class="footer-text">AI Foundations Curriculum · Module F01 · Foundation · Updated May 2026</div>
+      <a href="module-f02.html" class="footer-next">Next: Module F02 — Tokens and Context →</a>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
