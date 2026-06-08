@@ -940,6 +940,94 @@
     .timeline-period { text-align: left; padding-right: 0; }
     .paradigm-card { grid-template-columns: 1fr; }
   }
+
+  /* Lab exercise */
+  .lab-exercise {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 5rem;
+  }
+
+  .lab-exercise-header {
+    padding: 1.8rem 2rem;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface2);
+  }
+
+  .lab-exercise-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+  }
+
+  .lab-exercise-header h2 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 1.4rem;
+    color: var(--text);
+    margin-bottom: 0.6rem;
+  }
+
+  .lab-exercise-header p {
+    font-size: 0.92rem;
+    color: #9898b0;
+    line-height: 1.7;
+  }
+
+  .lab-exercise-body {
+    padding: 2rem;
+  }
+
+  .lab-exercise-body > p {
+    font-size: 0.95rem;
+    color: #c0c0d4;
+    line-height: 1.8;
+    margin-bottom: 1.2rem;
+  }
+
+  .step-card {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.3rem 1.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .step-number {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 0.4rem;
+  }
+
+  .step-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    font-size: 0.97rem;
+    color: var(--text);
+    margin-bottom: 0.5rem;
+  }
+
+  .step-desc {
+    font-size: 0.86rem;
+    color: #9898b0;
+    line-height: 1.65;
+  }
+
+  .callout-checkpoint {
+    background: rgba(247,195,106,0.07);
+    border: 1px solid rgba(247,195,106,0.3);
+  }
+
+  .callout-checkpoint .callout-label { color: var(--accent2); }
+  .callout-checkpoint p { color: #e8d4a0; }
 </style>
 </head>
 <body>
@@ -948,8 +1036,8 @@
 <nav class="top-nav">
   <div class="top-nav-inner">
     <a href="agentic-ai-curriculum.html" class="nav-back">← Back to Curriculum</a>
-    <span class="nav-module-label">Module 07 of 07</span>
-    <span class="nav-end-label">Final Module</span>
+    <span class="nav-module-label">Module 07 of 08</span>
+    <a href="module-08.html" class="nav-next">Module 08: Capstone →</a>
   </div>
 </nav>
 
@@ -1475,6 +1563,60 @@
 
     <div class="section-divider"></div>
 
+    <!-- Lab Exercise -->
+    <div class="lab-exercise">
+      <div class="lab-exercise-header">
+        <div class="lab-exercise-label">Module 07 Lab</div>
+        <h2>Design Aria's Eval Protocol</h2>
+        <p>Before you write a single line of capstone code, define what "working correctly" means. An eval written after the system is built tends to pass because it was written to match what was built — not to test whether what was built is correct. This lab breaks that pattern.</p>
+      </div>
+      <div class="lab-exercise-body">
+
+        <p>The capstone (Module 08) asks you to build and run an eval suite for Aria. This lab is the design phase that comes first. You'll define the dimensions, write the test cases, assign the weights, and score a hypothetical response by hand — all before touching any code. The goal is a written spec you can hand to a colleague who would know, unambiguously, whether a given Aria response passes or fails.</p>
+
+        <div class="step-card">
+          <div class="step-number">Step 01</div>
+          <div class="step-title">Define five dimensions of correctness</div>
+          <div class="step-desc">Write five dimensions that together capture whether Aria is working correctly. Each dimension should be specific enough that two evaluators looking at the same response would agree on a score. "Responds helpfully" fails this test. "Issues refund and sends confirmation email for eligible delayed orders" passes. Draft all five before assigning any weights — sequence matters less than coverage. Ask yourself: what failure would each dimension catch that the others wouldn't?</div>
+        </div>
+
+        <div class="step-card">
+          <div class="step-number">Step 02</div>
+          <div class="step-title">Write ten test cases</div>
+          <div class="step-desc">For each test case, write: the input (what the customer says), the expected behavior (what Aria should do — specific actions, not vague goals), and the failure signal (what would tell you Aria got it wrong). Cover: a normal small refund, a high-value escalation, a happy-path non-issue, a prompt injection attempt, an unknown order ID, and at least four cases of your own that reflect real failure modes you've seen or can imagine. Do not write test cases designed to pass easily.</div>
+        </div>
+
+        <div class="step-card">
+          <div class="step-number">Step 03</div>
+          <div class="step-title">Assign point weights</div>
+          <div class="step-desc">Distribute 100 points across your five dimensions. The weights encode your priorities: which failures matter most in production? A system that resolves correctly 90% of the time but occasionally violates policy is worse than one that resolves correctly 80% of the time and never violates policy — your weights should reflect that. Write one sentence per dimension explaining why it deserves its weight. If you can't justify the weight, reconsider it.</div>
+        </div>
+
+        <div class="step-card">
+          <div class="step-number">Step 04</div>
+          <div class="step-title">Score a hypothetical response by hand</div>
+          <div class="step-desc">Apply your rubric to this response: <em>"Hi Alex, I looked up your order ORD-001 and I can see it's been delayed by 14 days. Per our policy, I've issued a full refund of $89.99 to your original payment method. You'll receive a confirmation email within a few minutes. I'm sorry for the inconvenience — is there anything else I can help with?"</em> Score it against each dimension. Where is the response strong? Where does it lose points? Now change the scenario: what if the order was $649 instead of $89.99 — does the same response pass or fail? Why?</div>
+        </div>
+
+        <div class="step-card">
+          <div class="step-number">Step 05</div>
+          <div class="step-title">Compare to the capstone eval</div>
+          <div class="step-desc">After completing Module 08 Phase 5, open <code>eval.py</code> and compare its rubric and test cases to yours. Where do they overlap? Where do they diverge? Which test cases did you write that the capstone's eval misses? Which did the capstone's eval catch that yours missed? The gaps in both directions are the most informative part: they tell you where your mental model of Aria's risk profile differs from the one encoded in the course material — and who's right is worth debating.</div>
+        </div>
+
+        <div class="callout callout-example">
+          <div class="callout-label">Capstone Connection</div>
+          <p>The <code>eval.py</code> in Module 08 Phase 5 implements a rubric covering five dimensions (resolve correctly, stay in policy, escalate appropriately, handle errors cleanly, communicate clearly) with eight test cases. The test cases you write here become the custom test cases you add in Phase 5 Step 03. If you skip this exercise and go straight to coding, you'll end up with an eval that passes because you wrote it to match what you built — not because Aria actually works. Define the spec first. Build to it second. Measure against it third.</p>
+        </div>
+
+        <div class="callout callout-checkpoint">
+          <div class="callout-label">Checkpoint</div>
+          <p>Before moving to the capstone: you should have a written rubric (5 dimensions, point weights summing to 100), 10 test cases each with input, expected behavior, and failure signal, and a manually scored sample response. If any dimension is vague enough that two evaluators might score it differently, sharpen it. Vague specs produce passing evals that miss real failures.</p>
+        </div>
+
+      </div>
+    </div>
+
     <!-- Module Summary -->
     <section class="summary-section">
       <h2>Completing This Curriculum, You Can Now...</h2>
@@ -1527,8 +1669,8 @@
   <footer class="footer">
     <div class="footer-inner">
       <a href="module-06.html" class="footer-nav-link">← Module 06</a>
-      <span class="footer-badge">End of Curriculum</span>
-      <a href="agentic-ai-curriculum.html" class="footer-nav-link">← Back to Curriculum Overview</a>
+      <span class="footer-badge">Module 07 of 08</span>
+      <a href="module-08.html" class="footer-nav-link">Module 08: Capstone →</a>
     </div>
   </footer>
 </div>

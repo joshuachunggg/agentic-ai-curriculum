@@ -1315,6 +1315,17 @@ USER (turn 34): Okay so we've ruled out the browser. What's next?</code></pre>
           <div class="lab-step-title">Measure and Reflect</div>
           <div class="lab-step-desc">Compare: average tokens per call before vs. after. Count re-asked questions per 10-turn session. Count correct resolutions in 5 test scenarios. Identify which context engineering change had the largest per-token impact on resolution quality.</div>
         </div>
+
+        <div class="callout callout-example">
+          <div class="callout-label">Capstone Connection</div>
+          <p>Phase 2 of the Module 08 capstone implements <code>context_manager.py</code> — a compression function that summarizes old turns via Haiku, injects a structured <code>&lt;state&gt;</code> block tracking order ID and resolution status, and returns a shortened message list. Every line of that file targets a specific failure class you diagnose here: token bloat, lost-in-middle degradation, lost state across the compression boundary. When you understand exactly how context fails, you understand why each line of the context manager exists.</p>
+        </div>
+
+        <div class="callout callout-insight">
+          <div class="callout-label">Checkpoint</div>
+          <p>Answer these three questions quantitatively before proceeding: What turn count triggers degradation in your broken agent? What is the token count before vs. after applying your best compression technique? Which technique — rolling summary, state injection, or selective RAG — produced the most resolution-quality improvement per token saved? Vague impressions won't transfer to design decisions in the capstone.</p>
+        </div>
+
       </div>
     </div>
 

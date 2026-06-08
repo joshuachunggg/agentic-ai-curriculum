@@ -1572,6 +1572,16 @@
         <p>After four red-teaming rounds, Aria now has: tool-level enforcement (not just prompt-level), constrained tool scope, token and turn budgets, redundancy detection, confidence-based escalation, HITL thresholds for consequential actions, and full trace observability. Each control targets a specific failure class. None of them would be obvious from the initial system prompt — they require deliberate adversarial thinking about what can go wrong and structural changes that enforce safety in code, not in language.</p>
         <p>The final deliverable for this lab: a written runbook documenting each control, what it prevents, and what the alert/escalation behavior is when it fires. This runbook is the artifact your on-call team needs at 2 AM when something goes sideways in production.</p>
 
+        <div class="callout callout-example">
+          <div class="callout-label">Capstone Connection</div>
+          <p>Phase 4 of the Module 08 capstone is a direct implementation of what you discover in these four rounds. <code>guardrails.py</code> contains: PII and injection detection (what you exploit in Round 2), the three-tier HITL authority function (the control structure from Round 1), and output validation that catches policy violations before they reach the customer (what you find in Round 3). Your runbook is the design document for that file. If you skip writing it, you won't understand why the capstone guardrails are structured the way they are.</p>
+        </div>
+
+        <div class="callout callout-insight">
+          <div class="callout-label">Checkpoint</div>
+          <p>The runbook is not optional. Before touching the capstone, your runbook should cover all four failure classes with: what triggers the control, where in code it lives, what Aria does when it fires (block/escalate/log), and how you'd test it after a future code change. If any control is described as "add a check" without specifying where and how, it's not designed yet — finish the design before you move on.</p>
+        </div>
+
       </div>
     </div>
 

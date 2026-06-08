@@ -1697,6 +1697,16 @@ if __name__ == "__main__":
           <div class="step-desc">Modify <code>lookup_order</code> to return an error 50% of the time. Watch the agent struggle. Then update the tool's error response to include a clearer <code>suggestion</code>, and update the system prompt to instruct the agent to retry once on lookup failure. Compare the agent's behavior before and after. This is what "handle errors gracefully" means in practice.</div>
         </div>
 
+        <div class="callout callout-example">
+          <div class="callout-label">Capstone Connection</div>
+          <p>Phase 1 of the Module 08 capstone is this lab extended to six tools — the same ReAct loop, the same dispatch pattern, the same stop-condition logic. Layers 2–4 (context management, COMPASS subagents, guardrails) stack directly on top of what you build here. A subtle bug in this loop — wrong message format, missing <code>tool_use_id</code>, incorrect stop-reason handling — will compound through every later phase and surface as a mysterious failure far from the actual cause. Get it clean before moving on.</p>
+        </div>
+
+        <div class="callout callout-insight">
+          <div class="callout-label">Checkpoint</div>
+          <p>Your agent should resolve a standard delayed-order request in 4–6 iterations: lookup → (optionally check policy) → issue refund → send email → done. Fewer than 3 iterations means a tool is doing too much; more than 8 means the model is over-reasoning or your stop condition is wrong. Trace a complete run line by line and verify the message history is structured exactly as the API expects before declaring this phase complete.</p>
+        </div>
+
       </div>
     </div>
 

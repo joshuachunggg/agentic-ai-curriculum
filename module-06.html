@@ -1782,6 +1782,17 @@ crew = Crew(
           <div class="callout-label">Reflection Prompt</div>
           <p>After completing the lab: if you had to implement Aria using a framework you didn't use in this lab — AutoGen or Agentforce — what would you predict would be easy and hard, based on what you now understand about how framework abstractions affect development? Write two sentences. This is the skill the module is actually training: the ability to evaluate a framework before committing to it.</p>
         </div>
+
+        <div class="callout callout-example">
+          <div class="callout-label">Capstone Connection</div>
+          <p>The Module 08 capstone is built framework-free — raw Anthropic SDK. That's deliberate: you need to understand what every line does because you wrote it. This lab is why that choice is defensible. You now know exactly what LangGraph and CrewAI provide (state persistence, checkpointing, visual debugging, retry logic) and what you give up by going to raw SDK (all of that — in exchange for full transparency and zero abstraction overhead). When the capstone breaks at 2 AM, you'll know where to look because there's nowhere to hide.</p>
+        </div>
+
+        <div class="callout callout-insight">
+          <div class="callout-label">Checkpoint</div>
+          <p>Before moving to Module 07: write a one-sentence framework verdict for your next agentic project. It should be specific and falsifiable — not "depends on the project" but "start with LangGraph if the workflow has conditional branching and state you need to persist across failures; start with raw SDK otherwise." Vague preferences don't transfer to architectural decisions under deadline pressure.</p>
+        </div>
+
       </div>
     </section>
 

@@ -1613,6 +1613,16 @@ Output valid JSON:
         <h3>Expected Findings</h3>
         <p>On complex, multi-faceted questions, COMPASS should win on coverage breadth and latency. The parallel execution eliminates serial bottlenecks. On simple, focused questions, the single agent typically wins: COMPASS adds coordination overhead (the Planner decomposition, the structured handoffs) without meaningful benefit. Document this. The ability to articulate when multi-agent helps and when it doesn't is the practical skill this lab builds.</p>
 
+        <div class="callout callout-example">
+          <div class="callout-label">Capstone Connection</div>
+          <p>Phase 3 of the Module 08 capstone adds a miniaturized COMPASS inside Aria: two specialist subagents (one for shipping delay analysis, one for refund eligibility) running in parallel via <code>asyncio.gather</code>, with Aria synthesizing their recommendations before deciding. The Planner/Researchers/Synthesizer architecture you build here is exactly that pattern — just at full scale. The capstone version is small by design; this lab is why you can trust it at scale.</p>
+        </div>
+
+        <div class="callout callout-insight">
+          <div class="callout-label">Checkpoint</div>
+          <p>Verify two things before moving on: (1) your parallel researchers actually run concurrently — measure wall-clock time and confirm total ≤ 1.5× the slower of the two, not their sum; (2) your Synthesizer produces output that differs meaningfully from either Researcher alone, not just a restatement of one of them. If synthesis is just selection, the synthesis step isn't doing real work.</p>
+        </div>
+
       </div>
     </div>
 
