@@ -1770,6 +1770,12 @@ if __name__ == "__main__":
         <div class="step-desc">Write a third specialist: a <code>research_customer_sentiment</code> agent that analyzes the customer's tone and history to recommend communication style (formal vs. empathetic, concise vs. detailed). Wire it into <code>asyncio.gather</code> alongside the existing two. Pass its recommendation into the context block Aria receives. Measure whether response quality improves on TC-03 (the happy-path customer).</div>
       </div>
 
+      <div class="step-card">
+        <div class="step-number">Extension E</div>
+        <div class="step-title">Rebuild Aria v3 with Claude Code</div>
+        <div class="step-desc">You just built this system from scratch. You understand every line. Now open a fresh directory and use Claude Code to rebuild it — give it the spec (<em>"Build a customer success agent with a 6-tool ReAct loop, rolling context summarization, parallel research subagents, input/output guardrails, and an eval suite"</em>) and let it generate the implementation. Your job is not to accept what it produces — your job is to critique it. Where does it get the architecture right? Where does it make choices you'd override and why? What bugs does it introduce that you catch because you did Phases 1–5 manually? The contrast between what you built and what Claude Code generates is the most honest measure of what this capstone actually taught you. Document every architectural divergence with a one-sentence explanation of which is correct.</div>
+      </div>
+
     </div>
 
     <div class="section-divider"></div>
