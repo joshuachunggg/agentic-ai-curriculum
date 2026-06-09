@@ -413,8 +413,21 @@
   .module-link.link-foundation { color: var(--muted); border-bottom-color: rgba(107,107,128,0.3); }
   .module-link.link-foundation:hover { border-color: var(--muted); }
 </style>
+<style>
+  .site-nav { position: sticky; top: 0; z-index: 100; background: rgba(10,10,15,0.92); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); }
+  .site-nav-inner { max-width: 1100px; margin: 0 auto; padding: 0 2rem; display: flex; align-items: center; justify-content: space-between; height: 48px; }
+  .site-nav a { font-family: 'IBM Plex Mono', monospace; font-size: 0.7rem; letter-spacing: 0.05em; color: var(--muted); text-decoration: none; transition: color 0.2s; }
+  .site-nav a:hover { color: var(--text); }
+</style>
 </head>
 <body>
+
+<nav class="site-nav">
+  <div class="site-nav-inner">
+    <a href="index.html">← Home</a>
+    <a href="foundations/index.html">Foundations →</a>
+  </div>
+</nav>
 
 <div class="hero">
   <div class="container">
