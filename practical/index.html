@@ -1,0 +1,858 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Build Your Agent — A Practical Workshop</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;500&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #111118;
+    --surface2: #18181f;
+    --border: #2a2a3a;
+    --accent: #7c6af7;
+    --accent2: #f7c36a;
+    --accent3: #6af7d4;
+    --text: #e8e8f0;
+    --muted: #6b6b80;
+    --danger: #f76a6a;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 300;
+    line-height: 1.7;
+    min-height: 100vh;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.4;
+  }
+
+  .container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 2rem;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Hero */
+  .hero {
+    padding: 5rem 0 3.5rem;
+    border-bottom: 1px solid var(--border);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero::after {
+    content: '';
+    position: absolute;
+    top: -120px;
+    right: -200px;
+    width: 700px;
+    height: 700px;
+    background: radial-gradient(circle, rgba(106,247,212,0.10) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .hero-eyebrow {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.2em;
+    color: var(--accent3);
+    text-transform: uppercase;
+    margin-bottom: 0.8rem;
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+  }
+
+  .hero-eyebrow a {
+    color: var(--muted);
+    text-decoration: none;
+    border-bottom: 1px solid rgba(107,107,128,0.3);
+    padding-bottom: 0.05rem;
+    transition: color 0.2s, border-color 0.2s;
+    font-size: 0.68rem;
+  }
+
+  .hero-eyebrow a:hover {
+    color: var(--text);
+    border-color: var(--muted);
+  }
+
+  .hero-eyebrow-sep {
+    color: var(--border);
+  }
+
+  .hero h1 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: clamp(2.4rem, 5vw, 4rem);
+    line-height: 1.05;
+    margin-bottom: 0.5rem;
+    letter-spacing: -0.02em;
+  }
+
+  .hero h1 .course-sub {
+    display: block;
+    font-family: 'IBM Plex Mono', monospace;
+    font-weight: 400;
+    font-size: clamp(0.9rem, 1.5vw, 1.1rem);
+    letter-spacing: 0.1em;
+    color: var(--accent3);
+    text-transform: uppercase;
+    margin-bottom: 0.8rem;
+    margin-top: 0;
+  }
+
+  .hero h1 .teal {
+    color: var(--accent3);
+  }
+
+  .hero-tagline {
+    font-size: 1.12rem;
+    color: var(--muted);
+    max-width: 640px;
+    line-height: 1.8;
+    margin-bottom: 2rem;
+    font-style: italic;
+  }
+
+  .hero-stats {
+    display: flex;
+    gap: 3rem;
+    flex-wrap: wrap;
+    margin-bottom: 2.5rem;
+  }
+
+  .stat-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+  }
+
+  .stat-value {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 1.8rem;
+    color: var(--accent3);
+    line-height: 1;
+  }
+
+  .stat-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+
+  /* Course intro */
+  .intro-section {
+    padding: 3.5rem 0;
+    border-bottom: 1px solid var(--border);
+    display: grid;
+    grid-template-columns: 1fr 340px;
+    gap: 4rem;
+    align-items: start;
+  }
+
+  @media (max-width: 820px) {
+    .intro-section { grid-template-columns: 1fr; gap: 2rem; }
+  }
+
+  .intro-text p {
+    font-size: 0.97rem;
+    color: #c0c0d8;
+    line-height: 1.85;
+    margin-bottom: 1.2rem;
+  }
+
+  .intro-text p:last-child { margin-bottom: 0; }
+
+  .intro-text a {
+    color: var(--accent3);
+    text-decoration: none;
+    border-bottom: 1px solid rgba(106,247,212,0.35);
+    padding-bottom: 0.05rem;
+    transition: border-color 0.2s;
+  }
+
+  .intro-text a:hover {
+    border-color: var(--accent3);
+  }
+
+  /* Prerequisites card */
+  .prereq-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  .prereq-header {
+    padding: 1.1rem 1.5rem;
+    background: var(--surface2);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+
+  .prereq-header-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .prereq-list {
+    padding: 1rem 0 0.5rem;
+    list-style: none;
+  }
+
+  .prereq-item {
+    padding: 0.55rem 1.5rem;
+    display: flex;
+    align-items: baseline;
+    gap: 0.8rem;
+    font-size: 0.88rem;
+    color: #b8b8d0;
+    line-height: 1.5;
+  }
+
+  .prereq-item::before {
+    content: '';
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: var(--accent3);
+    flex-shrink: 0;
+    margin-top: 0.52rem;
+  }
+
+  .prereq-code {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.78rem;
+    background: rgba(106,247,212,0.08);
+    color: var(--accent3);
+    padding: 0.1rem 0.4rem;
+    border-radius: 3px;
+    border: 1px solid rgba(106,247,212,0.18);
+  }
+
+  .prereq-note {
+    margin: 0.8rem 1.5rem 1.2rem;
+    padding: 0.9rem 1.1rem;
+    background: rgba(247,195,106,0.06);
+    border: 1px solid rgba(247,195,106,0.2);
+    border-radius: 8px;
+    font-size: 0.82rem;
+    color: #d4b87a;
+    line-height: 1.65;
+  }
+
+  .prereq-note strong {
+    color: var(--accent2);
+    font-weight: 500;
+  }
+
+  /* What you'll build */
+  .build-section {
+    padding: 4rem 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .section-eyebrow {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    color: var(--accent3);
+    text-transform: uppercase;
+    margin-bottom: 0.6rem;
+  }
+
+  .section-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: clamp(1.5rem, 3vw, 2rem);
+    letter-spacing: -0.01em;
+    margin-bottom: 1.4rem;
+    line-height: 1.2;
+  }
+
+  .section-intro {
+    font-size: 0.97rem;
+    color: #c0c0d8;
+    line-height: 1.85;
+    max-width: 720px;
+    margin-bottom: 3rem;
+  }
+
+  /* Architecture stack */
+  .arch-stack {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+    max-width: 820px;
+  }
+
+  .arch-header {
+    padding: 1.2rem 1.8rem;
+    background: var(--surface2);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .arch-header-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .arch-header-name {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: var(--accent3);
+  }
+
+  .arch-layer {
+    display: grid;
+    grid-template-columns: 48px 1fr auto;
+    gap: 1.2rem;
+    padding: 1.2rem 1.8rem;
+    border-bottom: 1px solid var(--border);
+    align-items: center;
+    transition: background 0.15s;
+  }
+
+  .arch-layer:last-child { border-bottom: none; }
+
+  .arch-layer:hover { background: rgba(106,247,212,0.03); }
+
+  .arch-module-num {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--accent3);
+    background: rgba(106,247,212,0.08);
+    border: 1px solid rgba(106,247,212,0.2);
+    border-radius: 4px;
+    padding: 0.22rem 0.45rem;
+    text-align: center;
+  }
+
+  .arch-layer-info { flex: 1; }
+
+  .arch-layer-name {
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    font-size: 0.92rem;
+    color: var(--text);
+    margin-bottom: 0.2rem;
+  }
+
+  .arch-layer-desc {
+    font-size: 0.8rem;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+
+  .arch-cap {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    color: #7ab8a8;
+    white-space: nowrap;
+    letter-spacing: 0.03em;
+  }
+
+  /* Module grid */
+  .modules-section {
+    padding: 4rem 0 6rem;
+  }
+
+  .module-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 1.2rem;
+    margin-top: 2.5rem;
+  }
+
+  .module-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    text-decoration: none;
+    color: inherit;
+    display: flex;
+    flex-direction: column;
+    transition: border-color 0.2s, transform 0.2s;
+  }
+
+  .module-card:hover {
+    border-color: rgba(106,247,212,0.4);
+    transform: translateY(-2px);
+  }
+
+  .module-card-accent {
+    height: 2px;
+    background: linear-gradient(to right, var(--accent3), transparent);
+    opacity: 0.5;
+  }
+
+  .module-card-header {
+    padding: 1.3rem 1.5rem 1rem;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+
+  .module-card-num {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--accent3);
+    background: rgba(106,247,212,0.08);
+    border: 1px solid rgba(106,247,212,0.2);
+    border-radius: 4px;
+    padding: 0.22rem 0.52rem;
+    flex-shrink: 0;
+  }
+
+  .module-card-time {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.62rem;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+
+  .module-card-body {
+    padding: 1.2rem 1.5rem;
+    flex: 1;
+  }
+
+  .module-card-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 1.05rem;
+    line-height: 1.25;
+    margin-bottom: 0.65rem;
+    letter-spacing: -0.01em;
+    color: var(--text);
+  }
+
+  .module-card-gain {
+    font-size: 0.85rem;
+    color: #a0a0b8;
+    line-height: 1.65;
+    margin-bottom: 1rem;
+  }
+
+  .module-card-backed {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.66rem;
+    color: var(--muted);
+    letter-spacing: 0.03em;
+    padding-top: 0.9rem;
+    border-top: 1px solid var(--border);
+  }
+
+  .module-card-backed span {
+    color: var(--accent);
+  }
+
+  .module-card-link {
+    padding: 0.85rem 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.05em;
+    color: var(--accent3);
+    border-top: 1px solid var(--border);
+    background: rgba(106,247,212,0.03);
+    transition: background 0.15s;
+  }
+
+  .module-card:hover .module-card-link {
+    background: rgba(106,247,212,0.07);
+  }
+
+  /* Footer */
+  .footer {
+    border-top: 1px solid var(--border);
+    padding: 2.5rem 0;
+  }
+
+  .footer-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .footer-text {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.68rem;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+  }
+
+  .footer-link {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.05em;
+    color: var(--muted);
+    text-decoration: none;
+    border-bottom: 1px solid rgba(107,107,128,0.3);
+    padding-bottom: 0.1rem;
+    transition: color 0.2s, border-color 0.2s;
+  }
+
+  .footer-link:hover {
+    color: var(--text);
+    border-color: var(--muted);
+  }
+
+  /* Divider */
+  .divider {
+    height: 1px;
+    background: linear-gradient(to right, transparent, var(--border) 20%, var(--border) 80%, transparent);
+    margin: 4rem 0;
+  }
+
+  @media (max-width: 640px) {
+    .hero-stats { gap: 2rem; }
+    .module-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Hero -->
+<div class="hero">
+  <div class="container">
+    <div class="hero-eyebrow">
+      <span>Practical Workshop</span>
+      <span class="hero-eyebrow-sep">·</span>
+      <a href="../agentic-ai-curriculum.html">← Agentic AI Lecture Course</a>
+    </div>
+    <h1>
+      <span class="course-sub">A Practical Workshop</span>
+      Build Your <span class="teal">Agent</span>
+    </h1>
+    <p class="hero-tagline">Seven modules. Every module, you ship. By the end, Scout — your personal research agent — is yours to deploy.</p>
+    <div class="hero-stats">
+      <div class="stat-item">
+        <span class="stat-value">7</span>
+        <span class="stat-label">Modules</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-value">~5</span>
+        <span class="stat-label">Hours</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-value">0</span>
+        <span class="stat-label">Toy Examples</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Intro + Prerequisites -->
+<div class="container">
+  <div class="intro-section">
+    <div class="intro-text">
+      <p>This course is the hands-on companion to the <a href="../agentic-ai-curriculum.html">Agentic AI lecture curriculum</a>. Where that course explains how agents work — the theory, the tradeoffs, the architecture — this one makes you build one. Real code, real tools, a real agent you can run from your terminal.</p>
+      <p>The build method is deliberate: you use <strong>Claude Code</strong> (Anthropic's AI coding CLI) to generate the code, then each section unpacks what was built and why. You're not copying and pasting from a tutorial — you're learning to work with an AI coding assistant while understanding the agent patterns underneath. This is how production engineers work in 2026.</p>
+      <p>Every module ends with a working agent you can run. No partial builds, no "homework exercise left to the reader." By module 7, Scout is a production-grade research agent with real search tools, parallel subagents, guardrails, and an eval suite — ready to customize for any domain you care about.</p>
+    </div>
+
+    <div class="prereq-card">
+      <div class="prereq-header">
+        <div class="prereq-header-label">Prerequisites</div>
+      </div>
+      <ul class="prereq-list">
+        <li class="prereq-item">Python <span class="prereq-code">3.10+</span> installed</li>
+        <li class="prereq-item">Anthropic API key — <span class="prereq-code">ANTHROPIC_API_KEY</span></li>
+        <li class="prereq-item">Claude Code CLI — <span class="prereq-code">npm install -g @anthropic-ai/claude-code</span></li>
+        <li class="prereq-item">Basic terminal comfort (cd, ls, running Python scripts)</li>
+      </ul>
+      <div class="prereq-note">
+        <strong>No deep Python experience needed.</strong> Claude Code writes the code. You need to understand what it builds — that's exactly what this course teaches.
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- What you'll build -->
+<div class="container">
+  <div class="build-section">
+    <div class="section-eyebrow">What you'll build</div>
+    <div class="section-title">Meet Scout</div>
+    <p class="section-intro">Scout is a personal research assistant agent. It's not a chatbot — it's a program that can reason, search, read, remember, and coordinate subagents to answer complex research questions. You'll build it from scratch, one capability at a time, understanding every layer you add.</p>
+
+    <div class="arch-stack">
+      <div class="arch-header">
+        <div class="arch-header-label">Scout — final architecture</div>
+        <div class="arch-header-name">Scout v7</div>
+      </div>
+
+      <div class="arch-layer">
+        <div class="arch-module-num">P07</div>
+        <div class="arch-layer-info">
+          <div class="arch-layer-name">Deployment + Customization</div>
+          <div class="arch-layer-desc">Custom domain, CLI wrapper, domain-specific persona and tools</div>
+        </div>
+        <div class="arch-cap">yours to ship</div>
+      </div>
+
+      <div class="arch-layer">
+        <div class="arch-module-num">P06</div>
+        <div class="arch-layer-info">
+          <div class="arch-layer-name">Guardrails, HITL &amp; Evals</div>
+          <div class="arch-layer-desc">Input/output guardrails, human approval tiers, automated eval harness</div>
+        </div>
+        <div class="arch-cap">production-safe</div>
+      </div>
+
+      <div class="arch-layer">
+        <div class="arch-module-num">P05</div>
+        <div class="arch-layer-info">
+          <div class="arch-layer-name">MCP-Powered Real Tools</div>
+          <div class="arch-layer-desc">Brave Search MCP, filesystem MCP — real web search, real file access</div>
+        </div>
+        <div class="arch-cap">real-world tools</div>
+      </div>
+
+      <div class="arch-layer">
+        <div class="arch-module-num">P04</div>
+        <div class="arch-layer-info">
+          <div class="arch-layer-name">Parallel Subagents</div>
+          <div class="arch-layer-desc">Deep research mode — spawns specialist subagents via asyncio.gather</div>
+        </div>
+        <div class="arch-cap">multi-agent</div>
+      </div>
+
+      <div class="arch-layer">
+        <div class="arch-module-num">P03</div>
+        <div class="arch-layer-info">
+          <div class="arch-layer-name">Context Compression + Persistent State</div>
+          <div class="arch-layer-desc">Rolling summarization, session persistence across restarts</div>
+        </div>
+        <div class="arch-cap">long-horizon</div>
+      </div>
+
+      <div class="arch-layer">
+        <div class="arch-module-num">P02</div>
+        <div class="arch-layer-info">
+          <div class="arch-layer-name">Full Toolkit: Search, Read, Notes</div>
+          <div class="arch-layer-desc">web_search + read_url + save_note + search_notes</div>
+        </div>
+        <div class="arch-cap">4 tools</div>
+      </div>
+
+      <div class="arch-layer">
+        <div class="arch-module-num">P01</div>
+        <div class="arch-layer-info">
+          <div class="arch-layer-name">Core ReAct Loop</div>
+          <div class="arch-layer-desc">Single web_search tool, Anthropic SDK, stop condition — the loop everything is built on</div>
+        </div>
+        <div class="arch-cap">foundation</div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- Module grid -->
+<div class="container">
+  <div class="modules-section">
+    <div class="section-eyebrow">The Modules</div>
+    <div class="section-title">Seven modules, seven ships</div>
+    <p class="section-intro">Each module takes 30–45 minutes and ends with working code. The "backed by" note links each module to the original lecture curriculum — so you know exactly which theory underpins what you're building.</p>
+
+    <div class="module-grid">
+
+      <!-- P01 -->
+      <a href="module-p01.html" class="module-card">
+        <div class="module-card-accent"></div>
+        <div class="module-card-header">
+          <div class="module-card-num">P01</div>
+          <div class="module-card-time">~45 min</div>
+        </div>
+        <div class="module-card-body">
+          <div class="module-card-title">Your First Agent</div>
+          <div class="module-card-gain">Scout gets a single web_search tool and a ReAct loop. You ask a question — Scout reasons, searches, and answers with cited sources.</div>
+          <div class="module-card-backed">
+            Backed by <span>M01 · What Makes Something Agentic?</span> + <span>M02 · Architecture Patterns</span>
+          </div>
+        </div>
+        <div class="module-card-link">
+          <span>Open module</span>
+          <span>→</span>
+        </div>
+      </a>
+
+      <!-- P02 -->
+      <a href="module-p02.html" class="module-card">
+        <div class="module-card-accent"></div>
+        <div class="module-card-header">
+          <div class="module-card-num">P02</div>
+          <div class="module-card-time">~35 min</div>
+        </div>
+        <div class="module-card-body">
+          <div class="module-card-title">Scout's Toolkit</div>
+          <div class="module-card-gain">Add read_url, save_note, list_notes, and search_notes. Scout can now research a topic across multiple sources and build a persistent knowledge base.</div>
+          <div class="module-card-backed">
+            Backed by <span>M02 · Architecture Patterns</span> — tool design, memory architecture
+          </div>
+        </div>
+        <div class="module-card-link">
+          <span>Open module</span>
+          <span>→</span>
+        </div>
+      </a>
+
+      <!-- P03 -->
+      <a href="module-p03.html" class="module-card">
+        <div class="module-card-accent"></div>
+        <div class="module-card-header">
+          <div class="module-card-num">P03</div>
+          <div class="module-card-time">~40 min</div>
+        </div>
+        <div class="module-card-body">
+          <div class="module-card-title">Memory That Lasts</div>
+          <div class="module-card-gain">Add rolling context compression via Haiku and session persistence to disk. Scout picks up where it left off across restarts — long research projects now stay coherent.</div>
+          <div class="module-card-backed">
+            Backed by <span>M03 · Context Engineering</span> — dynamic context management, summarization
+          </div>
+        </div>
+        <div class="module-card-link">
+          <span>Open module</span>
+          <span>→</span>
+        </div>
+      </a>
+
+      <!-- P04 -->
+      <a href="module-p04.html" class="module-card">
+        <div class="module-card-accent"></div>
+        <div class="module-card-header">
+          <div class="module-card-num">P04</div>
+          <div class="module-card-time">~40 min</div>
+        </div>
+        <div class="module-card-body">
+          <div class="module-card-title">Deep Research Mode</div>
+          <div class="module-card-gain">Add a "deep_research" command that spawns parallel subagents via asyncio.gather. Scout decomposes your question, runs specialist researchers in parallel, and synthesizes a final answer.</div>
+          <div class="module-card-backed">
+            Backed by <span>M04 · Multi-Agent Systems</span> — orchestration, parallelism, specialization
+          </div>
+        </div>
+        <div class="module-card-link">
+          <span>Open module</span>
+          <span>→</span>
+        </div>
+      </a>
+
+      <!-- P05 -->
+      <a href="module-p05.html" class="module-card">
+        <div class="module-card-accent"></div>
+        <div class="module-card-header">
+          <div class="module-card-num">P05</div>
+          <div class="module-card-time">~35 min</div>
+        </div>
+        <div class="module-card-body">
+          <div class="module-card-title">Real Tools via MCP</div>
+          <div class="module-card-gain">Replace the web_search stub with Brave Search MCP and add filesystem MCP. Scout now does real web searches and can read and write files on your machine.</div>
+          <div class="module-card-backed">
+            Backed by <span>M04 · Multi-Agent Systems</span> — Model Context Protocol, MCP servers
+          </div>
+        </div>
+        <div class="module-card-link">
+          <span>Open module</span>
+          <span>→</span>
+        </div>
+      </a>
+
+      <!-- P06 -->
+      <a href="module-p06.html" class="module-card">
+        <div class="module-card-accent"></div>
+        <div class="module-card-header">
+          <div class="module-card-num">P06</div>
+          <div class="module-card-time">~45 min</div>
+        </div>
+        <div class="module-card-body">
+          <div class="module-card-title">Safe to Ship</div>
+          <div class="module-card-gain">Add guardrails (input/output scanning), human-in-the-loop approval for sensitive actions, and an automated eval harness with a pass/fail suite. Production-ready.</div>
+          <div class="module-card-backed">
+            Backed by <span>M05 · Production, Safety &amp; Governance</span> — HITL, guardrails, evals
+          </div>
+        </div>
+        <div class="module-card-link">
+          <span>Open module</span>
+          <span>→</span>
+        </div>
+      </a>
+
+      <!-- P07 -->
+      <a href="module-p07.html" class="module-card">
+        <div class="module-card-accent"></div>
+        <div class="module-card-header">
+          <div class="module-card-num">P07</div>
+          <div class="module-card-time">~40 min</div>
+        </div>
+        <div class="module-card-body">
+          <div class="module-card-title">Make It Yours</div>
+          <div class="module-card-gain">Customize Scout for your use case — domain-specific tools, persona, CLI wrapper, and deployment. Leave with an agent you'll actually use, tailored to a problem you actually have.</div>
+          <div class="module-card-backed">
+            Backed by <span>M06 · Frameworks &amp; Tooling</span> + <span>M07 · Staying on the Frontier</span>
+          </div>
+        </div>
+        <div class="module-card-link">
+          <span>Open module</span>
+          <span>→</span>
+        </div>
+      </a>
+
+    </div>
+  </div>
+</div>
+
+<footer class="footer">
+  <div class="container">
+    <div class="footer-inner">
+      <div class="footer-text">Build Your Agent · Practical Workshop · 2026</div>
+      <a href="../agentic-ai-curriculum.html" class="footer-link">← The original Agentic AI curriculum</a>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

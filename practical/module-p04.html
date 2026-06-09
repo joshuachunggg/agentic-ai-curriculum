@@ -1,0 +1,1098 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>P04: Deep Research Mode — Build Your Agent</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;500&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #111118;
+    --surface2: #18181f;
+    --border: #2a2a3a;
+    --accent: #7c6af7;
+    --accent2: #f7c36a;
+    --accent3: #6af7d4;
+    --text: #e8e8f0;
+    --muted: #6b6b80;
+    --danger: #f76a6a;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 300;
+    line-height: 1.7;
+    min-height: 100vh;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.4;
+  }
+
+  /* Sticky nav */
+  .top-nav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(10,10,15,0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .top-nav-inner {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 0 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 52px;
+    gap: 1rem;
+  }
+
+  .nav-back {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.05em;
+    color: var(--muted);
+    text-decoration: none;
+    transition: color 0.2s;
+    white-space: nowrap;
+  }
+
+  .nav-back:hover { color: var(--text); }
+
+  .nav-module-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    color: var(--muted);
+    text-transform: uppercase;
+    text-align: center;
+    flex: 1;
+  }
+
+  .nav-next {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.05em;
+    color: var(--muted);
+    text-decoration: none;
+    transition: color 0.2s;
+    white-space: nowrap;
+  }
+
+  .nav-next:hover { color: var(--accent3); }
+
+  /* Container */
+  .container {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 0 2rem;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Hero */
+  .hero {
+    padding: 4.5rem 0 3.5rem;
+    border-bottom: 1px solid var(--border);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero::after {
+    content: '';
+    position: absolute;
+    top: -100px;
+    right: -200px;
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, rgba(106,247,212,0.10) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .hero-eyebrow {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.2em;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+  }
+
+  .module-badge {
+    display: inline-block;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.1em;
+    padding: 0.25rem 0.6rem;
+    border-radius: 4px;
+    margin-bottom: 1.2rem;
+    background: rgba(106,247,212,0.12);
+    color: var(--accent3);
+    border: 1px solid rgba(106,247,212,0.3);
+  }
+
+  .hero h1 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: clamp(2rem, 4.5vw, 3.2rem);
+    line-height: 1.08;
+    margin-bottom: 1.4rem;
+    letter-spacing: -0.02em;
+  }
+
+  .hero-sub {
+    font-size: 1.05rem;
+    color: #a0a0b8;
+    max-width: 620px;
+    line-height: 1.8;
+    margin-bottom: 2rem;
+  }
+
+  .hero-meta {
+    display: flex;
+    gap: 2.5rem;
+    flex-wrap: wrap;
+  }
+
+  .meta-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+  }
+
+  .meta-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.15em;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+
+  .meta-value {
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    font-size: 1rem;
+    color: var(--text);
+  }
+
+  .meta-value a {
+    color: var(--accent);
+    text-decoration: none;
+    border-bottom: 1px solid rgba(124,106,247,0.3);
+    padding-bottom: 0.05rem;
+    font-size: 0.88rem;
+    transition: border-color 0.2s;
+  }
+
+  .meta-value a:hover { border-color: var(--accent); }
+
+  /* Main content */
+  .content {
+    padding: 4rem 0 6rem;
+  }
+
+  /* Section layout */
+  .topic-section {
+    margin-bottom: 5rem;
+  }
+
+  .topic-section:last-child {
+    margin-bottom: 0;
+  }
+
+  .section-number {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+  }
+
+  .topic-section h2 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 1.65rem;
+    letter-spacing: -0.01em;
+    line-height: 1.2;
+    margin-bottom: 1.6rem;
+    color: var(--text);
+  }
+
+  .topic-section h3 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    font-size: 1.1rem;
+    letter-spacing: -0.01em;
+    margin-top: 2rem;
+    margin-bottom: 0.8rem;
+    color: var(--text);
+  }
+
+  .topic-section p {
+    font-size: 0.97rem;
+    color: #c8c8d8;
+    line-height: 1.82;
+    margin-bottom: 1.2rem;
+  }
+
+  .topic-section p:last-child {
+    margin-bottom: 0;
+  }
+
+  /* Section divider */
+  .section-divider {
+    height: 1px;
+    background: linear-gradient(to right, transparent, var(--border) 20%, var(--border) 80%, transparent);
+    margin: 4.5rem 0;
+  }
+
+  /* Callout boxes */
+  .callout {
+    border-radius: 10px;
+    padding: 1.3rem 1.6rem;
+    margin: 2rem 0;
+  }
+
+  .callout-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 0.6rem;
+    font-weight: 500;
+  }
+
+  .callout p {
+    font-size: 0.92rem;
+    line-height: 1.75;
+    margin-bottom: 0;
+  }
+
+  .callout p + p {
+    margin-top: 0.8rem;
+  }
+
+  .callout-insight {
+    background: rgba(124,106,247,0.07);
+    border: 1px solid rgba(124,106,247,0.25);
+  }
+
+  .callout-insight .callout-label { color: var(--accent); }
+  .callout-insight p { color: #b8b0f0; }
+
+  .callout-mistake {
+    background: rgba(247,106,106,0.07);
+    border: 1px solid rgba(247,106,106,0.25);
+  }
+
+  .callout-mistake .callout-label { color: var(--danger); }
+  .callout-mistake p { color: #e0b0b0; }
+
+  .callout-example {
+    background: rgba(106,247,212,0.06);
+    border: 1px solid rgba(106,247,212,0.22);
+  }
+
+  .callout-example .callout-label { color: var(--accent3); }
+  .callout-example p { color: #a8e8d8; }
+
+  .callout-checkpoint {
+    background: rgba(247,195,106,0.06);
+    border: 1px solid rgba(247,195,106,0.25);
+  }
+
+  .callout-checkpoint .callout-label { color: var(--accent2); }
+  .callout-checkpoint p { color: #e8d8a8; }
+
+  .callout-checkpoint ul {
+    list-style: none;
+    margin: 0.5rem 0 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
+  }
+
+  .callout-checkpoint ul li {
+    font-size: 0.9rem;
+    color: #e8d8a8;
+    line-height: 1.6;
+    padding-left: 1.4rem;
+    position: relative;
+  }
+
+  .callout-checkpoint ul li::before {
+    content: '✓';
+    position: absolute;
+    left: 0;
+    color: var(--accent2);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.8rem;
+  }
+
+  /* Code blocks */
+  .code-block {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.4rem 1.6rem;
+    margin: 1.6rem 0;
+    overflow-x: auto;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.82rem;
+    line-height: 1.75;
+    color: #c0c0d8;
+  }
+
+  .code-block code {
+    font-family: inherit;
+  }
+
+  .code-block-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: -0.4rem;
+    margin-top: 1.6rem;
+  }
+
+  .code-block-label:first-child { margin-top: 0; }
+
+  /* Bash code block variant */
+  .code-block.bash {
+    background: #0d1117;
+    border-color: #1e2530;
+  }
+
+  .code-block.bash code {
+    color: #b0c8a0;
+  }
+
+  /* Inline code */
+  code {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.83em;
+    background: rgba(106,247,212,0.08);
+    border: 1px solid rgba(106,247,212,0.18);
+    color: var(--accent3);
+    padding: 0.1rem 0.38rem;
+    border-radius: 3px;
+  }
+
+  /* Claude Code Prompt Block */
+  .cc-prompt-block {
+    background: rgba(106,247,212,0.04);
+    border: 1px solid rgba(106,247,212,0.3);
+    border-radius: 10px;
+    margin: 1.8rem 0;
+    overflow: hidden;
+  }
+
+  .cc-prompt-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--accent3);
+    padding: 0.55rem 1.3rem;
+    background: rgba(106,247,212,0.08);
+    border-bottom: 1px solid rgba(106,247,212,0.15);
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+
+  .cc-prompt-label::before {
+    content: '▸';
+    font-size: 0.8rem;
+  }
+
+  .cc-prompt-body {
+    padding: 1.2rem 1.6rem;
+    font-size: 0.92rem;
+    color: #b0e8d8;
+    line-height: 1.85;
+  }
+
+  .cc-prompt-body code {
+    background: rgba(106,247,212,0.1);
+    border-color: rgba(106,247,212,0.2);
+    color: var(--accent3);
+  }
+
+  /* Step blocks */
+  .step-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .step-block {
+    display: flex;
+    gap: 1.8rem;
+    padding: 2rem 0;
+    border-bottom: 1px solid var(--border);
+    align-items: flex-start;
+  }
+
+  .step-block:last-child { border-bottom: none; }
+
+  .step-num {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--accent);
+    background: rgba(124,106,247,0.1);
+    border: 1px solid rgba(124,106,247,0.22);
+    border-radius: 4px;
+    padding: 0.28rem 0.55rem;
+    white-space: nowrap;
+    flex-shrink: 0;
+    margin-top: 0.2rem;
+  }
+
+  .step-content { flex: 1; min-width: 0; }
+
+  .step-content h3 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    font-size: 1.05rem;
+    color: var(--text);
+    margin-bottom: 0.7rem;
+    margin-top: 0;
+    letter-spacing: -0.01em;
+  }
+
+  .step-content p {
+    font-size: 0.95rem;
+    color: #c0c0d8;
+    line-height: 1.82;
+    margin-bottom: 0.9rem;
+  }
+
+  .step-content p:last-child { margin-bottom: 0; }
+
+  /* Scout state bar */
+  .scout-state {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.2rem 1.6rem;
+    margin: 0 0 3rem;
+    display: flex;
+    align-items: flex-start;
+    gap: 1.2rem;
+  }
+
+  .scout-state-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    white-space: nowrap;
+    flex-shrink: 0;
+    padding-top: 0.1rem;
+  }
+
+  .scout-caps {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .scout-cap {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.68rem;
+    padding: 0.25rem 0.6rem;
+    border-radius: 20px;
+    border: 1px solid;
+  }
+
+  .scout-cap.active {
+    background: rgba(106,247,212,0.08);
+    border-color: rgba(106,247,212,0.3);
+    color: var(--accent3);
+  }
+
+  .scout-cap.locked {
+    background: rgba(107,107,128,0.08);
+    border-color: var(--border);
+    color: var(--muted);
+  }
+
+  /* Output example block */
+  .output-block {
+    background: #050508;
+    border: 1px solid #1a1a28;
+    border-radius: 8px;
+    padding: 1.4rem 1.6rem;
+    margin: 1.6rem 0;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.8rem;
+    line-height: 1.9;
+    overflow-x: auto;
+  }
+
+  .out-dim { color: #484860; }
+  .out-search { color: var(--accent3); }
+  .out-result { color: #c0c8b8; }
+  .out-label { color: var(--muted); }
+  .out-scout { color: #e8e8f0; }
+
+  /* Next module CTA */
+  .next-module {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--surface);
+    border: 1px solid rgba(106,247,212,0.25);
+    border-radius: 12px;
+    padding: 1.6rem 2rem;
+    margin-top: 3rem;
+    text-decoration: none;
+    color: inherit;
+    transition: border-color 0.2s, background 0.2s;
+  }
+
+  .next-module:hover {
+    border-color: rgba(106,247,212,0.5);
+    background: rgba(106,247,212,0.04);
+  }
+
+  .next-module-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 0.4rem;
+  }
+
+  .next-module-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: var(--text);
+  }
+
+  .next-module-arrow {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 1.4rem;
+    color: var(--accent3);
+    transition: transform 0.2s;
+  }
+
+  .next-module:hover .next-module-arrow {
+    transform: translateX(4px);
+  }
+
+  /* Footer */
+  .footer {
+    border-top: 1px solid var(--border);
+    padding: 2.5rem 0;
+  }
+
+  .footer-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .footer-text {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.68rem;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+  }
+
+  @media (max-width: 620px) {
+    .step-block { flex-direction: column; gap: 0.8rem; }
+    .scout-state { flex-direction: column; gap: 0.7rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Sticky nav -->
+<nav class="top-nav">
+  <div class="top-nav-inner">
+    <a href="module-p03.html" class="nav-back">← Module P03</a>
+    <div class="nav-module-label">Module P04 / 07</div>
+    <a href="module-p05.html" class="nav-next">Module P05 →</a>
+  </div>
+</nav>
+
+<!-- Hero -->
+<div class="hero">
+  <div class="container">
+    <div class="hero-eyebrow">Build Your Agent · Practical Workshop</div>
+    <div class="module-badge">MODULE P04</div>
+    <h1>Deep Research Mode</h1>
+    <p class="hero-sub">Some questions deserve more than a single loop. Scout learns to spawn parallel subagents — a Searcher and a Synthesizer — and orchestrate them into a structured research report.</p>
+    <div class="hero-meta">
+      <div class="meta-item">
+        <span class="meta-label">Time</span>
+        <span class="meta-value">~50 min</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">Backed by</span>
+        <span class="meta-value">
+          <a href="../module-04.html">M04 · Multi-Agent Systems &amp; Orchestration</a>
+        </span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">Scout gains</span>
+        <span class="meta-value">Parallel subagents, deep research mode</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Content -->
+<div class="container">
+<div class="content">
+
+  <!-- Scout state bar -->
+  <div class="scout-state">
+    <div class="scout-state-label">Scout after P04</div>
+    <div class="scout-caps">
+      <span class="scout-cap active">web_search</span>
+      <span class="scout-cap active">read_url</span>
+      <span class="scout-cap active">save_note</span>
+      <span class="scout-cap active">search_notes</span>
+      <span class="scout-cap active">context_compression</span>
+      <span class="scout-cap active">persistent_sessions</span>
+      <span class="scout-cap active">subagents</span>
+      <span class="scout-cap locked">MCP_tools</span>
+      <span class="scout-cap locked">guardrails</span>
+      <span class="scout-cap locked">evals</span>
+      <span class="scout-cap locked">deployment</span>
+    </div>
+  </div>
+
+  <!-- Section 1: What we're building -->
+  <div class="topic-section">
+    <div class="section-number">Section 01</div>
+    <h2>What we're building</h2>
+
+    <p>When you ask Scout "what's the capital of France?" it should answer immediately — no need to search, no need for a pipeline. But when you ask "give me a comprehensive analysis of the competitive landscape in enterprise AI tooling," that's a fundamentally different kind of request. It requires exploring multiple angles, reading multiple sources, and synthesizing potentially conflicting information into a coherent picture. A single linear ReAct loop isn't the right tool for that. It processes one thought at a time, and thoroughness is serial.</p>
+
+    <p>This module adds a "deep research mode." When Scout detects a complex research request, it spawns two parallel subagents: a Searcher that finds and reads multiple sources, and a Synthesizer that turns those raw findings into a structured report. Scout acts as the orchestrator — it decides when to go deep, delegates the work, and assembles the final output. The ReAct loop stays exactly as it is. You're adding a second mode of execution, not replacing the first.</p>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <!-- Section 2: The concept -->
+  <div class="topic-section">
+    <div class="section-number">Section 02</div>
+    <h2>The concept — Orchestrator/subagent and when to go multi-agent</h2>
+
+    <p>The orchestrator/subagent pattern from Module 04 is straightforward: the orchestrator decomposes a task, delegates pieces to subagents, and synthesizes their results into a final output. Subagents receive scoped tasks, execute them with their own tools and context, and return structured output. One key constraint here: subagents shouldn't spawn further subagents. Recursive delegation adds coordination complexity before it adds value. Keep the hierarchy flat — Scout orchestrates, subagents execute, that's the depth.</p>
+
+    <p>Module 04 identifies three legitimate reasons to go multi-agent. All three apply here. <strong>Parallelism</strong>: the Searcher and Synthesizer run concurrently — total wall time is roughly <code>max(searcher_time, synthesizer_time)</code>, not their sum. <strong>Specialization</strong>: each subagent has a focused system prompt for its specific job; the Searcher is tuned to find and read, the Synthesizer is tuned to structure and synthesize. <strong>Context isolation</strong>: each subagent gets a fresh context window, so their tool calls and intermediate reasoning don't pollute Scout's main context. One illegitimate reason: "it sounds more sophisticated." Multi-agent adds real complexity — state management, error handling across process boundaries, coordination overhead. Don't add it unless you need one of those three things.</p>
+
+    <p>The concurrency mechanism is <code>asyncio.gather</code>. Both subagents are async coroutines. <code>asyncio.gather</code> schedules them concurrently and returns when both finish — yielding a list with both results. Since both subagents make API calls (I/O-bound work), the event loop can interleave them efficiently. For a Searcher that reads 5 URLs and a Synthesizer that writes a 500-word report, this cuts latency roughly in half compared to running them sequentially. The wall time is bounded by whichever subagent takes longer, not by their sum.</p>
+
+    <p>Structured output from subagents is non-negotiable for reliable orchestration. If the Synthesizer returns free-form prose, the orchestrator can't reliably extract the key findings, confidence level, or cited sources without another parsing step. JSON with defined keys makes the downstream assembly deterministic and testable. The system prompt instructs each subagent to output only valid JSON with a specific schema. Combined with a <code>try/except json.loads</code> fallback, this gives you structured output 95% of the time and graceful degradation the rest.</p>
+
+    <div class="callout callout-insight">
+      <div class="callout-label">Key Insight</div>
+      <p>The COMPASS pattern from Module 04 — Planner + Researchers + Synthesizer — is the same architecture at different scale. Scout's deep research mode is COMPASS miniaturized: a 2-agent pipeline instead of 3, but the same orchestrator-delegates-delegates principle. Start minimal; scale up if you need it. If Scout's deep research mode proves insufficient, the right upgrade path is to add a dedicated Planner step — not to add more subagents in parallel before you understand the bottleneck.</p>
+    </div>
+
+    <div class="callout callout-mistake">
+      <div class="callout-label">Common Mistake</div>
+      <p>Spawning subagents for simple tasks. Multi-agent adds latency (at minimum one extra API call per subagent) and complexity (state management, error handling across agents). Scout should detect intent and only spawn subagents when the request is genuinely complex. A simple rule: if a single ReAct loop can handle it in five turns or fewer, don't go multi-agent. The overhead isn't worth it — and if you route everything through the deep research pipeline, you'll burn API credits on questions that a single search would answer perfectly well.</p>
+    </div>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <!-- Section 3: Build it -->
+  <div class="topic-section">
+    <div class="section-number">Section 03</div>
+    <h2>Step by step — Build it</h2>
+    <p>Open your terminal, run <code>claude</code> to start Claude Code, and navigate to your <code>scout-agent</code> directory. Give Claude Code the following prompts one at a time.</p>
+
+    <div class="step-list">
+
+      <!-- Step 1 -->
+      <div class="step-block">
+        <div class="step-num">Step 01</div>
+        <div class="step-content">
+          <h3>Create subagents.py</h3>
+          <p>This file contains the two subagents and the orchestration function that runs them. Give Claude Code this prompt:</p>
+
+          <div class="cc-prompt-block">
+            <div class="cc-prompt-label">Claude Code Prompt</div>
+            <div class="cc-prompt-body">
+              Create subagents.py with two async subagent functions using the Anthropic SDK:<br><br>
+              1. run_searcher(topic: str, client, model: str) -&gt; dict<br>
+              &nbsp;&nbsp;&nbsp;- A focused research agent: searches for the topic, reads 3-4 sources, returns structured JSON with keys: topic, sources (list of {url, title, key_points}), raw_findings (text summary of what was found), search_count (int), and error (optional string if something went wrong)<br>
+              &nbsp;&nbsp;&nbsp;- System prompt: "You are a research specialist. Your job is to find and read sources on a specific topic, then return structured findings. Be thorough — read at least 3 sources. Return JSON."<br>
+              &nbsp;&nbsp;&nbsp;- It should call web_search and read_url from tools.py<br>
+              &nbsp;&nbsp;&nbsp;- At the end, output JSON only — no conversational text<br>
+              &nbsp;&nbsp;&nbsp;- Handle tool calls the same way agent.py does, up to 12 turns<br><br>
+              2. run_synthesizer(topic: str, findings: dict, client, model: str) -&gt; dict<br>
+              &nbsp;&nbsp;&nbsp;- Takes the searcher's findings and generates a structured report<br>
+              &nbsp;&nbsp;&nbsp;- No tools — just synthesis<br>
+              &nbsp;&nbsp;&nbsp;- Returns JSON with keys: topic, summary (2-3 paragraph executive summary), key_findings (list of strings), sources_cited (list of URLs), confidence (high/medium/low based on source quality and consensus)<br>
+              &nbsp;&nbsp;&nbsp;- System prompt: "You are a research synthesizer. Given raw research findings, produce a clear structured report. Be direct, cite sources, and note where sources disagree."<br><br>
+              Both functions should be async (use asyncio). Add a run_deep_research(topic, client, model) function that runs both with asyncio.gather and returns a combined result dict.
+            </div>
+          </div>
+
+          <p>Claude Code will generate a file close to this. Review it carefully — the tool call dispatch loop mirrors what you built in agent.py:</p>
+
+          <div class="code-block"><code># subagents.py
+import asyncio
+import json
+import anthropic
+from tools import web_search, read_url, TOOLS
+
+SEARCHER_SYSTEM = """You are a research specialist. Your job: find and thoroughly read sources on a specific topic, then return structured JSON findings.
+
+Be thorough — use web_search and read_url to examine at least 3 sources. Extract concrete facts, quotes, and data points, not summaries of summaries.
+
+At the end of your research, output ONLY valid JSON in this format:
+{
+  "topic": "...",
+  "sources": [{"url": "...", "title": "...", "key_points": ["...", "..."]}],
+  "raw_findings": "...",
+  "search_count": 0
+}"""
+
+SYNTHESIZER_SYSTEM = """You are a research synthesizer. Given raw research findings, produce a clear structured report.
+
+Be direct. Cite specific sources. Note where sources agree and where they conflict. Return ONLY valid JSON:
+{
+  "topic": "...",
+  "summary": "...",
+  "key_findings": ["...", "..."],
+  "sources_cited": ["url1", "url2"],
+  "confidence": "high|medium|low"
+}"""
+
+SUBAGENT_TOOLS = [t for t in TOOLS if t["name"] in ("web_search", "read_url")]
+
+async def run_searcher(topic: str, client: anthropic.Anthropic, model: str) -> dict:
+    messages = [{"role": "user", "content": f"Research this topic thoroughly: {topic}"}]
+
+    for _ in range(12):
+        response = await asyncio.to_thread(
+            client.messages.create,
+            model=model,
+            max_tokens=4096,
+            system=SEARCHER_SYSTEM,
+            tools=SUBAGENT_TOOLS,
+            messages=messages
+        )
+
+        messages.append({"role": "assistant", "content": response.content})
+
+        if response.stop_reason == "end_turn":
+            for block in response.content:
+                if hasattr(block, "text"):
+                    try:
+                        return json.loads(block.text)
+                    except json.JSONDecodeError:
+                        return {
+                            "topic": topic,
+                            "raw_findings": block.text,
+                            "sources": [],
+                            "search_count": 0
+                        }
+            break
+
+        elif response.stop_reason == "tool_use":
+            tool_results = []
+            for block in response.content:
+                if block.type == "tool_use":
+                    if block.name == "web_search":
+                        result = web_search(**block.input)
+                    elif block.name == "read_url":
+                        result = read_url(**block.input)
+                    else:
+                        result = {"error": f"unknown tool: {block.name}"}
+                    tool_results.append({
+                        "type": "tool_result",
+                        "tool_use_id": block.id,
+                        "content": json.dumps(result)
+                    })
+            messages.append({"role": "user", "content": tool_results})
+
+    return {
+        "topic": topic,
+        "raw_findings": "",
+        "sources": [],
+        "search_count": 0,
+        "error": "max turns reached"
+    }
+
+async def run_synthesizer(
+    topic: str,
+    findings: dict,
+    client: anthropic.Anthropic,
+    model: str
+) -> dict:
+    prompt = f"""Topic: {topic}
+
+Research findings from Searcher agent:
+{json.dumps(findings, indent=2)}
+
+Synthesize these findings into a structured report."""
+
+    response = await asyncio.to_thread(
+        client.messages.create,
+        model=model,
+        max_tokens=2048,
+        system=SYNTHESIZER_SYSTEM,
+        messages=[{"role": "user", "content": prompt}]
+    )
+
+    for block in response.content:
+        if hasattr(block, "text"):
+            try:
+                return json.loads(block.text)
+            except json.JSONDecodeError:
+                return {
+                    "topic": topic,
+                    "summary": block.text,
+                    "key_findings": [],
+                    "sources_cited": [],
+                    "confidence": "medium"
+                }
+
+    return {
+        "topic": topic,
+        "summary": "",
+        "key_findings": [],
+        "sources_cited": [],
+        "confidence": "low"
+    }
+
+async def run_deep_research(
+    topic: str,
+    client: anthropic.Anthropic,
+    model: str
+) -> dict:
+    print(f"  [deep research] spawning Searcher + Synthesizer for: {topic}")
+
+    # Searcher runs first; Synthesizer needs its output to synthesize
+    searcher_result = await run_searcher(topic, client, model)
+    print(f"  [searcher] found {len(searcher_result.get('sources', []))} sources")
+
+    synthesizer_result = await run_synthesizer(topic, searcher_result, client, model)
+    print(f"  [synthesizer] confidence: {synthesizer_result.get('confidence', 'unknown')}")
+
+    return {
+        "topic": topic,
+        "searcher": searcher_result,
+        "synthesizer": synthesizer_result
+    }</code></div>
+
+          <p>One note on the architecture: the Searcher and Synthesizer are sequential here (Synthesizer needs the Searcher's output to work from), but <code>asyncio.to_thread</code> still provides value — each API call runs in a thread pool rather than blocking the event loop. If you were to extend this with a third parallel subagent that doesn't depend on the Searcher, <code>asyncio.gather</code> would give you genuine parallelism for free.</p>
+        </div>
+      </div>
+
+      <!-- Step 2 -->
+      <div class="step-block">
+        <div class="step-num">Step 02</div>
+        <div class="step-content">
+          <h3>Add deep research detection to agent.py</h3>
+          <p>Now update the main agent loop to detect complex research requests and route them to the subagent pipeline:</p>
+
+          <div class="cc-prompt-block">
+            <div class="cc-prompt-label">Claude Code Prompt</div>
+            <div class="cc-prompt-body">
+              Update agent.py to detect when a request needs deep research and route it to the subagent pipeline. Add an is_deep_research_request(question: str) function that uses a simple heuristic — returns True if the question contains phrases like "comprehensive", "analysis", "compare", "landscape", "research in depth", "thorough", "overview of", "everything about". When detected, call run_deep_research from subagents.py (using asyncio.run), format the result nicely, save it as a note, and return it without going through the normal ReAct loop. For all other questions, use the existing ReAct loop unchanged.
+            </div>
+          </div>
+
+          <p>Claude Code will add detection logic and a routing branch. The additions look like this:</p>
+
+          <div class="code-block"><code># Additions to agent.py
+
+import asyncio
+from subagents import run_deep_research
+
+DEEP_RESEARCH_TRIGGERS = [
+    "comprehensive", "in depth", "in-depth", "thorough", "detailed analysis",
+    "compare", "landscape", "overview of", "everything about", "full report on",
+    "research", "analyze"
+]
+
+def is_deep_research_request(question: str) -> bool:
+    q = question.lower()
+    return any(trigger in q for trigger in DEEP_RESEARCH_TRIGGERS)
+
+def format_deep_research_result(result: dict) -> str:
+    synth = result.get("synthesizer", {})
+    lines = [
+        f"## {result['topic']}",
+        f"\n{synth.get('summary', '')}",
+        "\n**Key findings:**"
+    ]
+    for finding in synth.get("key_findings", []):
+        lines.append(f"  * {finding}")
+
+    sources = synth.get("sources_cited", [])
+    if sources:
+        lines.append(f"\n**Sources:** {', '.join(sources)}")
+
+    lines.append(f"\n*Confidence: {synth.get('confidence', 'unknown')}*")
+    return "\n".join(lines)
+
+# In run_scout, BEFORE the main ReAct loop:
+def run_scout(question: str, ctx: dict = None) -> dict:
+    ctx = ctx or {}
+
+    if is_deep_research_request(question):
+        print("  [mode: deep research — spawning subagents]\n")
+        result = asyncio.run(run_deep_research(question, client, MODEL))
+        formatted = format_deep_research_result(result)
+        print(f"\nScout (deep research):\n{formatted}")
+        # Persist to notes automatically
+        save_note(
+            title=f"Deep Research: {question[:60]}",
+            content=formatted,
+            tags=["deep-research", "auto-generated"]
+        )
+        return ctx
+
+    # ... existing ReAct loop for normal questions ...</code></div>
+
+          <p>The routing logic is intentionally crude — keyword matching, not a classification model. That's by design for now. Section 4 explains when and how to upgrade it.</p>
+        </div>
+      </div>
+
+      <!-- Step 3 -->
+      <div class="step-block">
+        <div class="step-num">Step 03</div>
+        <div class="step-content">
+          <h3>Test deep research mode</h3>
+          <p>Run Scout and ask it a question that triggers deep research mode:</p>
+
+          <div class="code-block bash"><code>python agent.py
+# Ask: "Give me a comprehensive analysis of how vector databases work"</code></div>
+
+          <p>You should see Scout print the mode switch, both subagent completion messages, and then the formatted report:</p>
+
+          <div class="output-block">
+<span class="out-dim">Ask Scout: </span><span class="out-scout">Give me a comprehensive analysis of how vector databases work</span>
+
+<span class="out-label">  [mode: deep research — spawning subagents]</span>
+
+<span class="out-dim">  [deep research] spawning Searcher + Synthesizer for: Give me a comprehensive analysis...</span>
+<span class="out-dim">  [searcher] found 4 sources</span>
+<span class="out-dim">  [synthesizer] confidence: high</span>
+
+<span class="out-label">Scout (deep research):</span>
+<span class="out-scout">## Give me a comprehensive analysis of how vector databases work</span>
+
+<span class="out-result">Vector databases store data as high-dimensional vectors — numerical representations of meaning derived from embedding models. Unlike relational databases that match on exact values, vector databases retrieve by semantic similarity, making them the backbone of RAG systems, recommendation engines, and semantic search applications...</span>
+
+<span class="out-result">**Key findings:**
+  * HNSW (Hierarchical Navigable Small World) is the dominant indexing algorithm — trades recall for speed
+  * Pinecone, Weaviate, Qdrant, and pgvector serve different scale and latency tradeoffs
+  * Embedding quality upstream determines retrieval quality downstream
+  * Hybrid search (vector + BM25) outperforms pure vector search on most benchmarks</span>
+
+<span class="out-result">**Sources:** https://example.com/guide, https://research.example.com/analysis</span>
+<span class="out-dim">*Confidence: high*</span>
+          </div>
+
+          <p>Then confirm that simple questions still use the ReAct loop — ask "what's the Anthropic API rate limit?" and verify you do <em>not</em> see the <code>[mode: deep research]</code> message.</p>
+        </div>
+      </div>
+
+    </div><!-- end step-list -->
+  </div>
+
+  <div class="section-divider"></div>
+
+  <!-- Section 4: Under the Hood -->
+  <div class="topic-section">
+    <div class="section-number">Section 04</div>
+    <h2>Under the hood</h2>
+
+    <p><strong><code>asyncio.to_thread</code> with a sync SDK:</strong> The Anthropic Python SDK's <code>client.messages.create</code> is a synchronous blocking call. If you <code>await</code> it directly from an async function, you'll block the event loop — other coroutines can't run while the HTTP request is in flight. <code>asyncio.to_thread</code> solves this by submitting the sync function to a thread pool executor, returning an awaitable that resolves when the thread completes. The event loop stays free to schedule other work. If you use <code>anthropic.AsyncAnthropic</code> instead, you get a natively async client and can <code>await client.messages.create()</code> directly — but <code>asyncio.to_thread</code> is the correct bridge when you're working with the sync client.</p>
+
+    <p><strong>Why the Synthesizer has no tools:</strong> The Synthesizer's job is synthesis, not search. Giving it tools would create scope creep — it might try to verify facts, run additional searches, or read pages the Searcher already covered. Tight scopes make subagents reliable. When a subagent's job is clearly bounded, its system prompt can be correspondingly focused, and its behavior is more predictable. The Searcher is responsible for information gathering; the Synthesizer is responsible for structured reporting. Those are different cognitive tasks, and separating them produces better output than a single "do everything" agent would.</p>
+
+    <p><strong>JSON output and the fallback pattern:</strong> The system prompt instructs each subagent to output only valid JSON. This works well — language models have strong formatting compliance when given explicit schema instructions. But it's not perfectly reliable. Network errors, mid-stream truncation, or edge-case reasoning can produce malformed output. Always wrap <code>json.loads</code> in a <code>try/except json.JSONDecodeError</code> and have a fallback that wraps the raw text in the expected schema shape. The fallback here sets <code>raw_findings</code> or <code>summary</code> to the unparsed text and leaves structured fields empty — enough for the orchestrator to assemble something useful rather than crash.</p>
+
+    <p><strong>The detection heuristic and when to upgrade it:</strong> Keyword matching is crude but fast and costs nothing. For 80% of real queries, it works correctly. The failure modes are false positives (a casual question that happens to contain "analysis") and false negatives (a complex research request phrased without any trigger words). A better approach is to add a lightweight classification step before the main loop: send the question to a cheaper model and ask "is this a deep research request that requires reading multiple sources? Answer yes or no." This costs one small API call but dramatically improves routing accuracy. Start with keyword matching; upgrade to classification if you find the heuristic routing is producing poor results in practice.</p>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <!-- Section 5: Checkpoint -->
+  <div class="topic-section">
+    <div class="section-number">Section 05</div>
+    <h2>Checkpoint</h2>
+
+    <div class="callout callout-checkpoint">
+      <div class="callout-label">Verify these pass</div>
+      <ul>
+        <li>Ask "Give me a comprehensive analysis of X" — see the <code>[mode: deep research]</code> message trigger</li>
+        <li>Both Searcher and Synthesizer complete and print their status lines</li>
+        <li>The formatted result is saved to <code>notes/</code> automatically with the <code>deep-research</code> tag</li>
+        <li>Ask a simple question ("what is a transformer?") — confirm it uses the normal ReAct loop with no deep research message</li>
+        <li>Total time for a deep research request is longer than a normal request but produces a structured, multi-section report</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <!-- Section 6: What Scout can do now -->
+  <div class="topic-section">
+    <div class="section-number">Section 06</div>
+    <h2>What Scout can do now</h2>
+
+    <p>Scout now has two modes of execution: quick answers via the ReAct loop, and deep reports via the orchestrator-subagent pipeline. This routing layer — a simple function that looks at the question and decides which execution path to use — is the architecture that powers most production research agents. The next module replaces the fake web_search stub with real Brave Search via MCP, so every source Scout finds and every fact it reports will be drawn from the live web.</p>
+
+    <a href="module-p05.html" class="next-module">
+      <div>
+        <div class="next-module-label">Up next</div>
+        <div class="next-module-title">Module P05 — Real Connections with MCP</div>
+      </div>
+      <div class="next-module-arrow">→</div>
+    </a>
+  </div>
+
+</div><!-- end content -->
+</div><!-- end container -->
+
+<footer class="footer">
+  <div class="container">
+    <div class="footer-inner">
+      <div class="footer-text">Build Your Agent · Module P04 · 2026</div>
+      <div class="footer-text">← <a href="index.html" style="color: var(--muted); text-decoration: none; border-bottom: 1px solid rgba(107,107,128,0.3); padding-bottom: 0.05rem; transition: color 0.2s;" onmouseover="this.style.color='var(--text)'" onmouseout="this.style.color='var(--muted)'">Course Overview</a></div>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

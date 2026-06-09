@@ -1,0 +1,1014 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>P01: Your First Agent — Build Your Agent</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;500&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #111118;
+    --surface2: #18181f;
+    --border: #2a2a3a;
+    --accent: #7c6af7;
+    --accent2: #f7c36a;
+    --accent3: #6af7d4;
+    --text: #e8e8f0;
+    --muted: #6b6b80;
+    --danger: #f76a6a;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 300;
+    line-height: 1.7;
+    min-height: 100vh;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.4;
+  }
+
+  /* Sticky nav */
+  .top-nav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(10,10,15,0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .top-nav-inner {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 0 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 52px;
+    gap: 1rem;
+  }
+
+  .nav-back {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.05em;
+    color: var(--muted);
+    text-decoration: none;
+    transition: color 0.2s;
+    white-space: nowrap;
+  }
+
+  .nav-back:hover { color: var(--text); }
+
+  .nav-module-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    color: var(--muted);
+    text-transform: uppercase;
+    text-align: center;
+    flex: 1;
+  }
+
+  .nav-next {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.05em;
+    color: var(--muted);
+    text-decoration: none;
+    transition: color 0.2s;
+    white-space: nowrap;
+  }
+
+  .nav-next:hover { color: var(--accent3); }
+
+  /* Container */
+  .container {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 0 2rem;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Hero */
+  .hero {
+    padding: 4.5rem 0 3.5rem;
+    border-bottom: 1px solid var(--border);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero::after {
+    content: '';
+    position: absolute;
+    top: -100px;
+    right: -200px;
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, rgba(106,247,212,0.10) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .hero-eyebrow {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.2em;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+  }
+
+  .module-badge {
+    display: inline-block;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.1em;
+    padding: 0.25rem 0.6rem;
+    border-radius: 4px;
+    margin-bottom: 1.2rem;
+    background: rgba(106,247,212,0.12);
+    color: var(--accent3);
+    border: 1px solid rgba(106,247,212,0.3);
+  }
+
+  .hero h1 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: clamp(2rem, 4.5vw, 3.2rem);
+    line-height: 1.08;
+    margin-bottom: 1.4rem;
+    letter-spacing: -0.02em;
+  }
+
+  .hero-sub {
+    font-size: 1.05rem;
+    color: #a0a0b8;
+    max-width: 620px;
+    line-height: 1.8;
+    margin-bottom: 2rem;
+  }
+
+  .hero-meta {
+    display: flex;
+    gap: 2.5rem;
+    flex-wrap: wrap;
+  }
+
+  .meta-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+  }
+
+  .meta-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.15em;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+
+  .meta-value {
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    font-size: 1rem;
+    color: var(--text);
+  }
+
+  .meta-value a {
+    color: var(--accent);
+    text-decoration: none;
+    border-bottom: 1px solid rgba(124,106,247,0.3);
+    padding-bottom: 0.05rem;
+    font-size: 0.88rem;
+    transition: border-color 0.2s;
+  }
+
+  .meta-value a:hover { border-color: var(--accent); }
+
+  /* Main content */
+  .content {
+    padding: 4rem 0 6rem;
+  }
+
+  /* Section layout */
+  .topic-section {
+    margin-bottom: 5rem;
+  }
+
+  .topic-section:last-child {
+    margin-bottom: 0;
+  }
+
+  .section-number {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+  }
+
+  .topic-section h2 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 1.65rem;
+    letter-spacing: -0.01em;
+    line-height: 1.2;
+    margin-bottom: 1.6rem;
+    color: var(--text);
+  }
+
+  .topic-section h3 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    font-size: 1.1rem;
+    letter-spacing: -0.01em;
+    margin-top: 2rem;
+    margin-bottom: 0.8rem;
+    color: var(--text);
+  }
+
+  .topic-section p {
+    font-size: 0.97rem;
+    color: #c8c8d8;
+    line-height: 1.82;
+    margin-bottom: 1.2rem;
+  }
+
+  .topic-section p:last-child {
+    margin-bottom: 0;
+  }
+
+  /* Section divider */
+  .section-divider {
+    height: 1px;
+    background: linear-gradient(to right, transparent, var(--border) 20%, var(--border) 80%, transparent);
+    margin: 4.5rem 0;
+  }
+
+  /* Callout boxes */
+  .callout {
+    border-radius: 10px;
+    padding: 1.3rem 1.6rem;
+    margin: 2rem 0;
+  }
+
+  .callout-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 0.6rem;
+    font-weight: 500;
+  }
+
+  .callout p {
+    font-size: 0.92rem;
+    line-height: 1.75;
+    margin-bottom: 0;
+  }
+
+  .callout p + p {
+    margin-top: 0.8rem;
+  }
+
+  .callout-insight {
+    background: rgba(124,106,247,0.07);
+    border: 1px solid rgba(124,106,247,0.25);
+  }
+
+  .callout-insight .callout-label { color: var(--accent); }
+  .callout-insight p { color: #b8b0f0; }
+
+  .callout-mistake {
+    background: rgba(247,106,106,0.07);
+    border: 1px solid rgba(247,106,106,0.25);
+  }
+
+  .callout-mistake .callout-label { color: var(--danger); }
+  .callout-mistake p { color: #e0b0b0; }
+
+  .callout-checkpoint {
+    background: rgba(106,247,212,0.06);
+    border: 1px solid rgba(106,247,212,0.25);
+  }
+
+  .callout-checkpoint .callout-label { color: var(--accent3); }
+  .callout-checkpoint p { color: #a8e8d8; }
+
+  .callout-checkpoint ul {
+    list-style: none;
+    margin: 0.5rem 0 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
+  }
+
+  .callout-checkpoint ul li {
+    font-size: 0.9rem;
+    color: #a8e8d8;
+    line-height: 1.6;
+    padding-left: 1.4rem;
+    position: relative;
+  }
+
+  .callout-checkpoint ul li::before {
+    content: '✓';
+    position: absolute;
+    left: 0;
+    color: var(--accent3);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.8rem;
+  }
+
+  /* Code blocks */
+  .code-block {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.4rem 1.6rem;
+    margin: 1.6rem 0;
+    overflow-x: auto;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.82rem;
+    line-height: 1.75;
+    color: #c0c0d8;
+  }
+
+  .code-block code {
+    font-family: inherit;
+  }
+
+  .code-block-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: -0.4rem;
+    margin-top: 1.6rem;
+  }
+
+  .code-block-label:first-child { margin-top: 0; }
+
+  /* Bash code block variant */
+  .code-block.bash {
+    background: #0d1117;
+    border-color: #1e2530;
+  }
+
+  .code-block.bash code {
+    color: #b0c8a0;
+  }
+
+  /* Inline code */
+  code {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.83em;
+    background: rgba(106,247,212,0.08);
+    border: 1px solid rgba(106,247,212,0.18);
+    color: var(--accent3);
+    padding: 0.1rem 0.38rem;
+    border-radius: 3px;
+  }
+
+  /* Claude Code Prompt Block */
+  .cc-prompt-block {
+    background: rgba(106,247,212,0.04);
+    border: 1px solid rgba(106,247,212,0.3);
+    border-radius: 10px;
+    margin: 1.8rem 0;
+    overflow: hidden;
+  }
+
+  .cc-prompt-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--accent3);
+    padding: 0.55rem 1.3rem;
+    background: rgba(106,247,212,0.08);
+    border-bottom: 1px solid rgba(106,247,212,0.15);
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+
+  .cc-prompt-label::before {
+    content: '▸';
+    font-size: 0.8rem;
+  }
+
+  .cc-prompt-body {
+    padding: 1.2rem 1.6rem;
+    font-size: 0.92rem;
+    color: #b0e8d8;
+    line-height: 1.85;
+  }
+
+  .cc-prompt-body code {
+    background: rgba(106,247,212,0.1);
+    border-color: rgba(106,247,212,0.2);
+    color: var(--accent3);
+  }
+
+  /* Step blocks */
+  .step-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .step-block {
+    display: flex;
+    gap: 1.8rem;
+    padding: 2rem 0;
+    border-bottom: 1px solid var(--border);
+    align-items: flex-start;
+  }
+
+  .step-block:last-child { border-bottom: none; }
+
+  .step-num {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--accent);
+    background: rgba(124,106,247,0.1);
+    border: 1px solid rgba(124,106,247,0.22);
+    border-radius: 4px;
+    padding: 0.28rem 0.55rem;
+    white-space: nowrap;
+    flex-shrink: 0;
+    margin-top: 0.2rem;
+  }
+
+  .step-content { flex: 1; min-width: 0; }
+
+  .step-content h3 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    font-size: 1.05rem;
+    color: var(--text);
+    margin-bottom: 0.7rem;
+    margin-top: 0;
+    letter-spacing: -0.01em;
+  }
+
+  .step-content p {
+    font-size: 0.95rem;
+    color: #c0c0d8;
+    line-height: 1.82;
+    margin-bottom: 0.9rem;
+  }
+
+  .step-content p:last-child { margin-bottom: 0; }
+
+  /* Scout state bar */
+  .scout-state {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.2rem 1.6rem;
+    margin: 0 0 3rem;
+    display: flex;
+    align-items: flex-start;
+    gap: 1.2rem;
+  }
+
+  .scout-state-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    white-space: nowrap;
+    flex-shrink: 0;
+    padding-top: 0.1rem;
+  }
+
+  .scout-caps {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .scout-cap {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.68rem;
+    padding: 0.25rem 0.6rem;
+    border-radius: 20px;
+    border: 1px solid;
+  }
+
+  .scout-cap.active {
+    background: rgba(106,247,212,0.08);
+    border-color: rgba(106,247,212,0.3);
+    color: var(--accent3);
+  }
+
+  .scout-cap.locked {
+    background: rgba(107,107,128,0.08);
+    border-color: var(--border);
+    color: var(--muted);
+  }
+
+  /* Output example block */
+  .output-block {
+    background: #050508;
+    border: 1px solid #1a1a28;
+    border-radius: 8px;
+    padding: 1.4rem 1.6rem;
+    margin: 1.6rem 0;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.8rem;
+    line-height: 1.9;
+    overflow-x: auto;
+  }
+
+  .out-dim { color: #484860; }
+  .out-search { color: var(--accent3); }
+  .out-result { color: #c0c8b8; }
+  .out-label { color: var(--muted); }
+  .out-scout { color: #e8e8f0; }
+
+  /* Next module CTA */
+  .next-module {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--surface);
+    border: 1px solid rgba(106,247,212,0.25);
+    border-radius: 12px;
+    padding: 1.6rem 2rem;
+    margin-top: 3rem;
+    text-decoration: none;
+    color: inherit;
+    transition: border-color 0.2s, background 0.2s;
+  }
+
+  .next-module:hover {
+    border-color: rgba(106,247,212,0.5);
+    background: rgba(106,247,212,0.04);
+  }
+
+  .next-module-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 0.4rem;
+  }
+
+  .next-module-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: var(--text);
+  }
+
+  .next-module-arrow {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 1.4rem;
+    color: var(--accent3);
+    transition: transform 0.2s;
+  }
+
+  .next-module:hover .next-module-arrow {
+    transform: translateX(4px);
+  }
+
+  /* Footer */
+  .footer {
+    border-top: 1px solid var(--border);
+    padding: 2.5rem 0;
+  }
+
+  .footer-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .footer-text {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.68rem;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+  }
+
+  @media (max-width: 620px) {
+    .step-block { flex-direction: column; gap: 0.8rem; }
+    .scout-state { flex-direction: column; gap: 0.7rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Sticky nav -->
+<nav class="top-nav">
+  <div class="top-nav-inner">
+    <a href="index.html" class="nav-back">← Course Overview</a>
+    <div class="nav-module-label">Module P01 / 07</div>
+    <a href="module-p02.html" class="nav-next">Module P02 →</a>
+  </div>
+</nav>
+
+<!-- Hero -->
+<div class="hero">
+  <div class="container">
+    <div class="hero-eyebrow">Build Your Agent · Practical Workshop</div>
+    <div class="module-badge">MODULE P01</div>
+    <h1>Your First Agent</h1>
+    <p class="hero-sub">One tool. One loop. A real decision about when to act. By the end of this module, Scout answers questions with evidence — not just assumptions.</p>
+    <div class="hero-meta">
+      <div class="meta-item">
+        <span class="meta-label">Time</span>
+        <span class="meta-value">~45 min</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">Backed by</span>
+        <span class="meta-value">
+          <a href="../module-01.html">M01 · What Makes Something Agentic?</a>
+        </span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">&nbsp;</span>
+        <span class="meta-value">
+          <a href="../module-02.html">M02 · Architecture Patterns</a>
+        </span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Content -->
+<div class="container">
+<div class="content">
+
+  <!-- Scout state bar -->
+  <div class="scout-state">
+    <div class="scout-state-label">Scout after P01</div>
+    <div class="scout-caps">
+      <span class="scout-cap active">web_search</span>
+      <span class="scout-cap locked">read_url</span>
+      <span class="scout-cap locked">save_note</span>
+      <span class="scout-cap locked">list_notes</span>
+      <span class="scout-cap locked">search_notes</span>
+      <span class="scout-cap locked">context_compression</span>
+      <span class="scout-cap locked">subagents</span>
+      <span class="scout-cap locked">MCP</span>
+      <span class="scout-cap locked">guardrails</span>
+      <span class="scout-cap locked">evals</span>
+      <span class="scout-cap locked">deployment</span>
+    </div>
+  </div>
+
+  <!-- Section 1: What we're building -->
+  <div class="topic-section">
+    <div class="section-number">Section 01</div>
+    <h2>What we're building</h2>
+
+    <p>Scout starts as the simplest possible agent: one tool, one loop. That's intentional. The goal of this module isn't to impress you — it's to give you a concrete, runnable foundation that every subsequent module builds on. Simple enough to fully understand, real enough to matter.</p>
+
+    <p>By the end of this module, you'll type a question into your terminal, Scout will reason about it, call <code>web_search</code>, read the results, and give you a cited answer. The search is stubbed — it returns realistic fake results — so you don't need an API key to get started. The loop, the tool call protocol, the stop condition, the message accumulation: all of that is real, unmodified Anthropic SDK code. The pattern you build here will survive every upgrade in modules P02 through P07.</p>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <!-- Section 2: The concept — ReAct -->
+  <div class="topic-section">
+    <div class="section-number">Section 02</div>
+    <h2>The concept — The ReAct loop</h2>
+
+    <p>ReAct is a 2022 paper by Yao et al. that formalized something practitioners had been doing intuitively: combining reasoning and acting inside the same model inference loop. The name is literal — <em>Re</em>ason + <em>Act</em>. Instead of asking a model to generate a final answer in one shot, you ask it to produce a thought, then take an action, then observe the result of that action, and repeat — until it has enough evidence to give a grounded answer.</p>
+
+    <p>The loop works like this: the model receives the current message history and produces a response. If that response contains a tool call (in Anthropic's API, a <code>tool_use</code> block), the agent runtime executes the tool and appends the result as a <code>tool_result</code> message. The model now sees both its own action and what happened — this is the observation. It then decides: do I have enough to answer, or should I act again? This continues until the model reaches <code>stop_reason: "end_turn"</code>, at which point it outputs its final answer.</p>
+
+    <p>Why does this work better than a single shot? Because each action is grounded in actual evidence before the next decision is made. A model generating an answer in one pass has to predict what a search would find — and that's where hallucination lives. ReAct replaces prediction with observation. The model doesn't need to imagine what the web says about a topic; it looks, reads the actual results (even if stubbed here), and synthesizes from evidence. The reasoning is still probabilistic, but it's anchored to real retrieved data rather than latent statistical patterns.</p>
+
+    <p>In the Anthropic SDK, this pattern maps directly to the <code>messages</code> list. Every turn, the model's response is appended as an <code>assistant</code> message. Every tool result is appended as a <code>user</code> message containing a <code>tool_result</code> block. The growing message list is the agent's working memory — it has no other state. The loop is just: call the API, check <code>stop_reason</code>, append, repeat.</p>
+
+    <div class="callout callout-insight">
+      <div class="callout-label">Key Insight</div>
+      <p>ReAct is not a library. It's a design principle. Any loop where the model can reason, act, and observe before deciding what to do next is ReAct, regardless of what framework wraps it. LangChain implements it. CrewAI implements it. The code you're about to write from scratch implements it. The pattern predates all of them.</p>
+    </div>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <!-- Section 3: Build it -->
+  <div class="topic-section">
+    <div class="section-number">Section 03</div>
+    <h2>Step by step — Build it</h2>
+    <p>Open your terminal and run <code>claude</code> to start Claude Code. Then give it the following prompts, one at a time. After each one, read the explanation to understand what was built and why.</p>
+
+    <div class="step-list">
+
+      <!-- Step 1 -->
+      <div class="step-block">
+        <div class="step-num">Step 01</div>
+        <div class="step-content">
+          <h3>Set up the project</h3>
+          <p>Start Claude Code in your terminal and give it this prompt:</p>
+
+          <div class="cc-prompt-block">
+            <div class="cc-prompt-label">Claude Code Prompt</div>
+            <div class="cc-prompt-body">
+              Create a new directory called scout-agent. Inside it, create three files: agent.py (empty), tools.py (empty), and requirements.txt containing just "anthropic". Then show me what you created.
+            </div>
+          </div>
+
+          <p>Claude Code will create the directory and three files. This is your entire project structure for this module — intentionally minimal. <code>requirements.txt</code> with just <code>anthropic</code> means the only dependency is the official Anthropic Python SDK. No frameworks, no abstractions you don't understand. Everything Scout does in this module comes from that one package plus the standard library.</p>
+        </div>
+      </div>
+
+      <!-- Step 2 -->
+      <div class="step-block">
+        <div class="step-num">Step 02</div>
+        <div class="step-content">
+          <h3>Define Scout's first tool</h3>
+          <p>Give Claude Code this prompt to build the tool definition:</p>
+
+          <div class="cc-prompt-block">
+            <div class="cc-prompt-label">Claude Code Prompt</div>
+            <div class="cc-prompt-body">
+              In tools.py, create a web_search stub function and a TOOLS list for the Anthropic SDK. The web_search(query: str) function should return a dict with: the query, a list of 3 realistic-looking fake results (each with title, url, snippet, source fields), and a timestamp. The TOOLS list should define web_search with a proper description and input_schema that tells Claude when and how to use it. The description should say: use this to find current information, recent news, or sources to cite. Make the tool description genuinely helpful — the model reads it.
+            </div>
+          </div>
+
+          <p>Claude Code will generate a file close to this:</p>
+
+          <div class="code-block"><code># tools.py — what Claude Code generates
+import time
+
+def web_search(query: str) -> dict:
+    return {
+        "query": query,
+        "results": [
+            {
+                "title": f"Understanding {query}: A Complete Guide",
+                "url": "https://example.com/guide",
+                "snippet": f"A comprehensive overview of {query}, covering key concepts, recent developments, and practical applications...",
+                "source": "example.com"
+            },
+            {
+                "title": f"{query} — Latest Research and Analysis",
+                "url": "https://research.example.com/analysis",
+                "snippet": f"Recent analysis shows that {query} continues to evolve, with new findings suggesting...",
+                "source": "research.example.com"
+            },
+            {
+                "title": f"How {query} Works: Technical Deep Dive",
+                "url": "https://technical.example.com/deep-dive",
+                "snippet": f"A technical examination of {query}, including underlying mechanisms and implementation details...",
+                "source": "technical.example.com"
+            }
+        ],
+        "timestamp": time.time()
+    }
+
+TOOLS = [
+    {
+        "name": "web_search",
+        "description": (
+            "Search the web for current information on a topic. Returns a list of "
+            "relevant results with titles, URLs, and snippets. Use this when you need "
+            "factual information, recent news, or sources to cite in your answer. "
+            "Be specific in your query — 'Claude 3.5 Sonnet context window size' "
+            "beats 'Claude info'."
+        ),
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "query": {
+                    "type": "string",
+                    "description": "The search query. Specific and precise gets better results."
+                }
+            },
+            "required": ["query"]
+        }
+    }
+]</code></div>
+
+          <p><strong>Why the stub returns a dict, not a string:</strong> When the tool result is passed back to the model, it gets JSON-serialized. Structured data — with titled fields — is easier for the model to parse and reference than a flat string blob. The model can extract <code>url</code>, <code>title</code>, and <code>snippet</code> as separate entities to cite. This is a principle from M02: tool outputs should be designed for the model's consumption, not just for human readability.</p>
+
+          <p><strong>The tool description is model-facing control logic:</strong> This is the single most underappreciated part of tool use. The <code>description</code> field in the TOOLS list isn't documentation — it's a behavioral specification. The model reads this at inference time to decide whether to use the tool, when to use it, and how to form the query. The hint about specificity ("'Claude 3.5 Sonnet context window size' beats 'Claude info'") directly influences how the model constructs search queries. Bad descriptions produce bad tool use; good descriptions produce focused, high-signal calls.</p>
+
+          <p><strong>The <code>input_schema</code>:</strong> This is a JSON Schema object that tells the model exactly what arguments the tool accepts. The SDK validates calls against this schema before dispatching. The <code>required: ["query"]</code> field means the model cannot call <code>web_search</code> without providing a query — the API will reject incomplete calls. This is a compile-time guarantee for tool invocations.</p>
+        </div>
+      </div>
+
+      <!-- Step 3 -->
+      <div class="step-block">
+        <div class="step-num">Step 03</div>
+        <div class="step-content">
+          <h3>Build the ReAct loop</h3>
+          <p>Now give Claude Code the core of the agent:</p>
+
+          <div class="cc-prompt-block">
+            <div class="cc-prompt-label">Claude Code Prompt</div>
+            <div class="cc-prompt-body">
+              In agent.py, build Scout's core ReAct loop using the Anthropic SDK. Scout is a research assistant agent. Here's what it needs to do:<br><br>
+              1. Accept a question from the user<br>
+              2. Send it to claude-opus-4-7 with the TOOLS from tools.py and a system prompt that defines Scout as a research assistant who always cites sources<br>
+              3. If the model returns tool_use, execute the tool (just web_search for now) and append a tool_result back to messages<br>
+              4. If the model returns end_turn, print the final response<br>
+              5. Repeat up to 10 turns<br>
+              6. Print a brief trace line each time a tool is called: "→ web_search(query)"<br><br>
+              At the bottom, add a simple if __name__ == "__main__" block that reads a question from input() and calls run_scout(question).
+            </div>
+          </div>
+
+          <p>Claude Code will generate the following:</p>
+
+          <div class="code-block"><code># agent.py — what Claude Code generates
+import anthropic
+import json
+from tools import web_search, TOOLS
+
+client = anthropic.Anthropic()
+MODEL = "claude-opus-4-7"
+
+SYSTEM = """You are Scout, a research assistant. You help users find information and answer questions with cited sources.
+
+When you search, synthesize the results into a clear answer. Always reference your sources by URL. Be concise — a well-cited paragraph beats a wall of text."""
+
+def run_scout(question: str) -> list:
+    messages = [{"role": "user", "content": question}]
+    print(f"\n🔍 Scout researching: {question}\n")
+
+    for turn in range(10):
+        response = client.messages.create(
+            model=MODEL,
+            max_tokens=4096,
+            system=SYSTEM,
+            tools=TOOLS,
+            messages=messages
+        )
+
+        messages.append({"role": "assistant", "content": response.content})
+
+        if response.stop_reason == "end_turn":
+            for block in response.content:
+                if hasattr(block, "text"):
+                    print(f"Scout: {block.text}")
+            break
+
+        elif response.stop_reason == "tool_use":
+            tool_results = []
+            for block in response.content:
+                if block.type == "tool_use":
+                    print(f"  → {block.name}({json.dumps(block.input)})")
+                    if block.name == "web_search":
+                        result = web_search(**block.input)
+                    else:
+                        result = {"error": f"unknown tool: {block.name}"}
+                    tool_results.append({
+                        "type": "tool_result",
+                        "tool_use_id": block.id,
+                        "content": json.dumps(result)
+                    })
+            messages.append({"role": "user", "content": tool_results})
+
+    return messages
+
+if __name__ == "__main__":
+    question = input("Ask Scout: ")
+    run_scout(question)</code></div>
+        </div>
+      </div>
+
+      <!-- Step 4 -->
+      <div class="step-block">
+        <div class="step-num">Step 04</div>
+        <div class="step-content">
+          <h3>Run it</h3>
+          <p>Install the dependency and run Scout. Make sure your API key is set first.</p>
+
+          <div class="code-block bash"><code>cd scout-agent
+pip install anthropic
+export ANTHROPIC_API_KEY="your-key-here"
+python agent.py</code></div>
+
+          <p>When prompted, try: <em>What is the Model Context Protocol and why does it matter?</em></p>
+
+          <p>You should see something like:</p>
+
+          <div class="output-block">
+<span class="out-dim">Ask Scout: </span><span class="out-scout">What is the Model Context Protocol and why does it matter?</span>
+
+<span class="out-dim">🔍 Scout researching: What is the Model Context Protocol and why does it matter?</span>
+
+<span class="out-label">  → </span><span class="out-search">web_search({"query": "Model Context Protocol MCP Anthropic explanation"})</span>
+
+<span class="out-dim">Scout: </span><span class="out-result">The Model Context Protocol (MCP) is an open standard developed by Anthropic that defines how AI agents communicate with external tools and data sources. Rather than each application building custom integrations for every data source, MCP provides a universal interface — an agent connects to an MCP server, and that server exposes tools the agent can call.
+
+MCP matters because it solves the integration problem at scale. Before MCP, connecting an AI assistant to a new data source meant writing bespoke glue code. With MCP, any application that implements the protocol gains access to the entire ecosystem of MCP servers — filesystems, databases, APIs, search engines.
+
+Sources: https://example.com/guide · https://research.example.com/analysis</span>
+          </div>
+
+          <p>The results are fake — that's the stub — but the structure is real. Scout reasoned that it needed to search, formed a specific query, received structured results, and synthesized them into a cited answer. That's a complete ReAct cycle.</p>
+        </div>
+      </div>
+
+    </div><!-- end step-list -->
+  </div>
+
+  <div class="section-divider"></div>
+
+  <!-- Section 4: Under the Hood -->
+  <div class="topic-section">
+    <div class="section-number">Section 04</div>
+    <h2>Under the hood</h2>
+
+    <p><strong>Why <code>messages</code> is a list that grows:</strong> The Anthropic API is stateless. There's no session, no server-side memory, no continuity between calls. The model "remembers" nothing unless you tell it. The <code>messages</code> list is literally the agent's entire working memory — every question, every thought, every tool call, every result. When you append the assistant's response and the tool results and pass them back in the next API call, the model sees its own history and can reason about it. This is not a limitation; it's the architecture. It means you have complete, auditable control over what the agent knows at every turn.</p>
+
+    <p><strong>What <code>stop_reason: "tool_use"</code> means:</strong> When Claude returns <code>tool_use</code> as the stop reason, it's not an error or an interruption — it's the model's way of saying "I have decided that before I can give you a final answer, I need to take an action." The model could have attempted an answer without searching. It chose not to. That's a genuine reasoning decision made at inference time, based on the question and the tool descriptions available. The stop reason is the handshake between the model's agency and your runtime's execution capability.</p>
+
+    <p><strong>Why <code>tool_result</code> uses <code>tool_use_id</code>:</strong> Claude can call multiple tools in a single response. If you ask a complex question, the model might emit three <code>tool_use</code> blocks simultaneously — searching three things in parallel before synthesizing. Each block has a unique <code>id</code> assigned by the API. When you pass results back, you must use those exact IDs in your <code>tool_result</code> blocks so the model can correlate each result with the action that produced it. This is not bureaucracy — it's how the model maintains coherent reasoning when parallel tool calls are in flight.</p>
+
+    <p><strong>The 10-turn limit and why it matters:</strong> Without a maximum turn count, a buggy agent loop can run indefinitely — calling tools in circles, never reaching a terminal state, burning API credits until you forcibly kill the process. This is called "agent loop hell" and it's a real failure mode in production systems. The 10-turn limit is the simplest form of a circuit breaker. In production you'd also add cost tracking, a hard timeout, and an escalation path when the limit is hit. The number 10 is somewhat arbitrary for this module; what matters is that there is a limit, and you own it.</p>
+
+    <div class="callout callout-mistake">
+      <div class="callout-label">Common Mistake</div>
+      <p>The most common error in first ReAct implementations: passing the tool result as a new plain user message — just a string — without the <code>tool_result</code> type and <code>tool_use_id</code>. The Anthropic API will reject messages structured this way, or worse, silently ignore the correlation and leave the model confused about which result corresponds to which action. Always pass tool results as a <code>user</code> message containing a list of <code>{"type": "tool_result", "tool_use_id": "...", "content": "..."}</code> objects — one per tool call made in the preceding assistant turn.</p>
+    </div>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <!-- Section 5: Checkpoint -->
+  <div class="topic-section">
+    <div class="section-number">Section 05</div>
+    <h2>Checkpoint</h2>
+
+    <p>Before moving on, verify that Scout is working correctly:</p>
+
+    <div class="callout callout-checkpoint">
+      <div class="callout-label">Verify these pass</div>
+      <ul>
+        <li>Run <code>python agent.py</code> and ask <em>"What is retrieval-augmented generation?"</em></li>
+        <li>Scout calls <code>web_search</code> at least once (you see the <code>→ web_search(...)</code> trace line)</li>
+        <li>Scout's final answer cites sources by URL</li>
+        <li>The total number of tool-call trace lines shown is ≤ 10</li>
+        <li>The program exits cleanly after printing the answer</li>
+      </ul>
+    </div>
+
+    <p>If anything fails: first check that <code>ANTHROPIC_API_KEY</code> is set in your environment (<code>echo $ANTHROPIC_API_KEY</code> should print your key, not an empty string). If the API call succeeds but the loop doesn't terminate, check that your <code>tool_result</code> blocks include the <code>tool_use_id</code> from the corresponding <code>tool_use</code> block. If you see a <code>400 Bad Request</code>, the message structure is malformed — the most common cause is appending results as a flat string instead of the structured <code>tool_result</code> format shown in the code above.</p>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <!-- Section 6: What you now have -->
+  <div class="topic-section">
+    <div class="section-number">Section 06</div>
+    <h2>What you now have</h2>
+
+    <p>Scout is a real agent. It's not faking intelligence — it makes a genuine decision about when to search, what to search for, and how to synthesize results into a cited answer. The stub search means the retrieved content is synthetic, but the architectural loop — Reason, Act, Observe, repeat — is the same pattern used in production agents at Anthropic, OpenAI, and every serious engineering team building on top of these models. Every capability you add in modules P02 through P07 drops into this loop without changing its core structure. You've built the foundation. Now build on it.</p>
+
+    <a href="module-p02.html" class="next-module">
+      <div>
+        <div class="next-module-label">Up next</div>
+        <div class="next-module-title">Module P02 — Scout's Toolkit</div>
+      </div>
+      <div class="next-module-arrow">→</div>
+    </a>
+  </div>
+
+</div><!-- end content -->
+</div><!-- end container -->
+
+<footer class="footer">
+  <div class="container">
+    <div class="footer-inner">
+      <div class="footer-text">Build Your Agent · Module P01 · 2026</div>
+      <div class="footer-text">← <a href="index.html" style="color: var(--muted); text-decoration: none; border-bottom: 1px solid rgba(107,107,128,0.3); padding-bottom: 0.05rem; transition: color 0.2s;" onmouseover="this.style.color='var(--text)'" onmouseout="this.style.color='var(--muted)'">Course Overview</a></div>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

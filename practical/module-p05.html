@@ -1,0 +1,1092 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>P05: Real Connections with MCP — Build Your Agent</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;500&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #111118;
+    --surface2: #18181f;
+    --border: #2a2a3a;
+    --accent: #7c6af7;
+    --accent2: #f7c36a;
+    --accent3: #6af7d4;
+    --text: #e8e8f0;
+    --muted: #6b6b80;
+    --danger: #f76a6a;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 300;
+    line-height: 1.7;
+    min-height: 100vh;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.4;
+  }
+
+  /* Sticky nav */
+  .top-nav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(10,10,15,0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .top-nav-inner {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 0 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 52px;
+    gap: 1rem;
+  }
+
+  .nav-back {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.05em;
+    color: var(--muted);
+    text-decoration: none;
+    transition: color 0.2s;
+    white-space: nowrap;
+  }
+
+  .nav-back:hover { color: var(--text); }
+
+  .nav-module-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    color: var(--muted);
+    text-transform: uppercase;
+    text-align: center;
+    flex: 1;
+  }
+
+  .nav-next {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.05em;
+    color: var(--muted);
+    text-decoration: none;
+    transition: color 0.2s;
+    white-space: nowrap;
+  }
+
+  .nav-next:hover { color: var(--accent3); }
+
+  /* Container */
+  .container {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 0 2rem;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Hero */
+  .hero {
+    padding: 4.5rem 0 3.5rem;
+    border-bottom: 1px solid var(--border);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero::after {
+    content: '';
+    position: absolute;
+    top: -100px;
+    right: -200px;
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, rgba(106,247,212,0.10) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .hero-eyebrow {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.2em;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+  }
+
+  .module-badge {
+    display: inline-block;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.1em;
+    padding: 0.25rem 0.6rem;
+    border-radius: 4px;
+    margin-bottom: 1.2rem;
+    background: rgba(106,247,212,0.12);
+    color: var(--accent3);
+    border: 1px solid rgba(106,247,212,0.3);
+  }
+
+  .hero h1 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: clamp(2rem, 4.5vw, 3.2rem);
+    line-height: 1.08;
+    margin-bottom: 1.4rem;
+    letter-spacing: -0.02em;
+  }
+
+  .hero-sub {
+    font-size: 1.05rem;
+    color: #a0a0b8;
+    max-width: 620px;
+    line-height: 1.8;
+    margin-bottom: 2rem;
+  }
+
+  .hero-meta {
+    display: flex;
+    gap: 2.5rem;
+    flex-wrap: wrap;
+  }
+
+  .meta-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+  }
+
+  .meta-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.15em;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+
+  .meta-value {
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    font-size: 1rem;
+    color: var(--text);
+  }
+
+  .meta-value a {
+    color: var(--accent);
+    text-decoration: none;
+    border-bottom: 1px solid rgba(124,106,247,0.3);
+    padding-bottom: 0.05rem;
+    font-size: 0.88rem;
+    transition: border-color 0.2s;
+  }
+
+  .meta-value a:hover { border-color: var(--accent); }
+
+  /* Main content */
+  .content {
+    padding: 4rem 0 6rem;
+  }
+
+  /* Section layout */
+  .topic-section {
+    margin-bottom: 5rem;
+  }
+
+  .topic-section:last-child {
+    margin-bottom: 0;
+  }
+
+  .section-number {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+  }
+
+  .topic-section h2 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 1.65rem;
+    letter-spacing: -0.01em;
+    line-height: 1.2;
+    margin-bottom: 1.6rem;
+    color: var(--text);
+  }
+
+  .topic-section h3 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    font-size: 1.1rem;
+    letter-spacing: -0.01em;
+    margin-top: 2rem;
+    margin-bottom: 0.8rem;
+    color: var(--text);
+  }
+
+  .topic-section p {
+    font-size: 0.97rem;
+    color: #c8c8d8;
+    line-height: 1.82;
+    margin-bottom: 1.2rem;
+  }
+
+  .topic-section p:last-child {
+    margin-bottom: 0;
+  }
+
+  /* Section divider */
+  .section-divider {
+    height: 1px;
+    background: linear-gradient(to right, transparent, var(--border) 20%, var(--border) 80%, transparent);
+    margin: 4.5rem 0;
+  }
+
+  /* Callout boxes */
+  .callout {
+    border-radius: 10px;
+    padding: 1.3rem 1.6rem;
+    margin: 2rem 0;
+  }
+
+  .callout-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 0.6rem;
+    font-weight: 500;
+  }
+
+  .callout p {
+    font-size: 0.92rem;
+    line-height: 1.75;
+    margin-bottom: 0;
+  }
+
+  .callout p + p {
+    margin-top: 0.8rem;
+  }
+
+  .callout-insight {
+    background: rgba(124,106,247,0.07);
+    border: 1px solid rgba(124,106,247,0.25);
+  }
+
+  .callout-insight .callout-label { color: var(--accent); }
+  .callout-insight p { color: #b8b0f0; }
+
+  .callout-mistake {
+    background: rgba(247,106,106,0.07);
+    border: 1px solid rgba(247,106,106,0.25);
+  }
+
+  .callout-mistake .callout-label { color: var(--danger); }
+  .callout-mistake p { color: #e0b0b0; }
+
+  .callout-example {
+    background: rgba(106,247,212,0.06);
+    border: 1px solid rgba(106,247,212,0.22);
+  }
+
+  .callout-example .callout-label { color: var(--accent3); }
+  .callout-example p { color: #a8e8d8; }
+
+  .callout-checkpoint {
+    background: rgba(247,195,106,0.06);
+    border: 1px solid rgba(247,195,106,0.25);
+  }
+
+  .callout-checkpoint .callout-label { color: var(--accent2); }
+  .callout-checkpoint p { color: #e8d8a8; }
+
+  .callout-checkpoint ul {
+    list-style: none;
+    margin: 0.5rem 0 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
+  }
+
+  .callout-checkpoint ul li {
+    font-size: 0.9rem;
+    color: #e8d8a8;
+    line-height: 1.6;
+    padding-left: 1.4rem;
+    position: relative;
+  }
+
+  .callout-checkpoint ul li::before {
+    content: '✓';
+    position: absolute;
+    left: 0;
+    color: var(--accent2);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.8rem;
+  }
+
+  /* Code blocks */
+  .code-block {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.4rem 1.6rem;
+    margin: 1.6rem 0;
+    overflow-x: auto;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.82rem;
+    line-height: 1.75;
+    color: #c0c0d8;
+  }
+
+  .code-block code {
+    font-family: inherit;
+  }
+
+  .code-block-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: -0.4rem;
+    margin-top: 1.6rem;
+  }
+
+  .code-block-label:first-child { margin-top: 0; }
+
+  /* Bash code block variant */
+  .code-block.bash {
+    background: #0d1117;
+    border-color: #1e2530;
+  }
+
+  .code-block.bash code {
+    color: #b0c8a0;
+  }
+
+  /* Inline code */
+  code {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.83em;
+    background: rgba(106,247,212,0.08);
+    border: 1px solid rgba(106,247,212,0.18);
+    color: var(--accent3);
+    padding: 0.1rem 0.38rem;
+    border-radius: 3px;
+  }
+
+  /* Claude Code Prompt Block */
+  .cc-prompt-block {
+    background: rgba(106,247,212,0.04);
+    border: 1px solid rgba(106,247,212,0.3);
+    border-radius: 10px;
+    margin: 1.8rem 0;
+    overflow: hidden;
+  }
+
+  .cc-prompt-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--accent3);
+    padding: 0.55rem 1.3rem;
+    background: rgba(106,247,212,0.08);
+    border-bottom: 1px solid rgba(106,247,212,0.15);
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+
+  .cc-prompt-label::before {
+    content: '▸';
+    font-size: 0.8rem;
+  }
+
+  .cc-prompt-body {
+    padding: 1.2rem 1.6rem;
+    font-size: 0.92rem;
+    color: #b0e8d8;
+    line-height: 1.85;
+  }
+
+  .cc-prompt-body code {
+    background: rgba(106,247,212,0.1);
+    border-color: rgba(106,247,212,0.2);
+    color: var(--accent3);
+  }
+
+  /* Step blocks */
+  .step-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .step-block {
+    display: flex;
+    gap: 1.8rem;
+    padding: 2rem 0;
+    border-bottom: 1px solid var(--border);
+    align-items: flex-start;
+  }
+
+  .step-block:last-child { border-bottom: none; }
+
+  .step-num {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--accent);
+    background: rgba(124,106,247,0.1);
+    border: 1px solid rgba(124,106,247,0.22);
+    border-radius: 4px;
+    padding: 0.28rem 0.55rem;
+    white-space: nowrap;
+    flex-shrink: 0;
+    margin-top: 0.2rem;
+  }
+
+  .step-content { flex: 1; min-width: 0; }
+
+  .step-content h3 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    font-size: 1.05rem;
+    color: var(--text);
+    margin-bottom: 0.7rem;
+    margin-top: 0;
+    letter-spacing: -0.01em;
+  }
+
+  .step-content p {
+    font-size: 0.95rem;
+    color: #c0c0d8;
+    line-height: 1.82;
+    margin-bottom: 0.9rem;
+  }
+
+  .step-content p:last-child { margin-bottom: 0; }
+
+  /* Scout state bar */
+  .scout-state {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.2rem 1.6rem;
+    margin: 0 0 3rem;
+    display: flex;
+    align-items: flex-start;
+    gap: 1.2rem;
+  }
+
+  .scout-state-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    white-space: nowrap;
+    flex-shrink: 0;
+    padding-top: 0.1rem;
+  }
+
+  .scout-caps {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .scout-cap {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.68rem;
+    padding: 0.25rem 0.6rem;
+    border-radius: 20px;
+    border: 1px solid;
+  }
+
+  .scout-cap.active {
+    background: rgba(106,247,212,0.08);
+    border-color: rgba(106,247,212,0.3);
+    color: var(--accent3);
+  }
+
+  .scout-cap.locked {
+    background: rgba(107,107,128,0.08);
+    border-color: var(--border);
+    color: var(--muted);
+  }
+
+  /* Output example block */
+  .output-block {
+    background: #050508;
+    border: 1px solid #1a1a28;
+    border-radius: 8px;
+    padding: 1.4rem 1.6rem;
+    margin: 1.6rem 0;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.8rem;
+    line-height: 1.9;
+    overflow-x: auto;
+  }
+
+  .out-dim { color: #484860; }
+  .out-search { color: var(--accent3); }
+  .out-result { color: #c0c8b8; }
+  .out-label { color: var(--muted); }
+  .out-scout { color: #e8e8f0; }
+  .out-real { color: #a0e0b0; }
+
+  /* Next module CTA */
+  .next-module {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--surface);
+    border: 1px solid rgba(106,247,212,0.25);
+    border-radius: 12px;
+    padding: 1.6rem 2rem;
+    margin-top: 3rem;
+    text-decoration: none;
+    color: inherit;
+    transition: border-color 0.2s, background 0.2s;
+  }
+
+  .next-module:hover {
+    border-color: rgba(106,247,212,0.5);
+    background: rgba(106,247,212,0.04);
+  }
+
+  .next-module-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 0.4rem;
+  }
+
+  .next-module-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: var(--text);
+  }
+
+  .next-module-arrow {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 1.4rem;
+    color: var(--accent3);
+    transition: transform 0.2s;
+  }
+
+  .next-module:hover .next-module-arrow {
+    transform: translateX(4px);
+  }
+
+  /* Footer */
+  .footer {
+    border-top: 1px solid var(--border);
+    padding: 2.5rem 0;
+  }
+
+  .footer-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .footer-text {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.68rem;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+  }
+
+  @media (max-width: 620px) {
+    .step-block { flex-direction: column; gap: 0.8rem; }
+    .scout-state { flex-direction: column; gap: 0.7rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Sticky nav -->
+<nav class="top-nav">
+  <div class="top-nav-inner">
+    <a href="module-p04.html" class="nav-back">← Module P04</a>
+    <div class="nav-module-label">Module P05 / 07</div>
+    <a href="module-p06.html" class="nav-next">Module P06 →</a>
+  </div>
+</nav>
+
+<!-- Hero -->
+<div class="hero">
+  <div class="container">
+    <div class="hero-eyebrow">Build Your Agent · Practical Workshop</div>
+    <div class="module-badge">MODULE P05</div>
+    <h1>Real Connections with MCP</h1>
+    <p class="hero-sub">Scout's search has been returning fake data since module one. That changes now. This module connects Scout to the real web via Brave Search MCP — and shows exactly how MCP makes tools swappable.</p>
+    <div class="hero-meta">
+      <div class="meta-item">
+        <span class="meta-label">Time</span>
+        <span class="meta-value">~45 min</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">Backed by</span>
+        <span class="meta-value">
+          <a href="../module-04.html">M04 · Multi-Agent Systems (MCP section)</a>
+        </span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">&nbsp;</span>
+        <span class="meta-value">
+          <a href="../module-06.html">M06 · Building MCP Servers</a>
+        </span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">Scout gains</span>
+        <span class="meta-value">Real web search via Brave Search MCP</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Content -->
+<div class="container">
+<div class="content">
+
+  <!-- Scout state bar -->
+  <div class="scout-state">
+    <div class="scout-state-label">Scout after P05</div>
+    <div class="scout-caps">
+      <span class="scout-cap active">web_search (REAL)</span>
+      <span class="scout-cap active">read_url</span>
+      <span class="scout-cap active">save_note</span>
+      <span class="scout-cap active">search_notes</span>
+      <span class="scout-cap active">context_compression</span>
+      <span class="scout-cap active">persistent_sessions</span>
+      <span class="scout-cap active">subagents</span>
+      <span class="scout-cap active">MCP_tools</span>
+      <span class="scout-cap locked">guardrails</span>
+      <span class="scout-cap locked">evals</span>
+      <span class="scout-cap locked">deployment</span>
+    </div>
+  </div>
+
+  <!-- Section 1: What we're building -->
+  <div class="topic-section">
+    <div class="section-number">Section 01</div>
+    <h2>What we're building</h2>
+
+    <p>Scout's <code>web_search</code> has been returning fabricated data since module one. Every result has been plausible-looking fiction: realistic-sounding URLs, generic snippets, fake sources. That was useful for building and testing the loop without needing API keys — but it means every note Scout has saved, every source it has cited, every fact it has reported has been invented. In this module we fix that. We also upgrade Scout's file operations to use proper MCP-based filesystem access. Both changes happen through the Model Context Protocol — Anthropic's open standard for agent-to-tool communication. After this module, Scout does real research on real information.</p>
+
+    <p>You'll install two MCP servers, configure them for Scout, and update the tool dispatch to use them. The ReAct loop doesn't change. The subagent architecture from P04 doesn't change. Only the tools change — which is exactly the payoff of the design decision made in module P02, when tools were defined as swappable implementations behind a stable interface. The loop has always been correct; now the tools are real.</p>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <!-- Section 2: The concept — MCP -->
+  <div class="topic-section">
+    <div class="section-number">Section 02</div>
+    <h2>The concept — MCP</h2>
+
+    <p>The Model Context Protocol is Anthropic's open standard for how agents communicate with tools. Before MCP, every agent had its own bespoke integration — custom API wrappers, custom schemas, custom auth flows, custom error handling. Connecting a new tool meant writing new glue code every time. MCP standardizes the contract: a tool server exposes its capabilities via a defined protocol, and any MCP-compatible agent can discover and use those capabilities without writing custom integration code. It's the USB-C of agent tools — one standard, many devices.</p>
+
+    <p>Technically, an MCP server is a process that implements the MCP protocol. It exposes a <code>tools/list</code> endpoint (here are the tools I have) and a <code>tools/call</code> endpoint (call this tool with these parameters). The agent discovers what's available, then invokes tools by name with typed parameters. The server handles execution and returns structured results. Communication happens over stdio for local servers — the server is a subprocess, your agent pipes JSON-RPC messages into its stdin and reads results from its stdout. For remote servers the transport is HTTP+SSE, but the protocol is identical.</p>
+
+    <p>Why MCP matters for the ecosystem is best understood through the alternative. Without it, a Brave Search integration written for Scout would need to be rewritten from scratch to work with a different agent framework, a different language, or a different model provider. With MCP, a tool built once as an MCP server works with any MCP-compatible consumer — Claude Code, your Python agent, any future framework that implements the protocol. The tool investment compounds instead of stacking up as one-off integrations. This is the interoperability layer described in Module 04, and it's practically useful right now: the Brave Search MCP server you install in this module can also be added to Claude Code's config, so Claude Code itself gains that tool for all your sessions.</p>
+
+    <p>Since SDK version 0.40+, the Anthropic Python SDK has built-in support for connecting to MCP servers via <code>MCPServerStdio</code> and related classes. For this module, however, we use a direct subprocess approach to the MCP server — it's more explicit, easier to debug, and works without SDK version dependencies. The pattern is: start the server process, send a JSON-RPC <code>initialize</code> handshake, then send <code>tools/call</code> requests, parse the response. Once you understand the wire protocol, the higher-level SDK abstractions are easy to adopt later.</p>
+
+    <div class="callout callout-insight">
+      <div class="callout-label">Key Insight</div>
+      <p>MCP is not just for Anthropic models. It's an open standard — any agent framework can implement it. Wrapping your tools as MCP servers means they're immediately reusable across models, frameworks, and contexts. For tools you build and use repeatedly (web search, database access, calendar, email), MCP is the right abstraction. The upfront cost of the protocol is paid back the first time you reuse the server in a second context without writing new integration code.</p>
+    </div>
+
+    <div class="callout callout-example">
+      <div class="callout-label">MCP in Claude Code</div>
+      <p>When you add an MCP server to Claude Code's configuration, Claude Code's built-in agent gains that tool for all sessions — automatically, for any task where it's relevant. The same Brave Search MCP server you configure for Scout today can be added to <code>~/.claude/claude_desktop_config.json</code> so Claude Code can also search the web during coding sessions. One MCP server, many consumers, zero additional integration code.</p>
+    </div>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <!-- Section 3: Build it -->
+  <div class="topic-section">
+    <div class="section-number">Section 03</div>
+    <h2>Step by step — Build it</h2>
+    <p>Open your terminal, run <code>claude</code> to start Claude Code, and navigate to your <code>scout-agent</code> directory.</p>
+
+    <div class="step-list">
+
+      <!-- Step 1 -->
+      <div class="step-block">
+        <div class="step-num">Step 01</div>
+        <div class="step-content">
+          <h3>Install Brave Search MCP server</h3>
+          <p>Give Claude Code this prompt to set up the Brave Search MCP server and walk you through the API key process:</p>
+
+          <div class="cc-prompt-block">
+            <div class="cc-prompt-label">Claude Code Prompt</div>
+            <div class="cc-prompt-body">
+              I need to set up the Brave Search MCP server for Scout. Help me:<br>
+              1. Install the @modelcontextprotocol/server-brave-search package<br>
+              2. Create a .env file for the BRAVE_API_KEY (I'll fill in the actual key)<br>
+              3. Test that the server starts correctly<br><br>
+              Also, what do I need to sign up for to get a Brave Search API key?
+            </div>
+          </div>
+
+          <p>Claude Code will run the install and create the env file. The commands it runs:</p>
+
+          <div class="code-block bash"><code>npm install -g @modelcontextprotocol/server-brave-search
+
+# Create .env with placeholder
+echo "BRAVE_API_KEY=your_key_here" > .env
+
+# Test the server starts (Ctrl+C to stop)
+npx @modelcontextprotocol/server-brave-search
+# Should print: Brave Search MCP Server running on stdio</code></div>
+
+          <p>To get a real API key: sign up at <strong>brave.com/search/api/</strong> — the free tier includes 2,000 queries per month, which is more than enough for development and testing. Once you have the key, replace <code>your_key_here</code> in <code>.env</code> with the actual key. Do not commit <code>.env</code> to git — add it to <code>.gitignore</code> now if it isn't already there.</p>
+        </div>
+      </div>
+
+      <!-- Step 2 -->
+      <div class="step-block">
+        <div class="step-num">Step 02</div>
+        <div class="step-content">
+          <h3>Create mcp_tools.py</h3>
+          <p>This file wraps the Brave Search MCP server in a clean Python interface:</p>
+
+          <div class="cc-prompt-block">
+            <div class="cc-prompt-label">Claude Code Prompt</div>
+            <div class="cc-prompt-body">
+              Create mcp_tools.py. It should:<br>
+              1. Load BRAVE_API_KEY from the .env file using python-dotenv<br>
+              2. Provide an async function get_brave_tools() that returns the brave_web_search tool definition in Anthropic API format<br>
+              3. Provide an async function call_brave_search(query: str, count: int = 5) -&gt; dict that starts the Brave Search MCP server as a subprocess, sends it an initialize request followed by a tools/call request over stdin, and parses the response from stdout<br>
+              4. Add python-dotenv to requirements.txt<br><br>
+              Use a direct subprocess approach — start the server with asyncio.create_subprocess_exec, pipe JSON-RPC messages in, parse the JSON lines out. Don't use the SDK's MCPServerStdio class for now — I want to understand the wire protocol.
+            </div>
+          </div>
+
+          <p>Claude Code will generate a file close to this:</p>
+
+          <div class="code-block"><code># mcp_tools.py
+import os
+import json
+import asyncio
+
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    pass
+
+BRAVE_API_KEY = os.getenv("BRAVE_API_KEY", "")
+
+async def get_brave_tools() -> list:
+    """Return Brave Search tool definitions in Anthropic tool format."""
+    return [
+        {
+            "name": "brave_web_search",
+            "description": (
+                "Search the real web using Brave Search. Returns current results "
+                "with titles, URLs, snippets, and publication dates. Use for any "
+                "topic requiring up-to-date information. Specific queries return "
+                "better results than vague ones."
+            ),
+            "input_schema": {
+                "type": "object",
+                "properties": {
+                    "query": {
+                        "type": "string",
+                        "description": "Search query. Be specific."
+                    },
+                    "count": {
+                        "type": "integer",
+                        "description": "Number of results to return (1-10, default 5)",
+                        "default": 5
+                    }
+                },
+                "required": ["query"]
+            }
+        }
+    ]
+
+async def call_brave_search(query: str, count: int = 5) -> dict:
+    """Call the Brave Search MCP server via subprocess JSON-RPC."""
+    if not BRAVE_API_KEY:
+        return {
+            "error": "no_api_key",
+            "message": "Set BRAVE_API_KEY in .env — get a free key at brave.com/search/api/"
+        }
+
+    # MCP JSON-RPC messages
+    init_msg = json.dumps({
+        "jsonrpc": "2.0",
+        "id": 0,
+        "method": "initialize",
+        "params": {
+            "protocolVersion": "2024-11-05",
+            "capabilities": {},
+            "clientInfo": {"name": "scout", "version": "1.0"}
+        }
+    }) + "\n"
+
+    call_msg = json.dumps({
+        "jsonrpc": "2.0",
+        "id": 1,
+        "method": "tools/call",
+        "params": {
+            "name": "brave_web_search",
+            "arguments": {"query": query, "count": count}
+        }
+    }) + "\n"
+
+    try:
+        proc = await asyncio.create_subprocess_exec(
+            "npx", "-y", "@modelcontextprotocol/server-brave-search",
+            stdin=asyncio.subprocess.PIPE,
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.DEVNULL,
+            env={**os.environ, "BRAVE_API_KEY": BRAVE_API_KEY}
+        )
+
+        stdout, _ = await asyncio.wait_for(
+            proc.communicate(input=(init_msg + call_msg).encode()),
+            timeout=15.0
+        )
+
+        # Parse lines, find the response with id=1
+        for line in reversed(stdout.decode().split("\n")):
+            line = line.strip()
+            if not line:
+                continue
+            try:
+                data = json.loads(line)
+                if data.get("id") == 1:
+                    result = data.get("result", {})
+                    content = result.get("content", [])
+                    if content and content[0].get("type") == "text":
+                        return json.loads(content[0]["text"])
+            except (json.JSONDecodeError, KeyError):
+                continue
+
+        return {"error": "parse_error", "message": "Could not parse MCP server response"}
+
+    except asyncio.TimeoutError:
+        return {"error": "timeout", "message": "MCP server did not respond within 15 seconds"}
+    except FileNotFoundError:
+        return {
+            "error": "not_installed",
+            "message": "npx not found — install Node.js and run: npm install -g @modelcontextprotocol/server-brave-search"
+        }</code></div>
+
+          <p>The <code>asyncio.wait_for</code> timeout wrapper is important: without it, a hung server process will block your agent indefinitely. 15 seconds is generous for a search request; reduce it to 8 seconds in production.</p>
+        </div>
+      </div>
+
+      <!-- Step 3 -->
+      <div class="step-block">
+        <div class="step-num">Step 03</div>
+        <div class="step-content">
+          <h3>Update tools.py to use real Brave Search</h3>
+          <p>Now swap the stub for the real implementation with a clean fallback:</p>
+
+          <div class="cc-prompt-block">
+            <div class="cc-prompt-label">Claude Code Prompt</div>
+            <div class="cc-prompt-body">
+              Update the web_search function in tools.py to use Brave Search when BRAVE_API_KEY is set in the environment, and fall back to the stub when it's not set. Import call_brave_search from mcp_tools and use asyncio.run() to call it from the sync web_search function. Add a comment at the top of the function showing how to tell which mode is active.
+            </div>
+          </div>
+
+          <p>The updated <code>web_search</code> function:</p>
+
+          <div class="code-block"><code># Updated web_search in tools.py
+
+def web_search(query: str, count: int = 5) -> dict:
+    """
+    Search the web for information.
+    Real mode: BRAVE_API_KEY is set in environment -> uses Brave Search MCP
+    Stub mode:  BRAVE_API_KEY not set             -> returns placeholder results
+    Check active mode: result.get("_stub") is True means stub is active.
+    """
+    import os
+    import asyncio
+
+    if os.getenv("BRAVE_API_KEY"):
+        from mcp_tools import call_brave_search
+        try:
+            result = asyncio.run(call_brave_search(query, count))
+            if "error" not in result:
+                return result
+            # MCP call failed — fall through to stub with a warning
+            print(f"  [warning] Brave Search error ({result.get('error')}): {result.get('message')} — using stub")
+        except RuntimeError:
+            # asyncio.run() raises RuntimeError if called inside a running event loop
+            # (e.g., when called from within subagents.py's async context).
+            # In that case, the caller should use `await asyncio.to_thread(web_search, query)`.
+            print("  [warning] asyncio loop conflict in web_search — using stub")
+
+    # Stub fallback
+    import time
+    return {
+        "query": query,
+        "results": [
+            {
+                "title": f"Understanding {query}: A Guide",
+                "url": "https://example.com/guide",
+                "snippet": f"A comprehensive overview of {query}...",
+                "source": "example.com"
+            },
+            {
+                "title": f"{query} — Analysis",
+                "url": "https://research.example.com",
+                "snippet": f"Analysis of {query} and related topics...",
+                "source": "research.example.com"
+            },
+            {
+                "title": f"How {query} Works",
+                "url": "https://technical.example.com",
+                "snippet": f"Technical examination of {query}...",
+                "source": "technical.example.com"
+            }
+        ],
+        "timestamp": time.time(),
+        "_stub": True
+    }</code></div>
+
+          <p>The <code>_stub: True</code> flag in stub results lets you programmatically detect which mode is active during testing — check for its presence in debug output or assertions.</p>
+        </div>
+      </div>
+
+      <!-- Step 4 -->
+      <div class="step-block">
+        <div class="step-num">Step 04</div>
+        <div class="step-content">
+          <h3>Test real search</h3>
+          <p>Set your API key and ask Scout something that requires current information:</p>
+
+          <div class="code-block bash"><code># Option A: export in shell session
+export BRAVE_API_KEY="your-key-from-brave-api"
+
+# Option B: add to .env (load_dotenv() in mcp_tools.py will pick it up)
+echo 'BRAVE_API_KEY=your-key-here' >> .env
+
+python agent.py
+# Ask: "What AI agent frameworks were released or updated in the last 6 months?"</code></div>
+
+          <p>With a real key you'll see results referencing actual, named projects and dates — not placeholder text:</p>
+
+          <div class="output-block">
+<span class="out-dim">Ask Scout: </span><span class="out-scout">What AI agent frameworks were released or updated in the last 6 months?</span>
+
+<span class="out-label">  → </span><span class="out-search">web_search({"query": "AI agent frameworks released updated 2025 2026"})</span>
+
+<span class="out-dim">Scout: </span><span class="out-real">Several notable agent frameworks have shipped significant updates recently. LangGraph 0.3 introduced a native checkpoint API for persistent agent state, making session resumption production-grade. AutoGen 0.4 from Microsoft Research shifted to an async-first event-driven architecture. Pydantic AI moved out of beta with structured output validation natively integrated into the tool call cycle.
+
+On the infrastructure side, the MCP ecosystem grew substantially — over 400 community-built MCP servers now on GitHub covering everything from browser automation to database access.
+
+Sources: https://blog.langchain.dev/langgraph-0-3 · https://microsoft.github.io/autogen · https://github.com/modelcontextprotocol/servers</span>
+          </div>
+
+          <p>The URLs, version numbers, and project names are real. That's the difference from five modules of stub output. Now confirm the fallback still works: remove <code>BRAVE_API_KEY</code> from your environment (<code>unset BRAVE_API_KEY</code>), run Scout again, and verify the response includes placeholder text — and that no errors are thrown.</p>
+        </div>
+      </div>
+
+    </div><!-- end step-list -->
+  </div>
+
+  <div class="section-divider"></div>
+
+  <!-- Section 4: Under the Hood -->
+  <div class="topic-section">
+    <div class="section-number">Section 04</div>
+    <h2>Under the hood</h2>
+
+    <p><strong>The stub-to-real upgrade pattern:</strong> Nothing in <code>agent.py</code>, the ReAct loop, or the subagent architecture changed in this module. Only the implementation of <code>web_search</code> changed. This is the payoff of the tool design from Module P02 — tools as swappable implementations behind a stable interface. The agent dispatches to <code>web_search(query=...)</code>; it has no knowledge of whether that call hits Brave or returns fake data. This interface boundary is where the upgrade happened. When you need to swap Brave for a different provider, the change is local to <code>mcp_tools.py</code> and the <code>web_search</code> function — nowhere else.</p>
+
+    <p><strong>MCP protocol basics — JSON-RPC 2.0 over stdio:</strong> Every MCP interaction follows the same two-phase pattern. First: an <code>initialize</code> request where the client announces the protocol version and its capabilities; the server responds with its own capabilities. Second: a sequence of <code>tools/call</code> requests, each with a tool name and typed arguments, each returning a structured result. The server runs as a subprocess and communicates exclusively via stdin/stdout — there's no port to open, no service to run, no daemon. The server starts when you need it and the process exits when the pipe closes. This is why local MCP servers work in sandboxed environments and require no network configuration.</p>
+
+    <p><strong>Async in a sync codebase:</strong> <code>asyncio.run()</code> in a synchronous function works correctly when there is no active event loop in the current thread — which is the case when <code>web_search</code> is called from Scout's synchronous ReAct loop. The problem arises when <code>web_search</code> is called from within an already-running async context, like <code>run_searcher</code> in <code>subagents.py</code>. In that case <code>asyncio.run()</code> raises <code>RuntimeError: This event loop is already running</code>. The fix is to call <code>web_search</code> via <code>await asyncio.to_thread(web_search, query)</code> from async code — which is how <code>subagents.py</code> already calls the Anthropic SDK. For a fully clean codebase, the right long-term move is to make <code>web_search</code> itself async and update all callers. For now, the warning message and fallback to stub is an acceptable bridge.</p>
+
+    <p><strong>When to go beyond the stub:</strong> The stub earned its keep across four modules of development. It let you build, test, and iterate on the agent architecture without consuming API credits or depending on external service availability. Keeping it as a fallback means Scout still works when <code>BRAVE_API_KEY</code> isn't set — useful for unit tests, offline demos, and environments where you want deterministic (if fake) results. The <code>_stub: True</code> flag in the response makes it easy to assert in tests that you're in the mode you expect. Don't delete the stub; just make it secondary.</p>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <!-- Section 5: Checkpoint -->
+  <div class="topic-section">
+    <div class="section-number">Section 05</div>
+    <h2>Checkpoint</h2>
+
+    <div class="callout callout-checkpoint">
+      <div class="callout-label">Verify these pass</div>
+      <ul>
+        <li>Set <code>BRAVE_API_KEY</code> in <code>.env</code> with your real key</li>
+        <li>Ask Scout "what happened in AI this week?" — results reference real, named events and projects, not placeholder text</li>
+        <li>Remove <code>BRAVE_API_KEY</code> from your environment (<code>unset BRAVE_API_KEY</code>) and run again — confirm Scout falls back to stub results without throwing errors</li>
+        <li>Check that stub results contain <code>"_stub": true</code> in the raw tool output (add a <code>print(result)</code> temporarily to the tool dispatch loop to inspect)</li>
+        <li>Notes saved by Scout with a real key contain actual source URLs and real information</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <!-- Section 6: What Scout can do now -->
+  <div class="topic-section">
+    <div class="section-number">Section 06</div>
+    <h2>What Scout can do now</h2>
+
+    <p>Scout is now connected to the real web. Every research request goes out to Brave Search and returns current, real results — and the notes Scout saves contain actual information you can act on. The stub fallback remains for environments without an API key, keeping Scout functional across all contexts. Both the ReAct loop and the deep research subagent pipeline from P04 use the same upgraded <code>web_search</code> function, so all of Scout's modes benefit from the real connection automatically. Next module: hardening Scout with guardrails and evals before it goes anywhere near production.</p>
+
+    <a href="module-p06.html" class="next-module">
+      <div>
+        <div class="next-module-label">Up next</div>
+        <div class="next-module-title">Module P06 — Guardrails &amp; Evals</div>
+      </div>
+      <div class="next-module-arrow">→</div>
+    </a>
+  </div>
+
+</div><!-- end content -->
+</div><!-- end container -->
+
+<footer class="footer">
+  <div class="container">
+    <div class="footer-inner">
+      <div class="footer-text">Build Your Agent · Module P05 · 2026</div>
+      <div class="footer-text">← <a href="index.html" style="color: var(--muted); text-decoration: none; border-bottom: 1px solid rgba(107,107,128,0.3); padding-bottom: 0.05rem; transition: color 0.2s;" onmouseover="this.style.color='var(--text)'" onmouseout="this.style.color='var(--muted)'">Course Overview</a></div>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

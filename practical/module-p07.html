@@ -1,0 +1,1190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>P07: Make It Yours — Build Your Agent</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;500&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #111118;
+    --surface2: #18181f;
+    --border: #2a2a3a;
+    --accent: #7c6af7;
+    --accent2: #f7c36a;
+    --accent3: #6af7d4;
+    --text: #e8e8f0;
+    --muted: #6b6b80;
+    --danger: #f76a6a;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 300;
+    line-height: 1.7;
+    min-height: 100vh;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.4;
+  }
+
+  /* Sticky nav */
+  .top-nav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(10,10,15,0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .top-nav-inner {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 0 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 52px;
+    gap: 1rem;
+  }
+
+  .nav-back {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.05em;
+    color: var(--muted);
+    text-decoration: none;
+    transition: color 0.2s;
+    white-space: nowrap;
+  }
+
+  .nav-back:hover { color: var(--text); }
+
+  .nav-module-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    color: var(--muted);
+    text-transform: uppercase;
+    text-align: center;
+    flex: 1;
+  }
+
+  .nav-next {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.05em;
+    color: var(--muted);
+    text-decoration: none;
+    transition: color 0.2s;
+    white-space: nowrap;
+  }
+
+  .nav-next:hover { color: var(--accent3); }
+
+  /* Container */
+  .container {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 0 2rem;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Hero */
+  .hero {
+    padding: 4.5rem 0 3.5rem;
+    border-bottom: 1px solid var(--border);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero::after {
+    content: '';
+    position: absolute;
+    top: -100px;
+    right: -200px;
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, rgba(106,247,212,0.10) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .hero-eyebrow {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.2em;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+  }
+
+  .module-badge {
+    display: inline-block;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.1em;
+    padding: 0.25rem 0.6rem;
+    border-radius: 4px;
+    margin-bottom: 1.2rem;
+    background: rgba(106,247,212,0.12);
+    color: var(--accent3);
+    border: 1px solid rgba(106,247,212,0.3);
+  }
+
+  .hero h1 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: clamp(2rem, 4.5vw, 3.2rem);
+    line-height: 1.08;
+    margin-bottom: 1.4rem;
+    letter-spacing: -0.02em;
+  }
+
+  .hero-sub {
+    font-size: 1.05rem;
+    color: #a0a0b8;
+    max-width: 620px;
+    line-height: 1.8;
+    margin-bottom: 2rem;
+  }
+
+  .hero-meta {
+    display: flex;
+    gap: 2.5rem;
+    flex-wrap: wrap;
+  }
+
+  .meta-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+  }
+
+  .meta-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.15em;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+
+  .meta-value {
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    font-size: 1rem;
+    color: var(--text);
+  }
+
+  .meta-value a {
+    color: var(--accent);
+    text-decoration: none;
+    border-bottom: 1px solid rgba(124,106,247,0.3);
+    padding-bottom: 0.05rem;
+    font-size: 0.88rem;
+    transition: border-color 0.2s;
+  }
+
+  .meta-value a:hover { border-color: var(--accent); }
+
+  /* Main content */
+  .content {
+    padding: 4rem 0 6rem;
+  }
+
+  /* Section layout */
+  .topic-section {
+    margin-bottom: 5rem;
+  }
+
+  .topic-section:last-child {
+    margin-bottom: 0;
+  }
+
+  .section-number {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+  }
+
+  .topic-section h2 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 1.65rem;
+    letter-spacing: -0.01em;
+    line-height: 1.2;
+    margin-bottom: 1.6rem;
+    color: var(--text);
+  }
+
+  .topic-section h3 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    font-size: 1.1rem;
+    letter-spacing: -0.01em;
+    margin-top: 2rem;
+    margin-bottom: 0.8rem;
+    color: var(--text);
+  }
+
+  .topic-section p {
+    font-size: 0.97rem;
+    color: #c8c8d8;
+    line-height: 1.82;
+    margin-bottom: 1.2rem;
+  }
+
+  .topic-section p:last-child {
+    margin-bottom: 0;
+  }
+
+  /* Section divider */
+  .section-divider {
+    height: 1px;
+    background: linear-gradient(to right, transparent, var(--border) 20%, var(--border) 80%, transparent);
+    margin: 4.5rem 0;
+  }
+
+  /* Callout boxes */
+  .callout {
+    border-radius: 10px;
+    padding: 1.3rem 1.6rem;
+    margin: 2rem 0;
+  }
+
+  .callout-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 0.6rem;
+    font-weight: 500;
+  }
+
+  .callout p {
+    font-size: 0.92rem;
+    line-height: 1.75;
+    margin-bottom: 0;
+  }
+
+  .callout p + p {
+    margin-top: 0.8rem;
+  }
+
+  .callout-insight {
+    background: rgba(124,106,247,0.07);
+    border: 1px solid rgba(124,106,247,0.25);
+  }
+
+  .callout-insight .callout-label { color: var(--accent); }
+  .callout-insight p { color: #b8b0f0; }
+
+  .callout-mistake {
+    background: rgba(247,106,106,0.07);
+    border: 1px solid rgba(247,106,106,0.25);
+  }
+
+  .callout-mistake .callout-label { color: var(--danger); }
+  .callout-mistake p { color: #e0b0b0; }
+
+  .callout-example {
+    background: rgba(106,247,212,0.06);
+    border: 1px solid rgba(106,247,212,0.22);
+  }
+
+  .callout-example .callout-label { color: var(--accent3); }
+  .callout-example p { color: #a8e8d8; }
+
+  .callout-checkpoint {
+    background: rgba(247,195,106,0.06);
+    border: 1px solid rgba(247,195,106,0.25);
+  }
+
+  .callout-checkpoint .callout-label { color: var(--accent2); }
+  .callout-checkpoint p { color: #e8d8a8; }
+
+  .callout-checkpoint ul {
+    list-style: none;
+    margin: 0.5rem 0 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
+  }
+
+  .callout-checkpoint ul li {
+    font-size: 0.9rem;
+    color: #e8d8a8;
+    line-height: 1.6;
+    padding-left: 1.4rem;
+    position: relative;
+  }
+
+  .callout-checkpoint ul li::before {
+    content: '✓';
+    position: absolute;
+    left: 0;
+    color: var(--accent2);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.8rem;
+  }
+
+  /* Code blocks */
+  .code-block {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.4rem 1.6rem;
+    margin: 1.6rem 0;
+    overflow-x: auto;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.82rem;
+    line-height: 1.75;
+    color: #c0c0d8;
+  }
+
+  .code-block code {
+    font-family: inherit;
+  }
+
+  .code-block-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: -0.4rem;
+    margin-top: 1.6rem;
+  }
+
+  .code-block-label:first-child { margin-top: 0; }
+
+  /* Bash code block variant */
+  .code-block.bash {
+    background: #0d1117;
+    border-color: #1e2530;
+  }
+
+  .code-block.bash code {
+    color: #b0c8a0;
+  }
+
+  /* Inline code */
+  code {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.83em;
+    background: rgba(106,247,212,0.08);
+    border: 1px solid rgba(106,247,212,0.18);
+    color: var(--accent3);
+    padding: 0.1rem 0.38rem;
+    border-radius: 3px;
+  }
+
+  /* Claude Code Prompt Block */
+  .cc-prompt-block {
+    background: rgba(106,247,212,0.04);
+    border: 1px solid rgba(106,247,212,0.3);
+    border-radius: 10px;
+    margin: 1.8rem 0;
+    overflow: hidden;
+  }
+
+  .cc-prompt-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--accent3);
+    padding: 0.55rem 1.3rem;
+    background: rgba(106,247,212,0.08);
+    border-bottom: 1px solid rgba(106,247,212,0.15);
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+
+  .cc-prompt-label::before {
+    content: '▸';
+    font-size: 0.8rem;
+  }
+
+  .cc-prompt-body {
+    padding: 1.2rem 1.6rem;
+    font-size: 0.92rem;
+    color: #b0e8d8;
+    line-height: 1.85;
+  }
+
+  .cc-prompt-body code {
+    background: rgba(106,247,212,0.1);
+    border-color: rgba(106,247,212,0.2);
+    color: var(--accent3);
+  }
+
+  /* Step blocks */
+  .step-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .step-block {
+    display: flex;
+    gap: 1.8rem;
+    padding: 2rem 0;
+    border-bottom: 1px solid var(--border);
+    align-items: flex-start;
+  }
+
+  .step-block:last-child { border-bottom: none; }
+
+  .step-num {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--accent);
+    background: rgba(124,106,247,0.1);
+    border: 1px solid rgba(124,106,247,0.22);
+    border-radius: 4px;
+    padding: 0.28rem 0.55rem;
+    white-space: nowrap;
+    flex-shrink: 0;
+    margin-top: 0.2rem;
+  }
+
+  .step-content { flex: 1; min-width: 0; }
+
+  .step-content h3 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    font-size: 1.05rem;
+    color: var(--text);
+    margin-bottom: 0.7rem;
+    margin-top: 0;
+    letter-spacing: -0.01em;
+  }
+
+  .step-content p {
+    font-size: 0.95rem;
+    color: #c0c0d8;
+    line-height: 1.82;
+    margin-bottom: 0.9rem;
+  }
+
+  .step-content p:last-child { margin-bottom: 0; }
+
+  /* Scout state bar */
+  .scout-state {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.2rem 1.6rem;
+    margin: 0 0 3rem;
+    display: flex;
+    align-items: flex-start;
+    gap: 1.2rem;
+  }
+
+  .scout-state-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    white-space: nowrap;
+    flex-shrink: 0;
+    padding-top: 0.1rem;
+  }
+
+  .scout-caps {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .scout-cap {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.68rem;
+    padding: 0.25rem 0.6rem;
+    border-radius: 20px;
+    border: 1px solid;
+  }
+
+  .scout-cap.active {
+    background: rgba(106,247,212,0.08);
+    border-color: rgba(106,247,212,0.3);
+    color: var(--accent3);
+  }
+
+  .scout-cap.locked {
+    background: rgba(107,107,128,0.08);
+    border-color: var(--border);
+    color: var(--muted);
+  }
+
+  /* Persona table */
+  .persona-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1.8rem 0;
+    font-size: 0.88rem;
+  }
+
+  .persona-table th {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    text-align: left;
+    padding: 0.6rem 1rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .persona-table td {
+    padding: 0.85rem 1rem;
+    border-bottom: 1px solid rgba(42,42,58,0.5);
+    color: #c0c0d8;
+    vertical-align: top;
+    line-height: 1.6;
+  }
+
+  .persona-table tr:last-child td {
+    border-bottom: none;
+  }
+
+  .persona-table td:first-child {
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    color: var(--text);
+    white-space: nowrap;
+  }
+
+  /* Architecture stack */
+  .arch-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    margin: 2rem 0;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+
+  .arch-layer {
+    display: flex;
+    align-items: center;
+    gap: 1.4rem;
+    padding: 1rem 1.4rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .arch-layer:last-child {
+    border-bottom: none;
+  }
+
+  .arch-layer-num {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.58rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    width: 3.2rem;
+    flex-shrink: 0;
+    text-align: right;
+  }
+
+  .arch-layer-file {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.78rem;
+    color: var(--accent3);
+    flex-shrink: 0;
+    width: 9rem;
+  }
+
+  .arch-layer-desc {
+    font-size: 0.88rem;
+    color: #a0a0b8;
+    line-height: 1.5;
+  }
+
+  .arch-layer:nth-child(1) { background: rgba(106,247,212,0.05); }
+  .arch-layer:nth-child(2) { background: rgba(247,106,106,0.04); }
+  .arch-layer:nth-child(3) { background: rgba(247,195,106,0.04); }
+  .arch-layer:nth-child(4) { background: rgba(124,106,247,0.04); }
+  .arch-layer:nth-child(5) { background: rgba(106,247,212,0.03); }
+  .arch-layer:nth-child(6) { background: rgba(107,107,128,0.04); }
+
+  /* Optional badge */
+  .optional-badge {
+    display: inline-block;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.58rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--accent2);
+    background: rgba(247,195,106,0.1);
+    border: 1px solid rgba(247,195,106,0.25);
+    border-radius: 3px;
+    padding: 0.18rem 0.45rem;
+    margin-left: 0.6rem;
+    vertical-align: middle;
+  }
+
+  /* Footer */
+  .footer {
+    border-top: 1px solid var(--border);
+    padding: 2.5rem 0;
+  }
+
+  .footer-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .footer-text {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.68rem;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+  }
+
+  .closing-line {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 1.3rem;
+    color: var(--accent3);
+    text-align: center;
+    margin-top: 3.5rem;
+    padding: 2rem;
+    border: 1px solid rgba(106,247,212,0.2);
+    border-radius: 10px;
+    background: rgba(106,247,212,0.03);
+    letter-spacing: -0.01em;
+  }
+
+  @media (max-width: 620px) {
+    .step-block { flex-direction: column; gap: 0.8rem; }
+    .scout-state { flex-direction: column; gap: 0.7rem; }
+    .arch-layer { flex-wrap: wrap; }
+    .arch-layer-file { width: auto; }
+    .persona-table { display: block; overflow-x: auto; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Sticky nav -->
+<nav class="top-nav">
+  <div class="top-nav-inner">
+    <a href="module-p06.html" class="nav-back">← Module P06</a>
+    <div class="nav-module-label">Module P07 / 07</div>
+    <a href="index.html" class="nav-next">← Back to Course</a>
+  </div>
+</nav>
+
+<!-- Hero -->
+<div class="hero">
+  <div class="container">
+    <div class="hero-eyebrow">Build Your Agent · Practical Workshop</div>
+    <div class="module-badge">MODULE P07</div>
+    <h1>Make It Yours</h1>
+    <p class="hero-sub">Six modules in, you have a complete agent. This final module is different: no new architectural layer. You'll customize Scout's identity, consolidate your configuration into one editable file, and add a clean CLI entry point — then understand where to take it next.</p>
+    <div class="hero-meta">
+      <div class="meta-item">
+        <span class="meta-label">Time</span>
+        <span class="meta-value">~45 min</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">Backed by</span>
+        <span class="meta-value">
+          <a href="../module-06.html">M06 · Frameworks &amp; Tooling</a>
+        </span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">&nbsp;</span>
+        <span class="meta-value">
+          <a href="../module-07.html">M07 · Staying on the Frontier</a>
+        </span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">Scout gains</span>
+        <span class="meta-value">config.py, main.py CLI, optional web UI</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Content -->
+<div class="container">
+<div class="content">
+
+  <!-- Scout state bar — ALL ACTIVE -->
+  <div class="scout-state">
+    <div class="scout-state-label">Scout after P07</div>
+    <div class="scout-caps">
+      <span class="scout-cap active">web_search</span>
+      <span class="scout-cap active">read_url</span>
+      <span class="scout-cap active">save_note</span>
+      <span class="scout-cap active">search_notes</span>
+      <span class="scout-cap active">context_compression</span>
+      <span class="scout-cap active">persistent_sessions</span>
+      <span class="scout-cap active">subagents</span>
+      <span class="scout-cap active">MCP_tools</span>
+      <span class="scout-cap active">guardrails</span>
+      <span class="scout-cap active">evals</span>
+      <span class="scout-cap active">deployment</span>
+    </div>
+  </div>
+
+  <!-- Section 1: What we've built -->
+  <div class="topic-section">
+    <div class="section-number">Section 01</div>
+    <h2>What we've built</h2>
+
+    <p>Over six modules, you built a complete AI agent from scratch. A ReAct loop backed by a real search engine. A four-tool research toolkit with web search, URL reading, note saving, and note retrieval. Rolling context compression with session persistence across restarts. A parallel subagent pipeline — Searcher and Synthesizer running concurrently — for deep research requests. Real MCP integrations that connect Scout to external services via an open protocol. And a guardrail layer with input filtering, output validation, human-in-the-loop confirmation, and a 10-case eval suite giving you a documented quality baseline. Scout is not a demo. It's a working system built on the same architectural principles that underpin production agents.</p>
+
+    <p>This last module is different: it's not about adding a new architectural layer. It's about making Scout your own. You'll consolidate all configuration into a single file you can edit without touching agent logic, add a clean CLI entry point that replaces the <code>if __name__ == "__main__"</code> block in <code>agent.py</code>, and understand your options for taking Scout further — a web frontend, a scheduled research job, or the right moment to reach for a framework. The architecture stays the same. The surface becomes yours.</p>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <!-- Section 2: The concept -->
+  <div class="topic-section">
+    <div class="section-number">Section 02</div>
+    <h2>The concept — Customization and framework tradeoffs</h2>
+
+    <p><strong>System prompt as identity:</strong> Scout's current system prompt defines a general research assistant. That's one use case. The same architecture — ReAct loop, tools, memory, subagents, guardrails — works for a competitive intelligence analyst, a personal knowledge manager, a domain-specific research tool, a code reviewer, or a writing assistant. The system prompt is the cheapest thing to change and has the largest effect on what the agent feels like to use. Everything in the Python files gives Scout its capabilities; the system prompt gives it its character. Change the persona, and you change the agent. The code stays the same.</p>
+
+    <p><strong>Tool selection as scope:</strong> not every use case needs web search. A code review agent needs access to a repository, not Brave Search. A scheduling assistant needs calendar access. A personal knowledge base assistant might need to read PDFs you provide, not live web results. The <code>tool_dispatch</code> dict is the right place to define what your agent can and can't do — what tools it's allowed to reach for and what tools simply don't exist in its world. Every tool you add expands Scout's capabilities and increases the surface area of possible actions. Every tool you don't add constrains it in ways you can reason about completely. Scope is a design decision, not a default.</p>
+
+    <p><strong>When to switch to a framework (from Module 06 of the original curriculum):</strong> Scout is framework-free by design — the entire architecture is visible in five Python files totaling roughly 400 lines. But at some scale of complexity, a framework pays for itself. LangGraph adds explicit state machines — graphs of typed nodes — which is valuable for workflows with complex branching logic where you need to visualize or validate the state machine. CrewAI adds team-based orchestration with defined roles and coordination protocols. AutoGen adds agents that can write and execute code in a sandbox. The right time to reach for any of these is when you hit a genuine limitation of Scout's architecture, not when the framework sounds appealing. Scout's core loop — message list, tool dispatch, result appending — is directly replicable in any framework. Learn the loop first.</p>
+
+    <p><strong>Deployment options:</strong> Scout runs as a CLI tool. Three paths forward, in order of complexity: (a) cron job — schedule research runs on a timer, results accumulated in <code>notes/</code>, session persisted between runs, no interactive input required; (b) web frontend — a minimal FastAPI server with a simple HTML chat UI that wraps <code>run_scout</code>, making Scout accessible from a browser; (c) API server — expose Scout as a REST endpoint so other tools, scripts, or services can call it programmatically. All three build on the same <code>agent.py</code> with minimal additions. The core agent doesn't change; only the interface to it changes.</p>
+
+    <div class="callout callout-insight">
+      <div class="callout-label">Key Insight</div>
+      <p>The frameworks debate misses the point. Any agent framework is ultimately a wrapper around a loop that calls a model, runs tools, and appends results to a message list. Scout does exactly that in roughly 80 lines of Python you understand completely — every decision point is visible, every tradeoff is explicit. Learn the loop first. Reach for the framework when the scaffold is genuinely limiting you — not before. That's when you'll understand what the framework is doing for you and what it's hiding from you.</p>
+    </div>
+
+    <div class="callout callout-example">
+      <div class="callout-label">Architecture Continuity</div>
+      <p>Scout's architecture maps directly to the examples in the original curriculum. Aria (Module 02) runs the same ReAct loop with a different tool set and system prompt. COMPASS (Module 04) runs the same orchestrator-subagent pattern with more specialized subagents. The difference between all of these is specialization — tools and system prompts configured for a specific use case. The loop is constant. That's the insight that transfers to any framework, any model, any use case you build next.</p>
+    </div>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <!-- Section 3: Build it -->
+  <div class="topic-section">
+    <div class="section-number">Section 03</div>
+    <h2>Step by step — Build it</h2>
+    <p>Open your terminal, run <code>claude</code> to start Claude Code, and navigate to your <code>scout-agent</code> directory.</p>
+
+    <div class="step-list">
+
+      <!-- Step 1 -->
+      <div class="step-block">
+        <div class="step-num">Step 01</div>
+        <div class="step-content">
+          <h3>Create config.py — your customization layer</h3>
+          <p>This is the single file you edit to customize Scout. Give Claude Code this prompt:</p>
+
+          <div class="cc-prompt-block">
+            <div class="cc-prompt-label">Claude Code Prompt</div>
+            <div class="cc-prompt-body">
+              Create config.py — the single file users edit to customize Scout. It should contain:<br>
+              1. AGENT_NAME: str — default "Scout"<br>
+              2. AGENT_PERSONA: str — a multi-line system prompt for a research assistant, with {agent_name} as a placeholder<br>
+              3. ACTIVE_TOOLS: list[str] — which tools are enabled (default: all four)<br>
+              4. DEEP_RESEARCH_TRIGGERS: list[str] — keywords that trigger deep research mode (currently hardcoded in agent.py)<br>
+              5. HITL_ENABLED: bool — whether to require HITL confirmation for saves (default True)<br>
+              6. SESSION_DIR: Path — where sessions are stored (default "sessions/")<br>
+              7. NOTES_DIR: Path — where notes are stored (default "notes/")<br>
+              8. MODEL: str — which Claude model to use (default "claude-opus-4-7")<br>
+              9. MAX_TURNS: int — max turns per ReAct loop (default 10)<br><br>
+              Then update agent.py, tools.py, guardrails.py, and memory.py to import their constants from config.py instead of hardcoding them. Keep the logic changes minimal — only import changes, no restructuring.
+            </div>
+          </div>
+
+          <p>Claude Code generates a file close to this:</p>
+
+          <div class="code-block"><code># config.py — customize Scout here. This is the only file you need to edit.
+from pathlib import Path
+
+AGENT_NAME = "Scout"
+
+AGENT_PERSONA = """You are {agent_name}, a research assistant. You help users
+find information, analyze topics, and build a personal knowledge base.
+
+Your research workflow:
+1. Check search_notes first — you may have already covered this topic
+2. Use web_search to find current sources
+3. Use read_url to read the most relevant results in full
+4. Save key findings with save_note (include meaningful tags)
+5. Cite sources by URL in your final answer
+
+Be thorough but concise. A well-cited paragraph beats a wall of text.
+When you're uncertain, say so."""
+
+# Uncomment and edit to customize your agent's identity:
+# AGENT_PERSONA = """You are {agent_name}, a competitive intelligence analyst.
+# Focus on company news, product launches, and market developments.
+# Always include publication dates and source credibility assessments."""
+
+# AGENT_PERSONA = """You are {agent_name}, a code research assistant.
+# Specialise in documentation, GitHub repositories, and technical blog posts.
+# Always include code examples when they clarify the explanation."""
+
+# AGENT_PERSONA = """You are {agent_name}, a personal productivity coach.
+# Help users capture decisions, track progress, and build knowledge over time.
+# Emphasise action items and next steps in every response."""
+
+ACTIVE_TOOLS = ["web_search", "read_url", "save_note", "search_notes"]
+# Remove tools to narrow scope. Examples:
+# ACTIVE_TOOLS = ["save_note", "search_notes"]           # knowledge base only
+# ACTIVE_TOOLS = ["web_search", "read_url", "save_note"] # no retrieval
+
+DEEP_RESEARCH_TRIGGERS = [
+    "comprehensive", "in depth", "in-depth", "thorough",
+    "detailed analysis", "compare", "landscape", "overview of",
+    "everything about", "full report on", "research", "analyze",
+]
+
+HITL_ENABLED = True      # Set False to skip confirmation for note saves
+SESSION_DIR = Path("sessions")
+NOTES_DIR   = Path("notes")
+MODEL       = "claude-opus-4-7"
+MAX_TURNS   = 10</code></div>
+
+          <p>The corresponding change in <code>agent.py</code> is a four-line import block replacing several hardcoded constants:</p>
+
+          <div class="code-block-label">agent.py — before and after</div>
+          <div class="code-block"><code># Before (hardcoded):
+MODEL = "claude-opus-4-7"
+MAX_TURNS = 10
+SYSTEM = """You are Scout, a research assistant..."""
+
+# After (from config):
+from config import (
+    AGENT_NAME, AGENT_PERSONA, MODEL, MAX_TURNS,
+    ACTIVE_TOOLS, DEEP_RESEARCH_TRIGGERS, HITL_ENABLED
+)
+SYSTEM = AGENT_PERSONA.format(agent_name=AGENT_NAME)</code></div>
+
+          <p>The <code>HITL_ENABLED</code> flag in <code>config.py</code> connects to the <code>require_hitl_for_note</code> call in <code>guardrails.py</code> — import it there and wrap the confirmation in an <code>if HITL_ENABLED</code> check. This lets you disable HITL for automated pipeline contexts without touching the guardrail logic itself.</p>
+        </div>
+      </div>
+
+      <!-- Step 2 -->
+      <div class="step-block">
+        <div class="step-num">Step 02</div>
+        <div class="step-content">
+          <h3>Create main.py — clean CLI entry point</h3>
+          <p>Replace the <code>if __name__ == "__main__"</code> block in <code>agent.py</code> with a proper CLI module:</p>
+
+          <div class="cc-prompt-block">
+            <div class="cc-prompt-label">Claude Code Prompt</div>
+            <div class="cc-prompt-body">
+              Create main.py — a clean CLI entry point for Scout. It should:<br>
+              1. Parse command-line arguments: optional --session flag (default "default"), --deep flag to force deep research mode, and an optional QUESTION positional argument<br>
+              2. If QUESTION is provided, run non-interactively (single query, then exit)<br>
+              3. If no QUESTION, enter an interactive REPL: prompt is "{AGENT_NAME} ({session}) &gt; ", loop until user types "exit", "quit", or presses Ctrl+C<br>
+              4. On startup, print a brief banner: agent name, current session, note count, active tools<br>
+              5. Handle KeyboardInterrupt gracefully with a friendly exit message<br><br>
+              Remove the if __name__ == "__main__" block from agent.py — main.py replaces it entirely.
+            </div>
+          </div>
+
+          <p>The complete <code>main.py</code>:</p>
+
+          <div class="code-block"><code># main.py
+import argparse
+import sys
+from config import AGENT_NAME, ACTIVE_TOOLS, SESSION_DIR, NOTES_DIR
+
+def print_banner(session: str):
+    notes_count = len(list(NOTES_DIR.glob("*.json"))) if NOTES_DIR.exists() else 0
+    print(f"\n{'─' * 52}")
+    print(f"  {AGENT_NAME}  |  session: {session}  |  {notes_count} note(s)")
+    print(f"  tools: {', '.join(ACTIVE_TOOLS)}")
+    print(f"{'─' * 52}\n")
+
+def main():
+    parser = argparse.ArgumentParser(
+        description=f"Run {AGENT_NAME} — your personal research assistant"
+    )
+    parser.add_argument(
+        "question", nargs="?",
+        help="Question to answer (non-interactive mode)"
+    )
+    parser.add_argument(
+        "--session", "-s", default="default",
+        help="Session name (default: 'default')"
+    )
+    parser.add_argument(
+        "--deep", "-d", action="store_true",
+        help="Force deep research mode regardless of trigger keywords"
+    )
+    args = parser.parse_args()
+
+    from agent import run_scout
+
+    # Non-interactive: single question, then exit
+    if args.question:
+        run_scout(args.question, session_id=args.session)
+        return
+
+    # Interactive REPL
+    print_banner(args.session)
+
+    try:
+        while True:
+            try:
+                question = input(f"{AGENT_NAME} ({args.session}) > ").strip()
+            except EOFError:
+                break
+
+            if not question:
+                continue
+
+            if question.lower() in ("exit", "quit", "q", ":q"):
+                print("Goodbye.")
+                break
+
+            run_scout(question, session_id=args.session)
+            print()
+
+    except KeyboardInterrupt:
+        print(f"\nGoodbye.")
+
+if __name__ == "__main__":
+    main()</code></div>
+
+          <p>Usage examples:</p>
+
+          <div class="code-block bash"><code># Interactive mode (start the REPL)
+python main.py
+
+# Interactive with a named session
+python main.py --session ai-research
+
+# One-shot mode (non-interactive, exits after answering)
+python main.py "What is the difference between RAG and fine-tuning?"
+
+# One-shot with a named session (context persists from prior runs)
+python main.py --session startup-research "What are the top YC companies from W25?"
+
+# Force deep research mode on a specific query
+python main.py --deep "Landscape of vector database providers in 2026"</code></div>
+        </div>
+      </div>
+
+      <!-- Step 3 -->
+      <div class="step-block">
+        <div class="step-num">Step 03</div>
+        <div class="step-content">
+          <h3>Customize for your use case</h3>
+          <p>This step is yours — no Claude Code prompt required. Open <code>config.py</code> and make these three decisions:</p>
+
+          <p><strong>1. Change AGENT_NAME.</strong> Give your agent a name that fits its purpose. "Sentinel" for competitive intelligence. "Archivist" for a personal knowledge base. "Dev" for code research. The name appears in the banner, the REPL prompt, and the system prompt.</p>
+
+          <p><strong>2. Edit AGENT_PERSONA.</strong> Uncomment one of the example personas or write your own. The persona is the largest lever you have over how the agent behaves. Keep it specific: vague instructions produce vague behavior. Include the research workflow steps you actually want — the default is a good starting point, but a persona written for your exact use case will feel qualitatively different.</p>
+
+          <p><strong>3. Adjust ACTIVE_TOOLS.</strong> Remove tools that don't fit your use case. A knowledge base assistant that processes documents you provide doesn't need <code>web_search</code>. A news digest tool might skip <code>save_note</code> entirely — ephemeral daily output, no persistence needed. Every tool you remove narrows the scope in a way you can reason about completely.</p>
+
+          <p>Example configurations for four common use cases:</p>
+
+          <table class="persona-table">
+            <thead>
+              <tr>
+                <th>Use Case</th>
+                <th>Agent Name</th>
+                <th>Active Tools</th>
+                <th>Persona focus</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Competitive intelligence</td>
+                <td>Sentinel</td>
+                <td>web_search, read_url, save_note</td>
+                <td>Monitors competitor news, saves named briefings by company</td>
+              </tr>
+              <tr>
+                <td>Personal knowledge base</td>
+                <td>Archivist</td>
+                <td>save_note, search_notes, read_url</td>
+                <td>Processes documents you provide, no web search — private corpus only</td>
+              </tr>
+              <tr>
+                <td>Code research</td>
+                <td>Dev</td>
+                <td>web_search, read_url</td>
+                <td>Focuses on docs, GitHub repos, Stack Overflow — includes code examples</td>
+              </tr>
+              <tr>
+                <td>News digest</td>
+                <td>Herald</td>
+                <td>web_search, read_url</td>
+                <td>Daily summaries only, no persistence — ephemeral research mode</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <p>After editing <code>config.py</code>, run <code>python main.py</code> and ask your agent to introduce itself. The persona should be immediately recognizable in the response.</p>
+        </div>
+      </div>
+
+      <!-- Step 4 (optional) -->
+      <div class="step-block">
+        <div class="step-num">Step 04</div>
+        <div class="step-content">
+          <h3>Add a minimal web UI <span class="optional-badge">Optional</span></h3>
+          <p>Scout works perfectly as a CLI tool. This step adds a browser-accessible interface if you want one. Give Claude Code this prompt:</p>
+
+          <div class="cc-prompt-block">
+            <div class="cc-prompt-label">Claude Code Prompt — Optional</div>
+            <div class="cc-prompt-body">
+              Add a minimal web interface to Scout using FastAPI. Create server.py with:<br>
+              1. A GET / endpoint that serves a simple HTML chat page — use plain HTML, CSS, and JavaScript, no React or build step<br>
+              2. A POST /chat endpoint that accepts {"question": "...", "session": "default"} and streams back Scout's response<br>
+              3. The HTML page: a text input at the bottom, message history scrolling upward, user and assistant messages styled differently<br>
+              4. Wire it to run_scout from agent.py — capture stdout or use a callback to stream tokens if the SDK supports it<br>
+              5. Add fastapi and uvicorn to requirements.txt<br><br>
+              Keep the HTML self-contained in the Python string — no separate template files needed.
+            </div>
+          </div>
+
+          <p>Once generated, run it with:</p>
+          <div class="code-block bash"><code>uvicorn server:app --reload
+# Open http://localhost:8000 in your browser</code></div>
+
+          <p>The web UI wraps the same <code>run_scout</code> function — no changes to agent logic. If you add it, you can run Scout from a phone or share it with a collaborator on your local network. Skip this step if the CLI is sufficient; the agent is fully capable either way.</p>
+        </div>
+      </div>
+
+    </div><!-- end step-list -->
+  </div>
+
+  <div class="section-divider"></div>
+
+  <!-- Section 4: Under the hood -->
+  <div class="topic-section">
+    <div class="section-number">Section 04</div>
+    <h2>Under the hood — Framework tradeoffs</h2>
+
+    <p><strong>What you understand now that you didn't before:</strong> you've built a ReAct loop, designed a tool interface, managed context with rolling compression, orchestrated parallel subagents, integrated with an external service via MCP, and added guardrails with behavioral evals — all from scratch, in code you wrote and can read. When you open LangGraph's documentation tomorrow, you'll understand what it's abstracting: the message list management, the tool dispatch, the state accumulation between turns. When you read CrewAI's role definitions, you'll recognize them as system prompts with structured handoff protocols. The conceptual model transfers. You're not starting from zero with each framework — you're recognizing the same loop under a different API.</p>
+
+    <p><strong>LangGraph's tradeoff:</strong> LangGraph adds explicit state machines — directed graphs of nodes with typed state that flows between them. This is genuinely valuable for workflows with complex branching logic where you need to visualize, validate, or resume at an arbitrary point in a multi-step process. The cost is a new abstraction layer: graph definitions, state types, node functions, edge conditions. That's real cognitive overhead. LangGraph is the right tool when your workflow is complex enough that the state machine diagram is a useful artifact in its own right — when understanding the flow requires seeing the graph. For most agentic loops, Scout's architecture is faster to build, easier to debug, and equally powerful.</p>
+
+    <p><strong>The managed agent option:</strong> Anthropic's SDK continues to evolve toward higher-level agent abstractions — tool calling, streaming, and state management that handles more of what Scout's main loop does manually. As these capabilities mature, the boilerplate in <code>agent.py</code> shrinks. The architectural understanding you've built here is the prerequisite for using those abstractions well: you'll know what the SDK is doing under the hood, which parts are configurable, and where to add custom logic when the default behavior doesn't fit. Understanding the loop is not wasted work when you move to managed abstractions — it's what lets you use them with precision rather than luck.</p>
+
+    <p><strong>The eval loop as the real scaling strategy:</strong> every time Scout fails in real use on a query type you care about — produces an incoherent response, fails to use the right tool, misses an obvious citation opportunity — that failure is a test case. Add it to <code>evals/run_evals.py</code>. Fix the root cause (system prompt, tool logic, guardrail). Re-run evals. That's the loop that makes Scout better over time. The architecture doesn't change; the quality does, measurably and verifiably. This is the only sustainable approach to maintaining agent quality as you swap models, update tools, or refine the persona — regression testing is not optional, it's the scaffold that lets everything else evolve.</p>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <!-- Section 5: Final checkpoint -->
+  <div class="topic-section">
+    <div class="section-number">Section 05</div>
+    <h2>Final checkpoint</h2>
+
+    <div class="callout callout-checkpoint">
+      <div class="callout-label">You shipped.</div>
+      <ul>
+        <li><code>python main.py</code> starts your agent with your custom name in the banner and REPL prompt</li>
+        <li>Ask your agent to introduce itself — the persona you wrote in <code>config.py</code> is immediately recognizable</li>
+        <li>All eval cases pass: <code>AUTO_CONFIRM=1 python evals/run_evals.py</code></li>
+        <li>Notes are being saved to your <code>notes/</code> directory with meaningful titles and tags</li>
+        <li>A comprehensive research request triggers deep research mode — you see <code>[mode: deep research]</code> in the output</li>
+        <li>Sessions persist: run a query, exit, restart with the same <code>--session</code> name, and verify prior context is present</li>
+        <li>Guardrails block injection attempts before any API call</li>
+        <li>Your eval suite includes at least one test case you added yourself for a failure you observed</li>
+        <li>(Optional) Web UI accessible at <code>localhost:8000</code> with working chat history</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <!-- Section 6: What you built -->
+  <div class="topic-section">
+    <div class="section-number">Section 06</div>
+    <h2>What you built</h2>
+
+    <p>Here is the complete architecture, layer by layer:</p>
+
+    <div class="arch-stack">
+      <div class="arch-layer">
+        <div class="arch-layer-num">Layer 6</div>
+        <div class="arch-layer-file">main.py</div>
+        <div class="arch-layer-desc">CLI entry point and interactive REPL — the surface where you talk to Scout</div>
+      </div>
+      <div class="arch-layer">
+        <div class="arch-layer-num">Layer 5</div>
+        <div class="arch-layer-file">guardrails.py</div>
+        <div class="arch-layer-desc">Input/output/HITL safety layer — runs before the model and before you</div>
+      </div>
+      <div class="arch-layer">
+        <div class="arch-layer-num">Layer 4</div>
+        <div class="arch-layer-file">subagents.py</div>
+        <div class="arch-layer-desc">Searcher + Synthesizer running in parallel — deep research mode</div>
+      </div>
+      <div class="arch-layer">
+        <div class="arch-layer-num">Layer 3</div>
+        <div class="arch-layer-file">memory.py</div>
+        <div class="arch-layer-desc">Context compression and session persistence — Scout's working memory</div>
+      </div>
+      <div class="arch-layer">
+        <div class="arch-layer-num">Layer 2</div>
+        <div class="arch-layer-file">tools.py</div>
+        <div class="arch-layer-desc">web_search, read_url, save_note, search_notes — Scout's hands</div>
+      </div>
+      <div class="arch-layer">
+        <div class="arch-layer-num">Layer 1</div>
+        <div class="arch-layer-file">agent.py</div>
+        <div class="arch-layer-desc">The ReAct loop — the core. Think, act, observe, repeat.</div>
+      </div>
+    </div>
+
+    <p>That's six files, six layers, zero external frameworks. Every architectural decision — tool dispatch as a dict, context compression at token thresholds, parallel subagents via asyncio, guardrails as pure Python functions, evals as decorated test cases — was a choice you made and can explain. That explanation is the knowledge that transfers when you pick up the next framework, switch models, or extend Scout into something the curriculum didn't anticipate.</p>
+
+    <p>Where to go from here: replace Brave Search with a different data source — academic paper APIs, proprietary databases, your own web crawler. Swap the flat JSON note store for a proper vector database and semantic search. Add MCP servers you build yourself for sources that matter to your use case. Run your eval suite against Claude's next model release before upgrading — treat the pass rate as a compatibility signal. Read Module 07 of the original agentic AI curriculum for a current map of the field: what's shipping, what's emerging, and how to stay calibrated as the landscape moves. The curriculum concepts behind every decision made in this workshop are there, in depth, when you want the theory to match your practice.</p>
+
+    <div class="closing-line">The loop is yours. Build something with it.</div>
+  </div>
+
+</div><!-- end content -->
+</div><!-- end container -->
+
+<footer class="footer">
+  <div class="container">
+    <div class="footer-inner">
+      <div class="footer-text">Build Your Agent · Module P07 · 2026</div>
+      <div class="footer-text">← <a href="index.html" style="color: var(--muted); text-decoration: none; border-bottom: 1px solid rgba(107,107,128,0.3); padding-bottom: 0.05rem; transition: color 0.2s;" onmouseover="this.style.color='var(--text)'" onmouseout="this.style.color='var(--muted)'">Course Overview</a></div>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

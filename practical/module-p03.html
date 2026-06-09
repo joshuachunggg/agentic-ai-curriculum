@@ -1,0 +1,969 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Module P03: Memory That Persists — Build Your Agent</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;500&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #111118;
+    --surface2: #18181f;
+    --border: #2a2a3a;
+    --accent: #7c6af7;
+    --accent2: #f7c36a;
+    --accent3: #6af7d4;
+    --text: #e8e8f0;
+    --muted: #6b6b80;
+    --danger: #f76a6a;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 300;
+    line-height: 1.7;
+    min-height: 100vh;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.4;
+  }
+
+  /* Sticky nav */
+  .top-nav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(10,10,15,0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .top-nav-inner {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 0 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 52px;
+    gap: 1rem;
+  }
+
+  .nav-back {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.05em;
+    color: var(--muted);
+    text-decoration: none;
+    transition: color 0.2s;
+    white-space: nowrap;
+  }
+
+  .nav-back:hover { color: var(--text); }
+
+  .nav-module-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    color: var(--muted);
+    text-transform: uppercase;
+    text-align: center;
+    flex: 1;
+  }
+
+  .nav-next {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.05em;
+    color: var(--muted);
+    text-decoration: none;
+    transition: color 0.2s;
+    white-space: nowrap;
+  }
+
+  .nav-next:hover { color: var(--accent); }
+
+  /* Container */
+  .container {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 0 2rem;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Hero */
+  .hero {
+    padding: 4.5rem 0 3.5rem;
+    border-bottom: 1px solid var(--border);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero::after {
+    content: '';
+    position: absolute;
+    top: -100px;
+    right: -200px;
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, rgba(106,247,212,0.10) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .hero-eyebrow {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.2em;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+  }
+
+  .module-badge {
+    display: inline-block;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.1em;
+    padding: 0.25rem 0.6rem;
+    border-radius: 4px;
+    margin-bottom: 1.2rem;
+    background: rgba(106,247,212,0.12);
+    color: var(--accent3);
+    border: 1px solid rgba(106,247,212,0.3);
+  }
+
+  .hero h1 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: clamp(2rem, 4.5vw, 3.2rem);
+    line-height: 1.08;
+    margin-bottom: 1.4rem;
+    letter-spacing: -0.02em;
+  }
+
+  .hero-sub {
+    font-size: 1.05rem;
+    color: #a0a0b8;
+    max-width: 620px;
+    line-height: 1.8;
+    margin-bottom: 2rem;
+  }
+
+  .hero-meta {
+    display: flex;
+    gap: 2.5rem;
+    flex-wrap: wrap;
+  }
+
+  .meta-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+  }
+
+  .meta-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.15em;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+
+  .meta-value {
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    font-size: 1rem;
+    color: var(--text);
+  }
+
+  .meta-value.teal { color: var(--accent3); }
+
+  /* Main content */
+  .content {
+    padding: 4rem 0 6rem;
+  }
+
+  /* Topic sections */
+  .topic-section {
+    margin-bottom: 5rem;
+  }
+
+  .topic-section:last-child {
+    margin-bottom: 0;
+  }
+
+  .section-number {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+  }
+
+  .topic-section h2 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 1.65rem;
+    letter-spacing: -0.01em;
+    line-height: 1.2;
+    margin-bottom: 1.6rem;
+    color: var(--text);
+  }
+
+  .topic-section h3 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    font-size: 1.1rem;
+    letter-spacing: -0.01em;
+    margin-top: 2rem;
+    margin-bottom: 0.8rem;
+    color: var(--text);
+  }
+
+  .topic-section p {
+    font-size: 0.97rem;
+    color: #c8c8d8;
+    line-height: 1.8;
+    margin-bottom: 1.2rem;
+  }
+
+  .topic-section p:last-child {
+    margin-bottom: 0;
+  }
+
+  /* Section divider */
+  .section-divider {
+    height: 1px;
+    background: linear-gradient(to right, transparent, var(--border) 20%, var(--border) 80%, transparent);
+    margin: 4.5rem 0;
+  }
+
+  /* Callout boxes */
+  .callout {
+    border-radius: 10px;
+    padding: 1.3rem 1.6rem;
+    margin: 2rem 0;
+  }
+
+  .callout-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 0.6rem;
+    font-weight: 500;
+  }
+
+  .callout p {
+    font-size: 0.92rem;
+    line-height: 1.75;
+    margin-bottom: 0;
+  }
+
+  .callout p + p {
+    margin-top: 0.8rem;
+  }
+
+  .callout-insight {
+    background: rgba(124,106,247,0.07);
+    border: 1px solid rgba(124,106,247,0.25);
+  }
+
+  .callout-insight .callout-label {
+    color: var(--accent);
+  }
+
+  .callout-insight p {
+    color: #b8b0f0;
+  }
+
+  .callout-mistake {
+    background: rgba(247,106,106,0.07);
+    border: 1px solid rgba(247,106,106,0.25);
+  }
+
+  .callout-mistake .callout-label {
+    color: var(--danger);
+  }
+
+  .callout-mistake p {
+    color: #e0b0b0;
+  }
+
+  .callout-example {
+    background: rgba(106,247,212,0.06);
+    border: 1px solid rgba(106,247,212,0.2);
+  }
+
+  .callout-example .callout-label {
+    color: var(--accent3);
+  }
+
+  .callout-example p {
+    color: #a8e8d8;
+  }
+
+  .callout-checkpoint {
+    background: rgba(247,195,106,0.07);
+    border: 1px solid rgba(247,195,106,0.25);
+  }
+
+  .callout-checkpoint .callout-label {
+    color: var(--accent2);
+  }
+
+  .callout-checkpoint p {
+    color: #ddc890;
+  }
+
+  .callout-checkpoint ul {
+    list-style: none;
+    margin-top: 0.6rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
+  }
+
+  .callout-checkpoint ul li {
+    font-size: 0.92rem;
+    color: #ddc890;
+    line-height: 1.65;
+    padding-left: 1.4rem;
+    position: relative;
+  }
+
+  .callout-checkpoint ul li::before {
+    content: '✓';
+    position: absolute;
+    left: 0;
+    color: var(--accent2);
+    font-size: 0.75rem;
+  }
+
+  /* Code blocks */
+  .code-block {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.4rem 1.6rem;
+    margin: 1.6rem 0;
+    overflow-x: auto;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.82rem;
+    line-height: 1.75;
+    color: #c0c0d8;
+  }
+
+  .code-block code {
+    font-family: inherit;
+  }
+
+  /* Claude Code prompt block */
+  .cc-prompt-block {
+    background: rgba(106,247,212,0.04);
+    border: 1px solid rgba(106,247,212,0.3);
+    border-radius: 10px;
+    margin: 1.8rem 0;
+    overflow: hidden;
+  }
+
+  .cc-prompt-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--accent3);
+    padding: 0.55rem 1.3rem;
+    background: rgba(106,247,212,0.08);
+    border-bottom: 1px solid rgba(106,247,212,0.15);
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+
+  .cc-prompt-label::before {
+    content: '▸';
+    font-size: 0.8rem;
+  }
+
+  .cc-prompt-body {
+    padding: 1.2rem 1.6rem;
+    font-size: 0.92rem;
+    color: #b0e8d8;
+    line-height: 1.85;
+  }
+
+  /* Step blocks */
+  .step-block {
+    display: flex;
+    gap: 1.8rem;
+    padding: 2rem 0;
+    border-bottom: 1px solid var(--border);
+    align-items: flex-start;
+  }
+
+  .step-block:last-child {
+    border-bottom: none;
+  }
+
+  .step-num {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--accent);
+    background: rgba(124,106,247,0.1);
+    border: 1px solid rgba(124,106,247,0.22);
+    border-radius: 4px;
+    padding: 0.28rem 0.55rem;
+    white-space: nowrap;
+    flex-shrink: 0;
+    margin-top: 0.2rem;
+  }
+
+  .step-content {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .step-content h3 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    font-size: 1.05rem;
+    color: var(--text);
+    margin-bottom: 0.7rem;
+    margin-top: 0;
+  }
+
+  .step-content p {
+    font-size: 0.95rem;
+    color: #c0c0d8;
+    line-height: 1.82;
+    margin-bottom: 0.9rem;
+  }
+
+  /* Scout state bar */
+  .scout-state {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.2rem 1.6rem;
+    margin: 0 0 3rem;
+    display: flex;
+    align-items: flex-start;
+    gap: 1.2rem;
+  }
+
+  .scout-state-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    white-space: nowrap;
+    flex-shrink: 0;
+    padding-top: 0.1rem;
+  }
+
+  .scout-caps {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .scout-cap {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.68rem;
+    padding: 0.25rem 0.6rem;
+    border-radius: 20px;
+    border: 1px solid;
+  }
+
+  .scout-cap.active {
+    background: rgba(106,247,212,0.08);
+    border-color: rgba(106,247,212,0.3);
+    color: var(--accent3);
+  }
+
+  .scout-cap.locked {
+    background: rgba(107,107,128,0.08);
+    border-color: var(--border);
+    color: var(--muted);
+  }
+
+  /* Inline code */
+  code {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.82em;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    padding: 0.1em 0.35em;
+    color: var(--accent3);
+  }
+
+  .code-block code {
+    background: none;
+    border: none;
+    padding: 0;
+    font-size: inherit;
+    color: inherit;
+    border-radius: 0;
+  }
+
+  strong {
+    font-weight: 500;
+    color: var(--text);
+  }
+
+  /* Footer */
+  .footer {
+    border-top: 1px solid var(--border);
+    padding: 2.5rem 0;
+  }
+
+  .footer-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .footer-text {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.68rem;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+  }
+
+  .footer-next {
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    font-size: 0.92rem;
+    color: var(--accent);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: gap 0.2s;
+  }
+
+  .footer-next:hover { gap: 0.8rem; }
+
+  @media (max-width: 640px) {
+    .hero-meta { gap: 1.5rem; }
+    .step-block { flex-direction: column; gap: 0.8rem; }
+    .scout-state { flex-direction: column; gap: 0.8rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Sticky top nav -->
+<nav class="top-nav">
+  <div class="top-nav-inner">
+    <a href="module-p02.html" class="nav-back">← Module P02</a>
+    <span class="nav-module-label">Module P03 / 07</span>
+    <a href="module-p04.html" class="nav-next">Module P04 →</a>
+  </div>
+</nav>
+
+<!-- Hero -->
+<div class="hero">
+  <div class="container">
+    <div class="hero-eyebrow">Practical Workshop · Build Your Agent</div>
+    <div class="module-badge">MODULE P03</div>
+    <h1>Memory That Persists</h1>
+    <p class="hero-sub">
+      Every long research session runs into the same wall: the message list grows until the model starts losing the thread. This module adds rolling context compression and session persistence — Scout can now work across hours of research without degrading, and picks up exactly where it left off after a restart.
+    </p>
+    <div class="hero-meta">
+      <div class="meta-item">
+        <span class="meta-label">Backed by</span>
+        <span class="meta-value">Module 03 — Context Engineering</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">Time</span>
+        <span class="meta-value">~45 min</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">Scout gains</span>
+        <span class="meta-value teal">compression + persistence</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Main content -->
+<div class="container">
+<div class="content">
+
+  <!-- Scout state bar -->
+  <div class="scout-state">
+    <div class="scout-state-label">Scout after P03</div>
+    <div class="scout-caps">
+      <span class="scout-cap active">web_search</span>
+      <span class="scout-cap active">read_url</span>
+      <span class="scout-cap active">save_note</span>
+      <span class="scout-cap active">search_notes</span>
+      <span class="scout-cap active">context_compression</span>
+      <span class="scout-cap active">persistent_sessions</span>
+      <span class="scout-cap locked">subagents</span>
+      <span class="scout-cap locked">MCP_tools</span>
+      <span class="scout-cap locked">guardrails</span>
+      <span class="scout-cap locked">evals</span>
+      <span class="scout-cap locked">deployment</span>
+    </div>
+  </div>
+
+  <!-- SECTION 1 -->
+  <div class="topic-section" id="section-1">
+    <div class="section-number">Section 01</div>
+    <h2>What We're Building</h2>
+
+    <p>Scout's current loop has a hidden time bomb: every tool call and every response appends to the <code>messages</code> list. After 15–20 research queries, that list easily exceeds 50,000 tokens. You pay for all of it. The model technically "sees" everything, but quality drops — older tool results get diluted by newer ones, the original question gets buried, and Scout starts repeating work it already did earlier in the conversation. This is the "lost in the middle" problem from Module 03, and it's not hypothetical. It reliably shows up in any agent doing serious multi-turn research.</p>
+
+    <p>This module adds two things that together solve it. First: a <code>ContextManager</code> class that implements rolling summarization — when the message list grows past a threshold, it compresses the oldest messages into a compact summary, keeping only the most recent turns verbatim. Second: session persistence — the manager's state is serialized to a JSON file after each run, and loaded back at startup. Scout can now be interrupted mid-research, restarted, and pick up the conversation with full context intact. These two capabilities together are the difference between a demo agent and one you'd actually run against a real project.</p>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <!-- SECTION 2 -->
+  <div class="topic-section" id="section-2">
+    <div class="section-number">Section 02</div>
+    <h2>The Concept — Context Engineering</h2>
+
+    <p>The context window is the model's only working memory at inference time. Every call to the API is stateless — the model receives a window of tokens, produces a response, and forgets everything. The "memory" an agent has is entirely in that window: the system prompt, the tool definitions, the conversation history, and the tool results. For Opus 4 the window is 200k tokens — which sounds vast until you start counting. A system prompt with detailed tool descriptions might cost 2,000 tokens. Each web search result is 300–500 tokens. Each <code>read_url</code> result is up to 1,000 tokens after stripping HTML. After 15 research turns you can easily have 30,000+ tokens of history, and you're nowhere near done. The context window is the primary resource to manage in a production agent.</p>
+
+    <p>The deeper problem is dilution. As context grows, older information loses salience — not because the model forgets it, but because the signal-to-noise ratio drops. A model processing a 100-message conversation buries the original question under a sea of intermediate tool results, failed attempts, and repeated searches. Attention drifts toward the most recent messages. The model starts responding to what it saw 5 turns ago rather than the goal it was given 50 turns ago. This is a known limitation of how transformer attention works at scale, and it shows up as subtle quality degradation before it ever shows up as an obvious failure. You notice it as Scout saying "let me search for that" when it already found the answer three turns back.</p>
+
+    <p>The solution is a two-track approach: <strong>separate the conversation from the state</strong>. The conversation history serves the model's reasoning — it needs to see recent messages to understand the flow of what's happening. The state dict serves the orchestration logic — it holds the key facts extracted from the session: current research topic, sources found, key findings, decisions made. The conversation is ephemeral and compressible; the state is durable and structured. Keeping these two things mixed together — storing all knowledge only in the raw conversation history — is the most common context engineering mistake in early agent builds. It means you can't compress the conversation without potentially losing important facts.</p>
+
+    <p>Rolling summarization closes the loop: every N turns, take the oldest M messages, send them to the model with a compression prompt, and replace them with a single compact summary block. Keep the last K messages verbatim so the model has fresh context for its current reasoning. The compressed summary lives in the conversation as a <code>[CONTEXT SUMMARY]</code> block — the model can see it, reference it, and continue. The key insight from Module 03 applies here directly: compression isn't lossy if you're compressing the right things. Intermediate tool results, failed search attempts, repeated reasoning steps — these are compressible. Key findings, source URLs, decisions made — these go into the state dict and survive every compression cycle unchanged.</p>
+
+    <div class="callout callout-insight">
+      <div class="callout-label">Insight</div>
+      <p>The state dict is your agent's working memory — structured facts extracted from tool results. The message list is the reasoning trace — how the model got there. These serve different purposes and have different lifespans. Mixing them together (relying entirely on conversation history to hold important facts) is the most common context engineering mistake in early agent builds. When you compress, you lose the reasoning trace but preserve the state. That's the right tradeoff.</p>
+    </div>
+
+    <div class="callout callout-mistake">
+      <div class="callout-label">Common Mistake</div>
+      <p>Don't compress on every turn. Compressing after every message wastes tokens summarizing work the model just did and destroys the recent context it needs to continue reasoning coherently. Set a meaningful threshold — 16 messages works well in practice — and keep the last 6–8 messages verbatim after each compression. The model needs those recent turns to understand what it was just doing and where to go next.</p>
+    </div>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <!-- SECTION 3 -->
+  <div class="topic-section" id="section-3">
+    <div class="section-number">Section 03</div>
+    <h2>Build It</h2>
+
+    <div class="step-block">
+      <div class="step-num">Step 01</div>
+      <div class="step-content">
+        <h3>Create memory.py</h3>
+        <p>This is a new file — <code>memory.py</code> in your <code>scout-agent/</code> directory. It handles context compression and session persistence independently of the agent loop. Run this prompt in Claude Code from inside your <code>scout-agent/</code> directory:</p>
+
+        <div class="cc-prompt-block">
+          <div class="cc-prompt-label">Claude Code prompt</div>
+          <div class="cc-prompt-body">
+            Create a new file called memory.py. It needs to handle two things:<br><br>
+            1. Context compression: a ContextManager class with:<br>
+            &nbsp;&nbsp;- A messages list and a state dict<br>
+            &nbsp;&nbsp;- An add_message(role, content) method that appends to messages and triggers compression if len(messages) > COMPRESS_THRESHOLD (default 16)<br>
+            &nbsp;&nbsp;- A compress(client, model) method that: takes the oldest (len(messages) - KEEP_RECENT) messages (default keep 6), sends them to Claude with a compression prompt asking for a structured summary, replaces the old messages with a single {"role": "user", "content": "[CONTEXT SUMMARY]\n{summary}"} message, and prints "  [context compressed: N→M messages]"<br>
+            &nbsp;&nbsp;- A to_messages() method that returns the current messages list<br>
+            &nbsp;&nbsp;- A get_state() and set_state(key, value) method for the state dict<br><br>
+            2. Session persistence: save_session(session_id, manager) and load_session(session_id) functions that save/load the context manager's state to/from a JSON file in a sessions/ directory. The session file should store: messages, state, and timestamp.<br><br>
+            Keep it simple — no external dependencies beyond json and pathlib.
+          </div>
+        </div>
+
+        <p>The complete <code>memory.py</code> Claude Code generates should look like this:</p>
+
+        <div class="code-block"><code># memory.py
+import json
+from pathlib import Path
+from datetime import datetime
+import anthropic
+
+SESSIONS_DIR = Path("sessions")
+COMPRESS_THRESHOLD = 16
+KEEP_RECENT = 6
+
+COMPRESSION_PROMPT = """Summarize the following conversation context into a compact structured summary.
+Preserve: key facts found, decisions made, topics researched, sources referenced.
+Discard: intermediate reasoning, repeated searches, failed attempts.
+Output a concise paragraph followed by a "Key facts:" bullet list."""
+
+class ContextManager:
+    def __init__(self):
+        self.messages = []
+        self.state = {}
+
+    def add_message(self, role: str, content):
+        self.messages.append({"role": role, "content": content})
+
+    def should_compress(self) -> bool:
+        return len(self.messages) > COMPRESS_THRESHOLD
+
+    def compress(self, client: anthropic.Anthropic, model: str):
+        n_before = len(self.messages)
+        to_compress = self.messages[:-KEEP_RECENT]
+        keep = self.messages[-KEEP_RECENT:]
+
+        if not to_compress:
+            return
+
+        compress_messages = [
+            {"role": "user", "content": f"{COMPRESSION_PROMPT}\n\n---\n{json.dumps(to_compress, indent=2)}"}
+        ]
+
+        response = client.messages.create(
+            model=model,
+            max_tokens=1024,
+            messages=compress_messages
+        )
+
+        summary = response.content[0].text
+        summary_message = {
+            "role": "user",
+            "content": f"[CONTEXT SUMMARY — {n_before - KEEP_RECENT} messages compressed]\n\n{summary}"
+        }
+
+        self.messages = [summary_message] + keep
+        print(f"  [context compressed: {n_before}→{len(self.messages)} messages]")
+
+    def get_state(self) -> dict:
+        return self.state
+
+    def set_state(self, key: str, value):
+        self.state[key] = value
+
+    def to_messages(self) -> list:
+        return self.messages
+
+    def to_dict(self) -> dict:
+        return {"messages": self.messages, "state": self.state}
+
+    @classmethod
+    def from_dict(cls, data: dict) -> "ContextManager":
+        manager = cls()
+        manager.messages = data.get("messages", [])
+        manager.state = data.get("state", {})
+        return manager
+
+def save_session(session_id: str, manager: ContextManager):
+    SESSIONS_DIR.mkdir(exist_ok=True)
+    path = SESSIONS_DIR / f"{session_id}.json"
+    data = {
+        **manager.to_dict(),
+        "session_id": session_id,
+        "saved_at": datetime.now().isoformat()
+    }
+    path.write_text(json.dumps(data, indent=2))
+    print(f"  [session saved: {path}]")
+
+def load_session(session_id: str) -> ContextManager | None:
+    path = SESSIONS_DIR / f"{session_id}.json"
+    if not path.exists():
+        return None
+    data = json.loads(path.read_text())
+    print(f"  [session loaded: {path} — {len(data.get('messages', []))} messages]")
+    return ContextManager.from_dict(data)</code></div>
+      </div>
+    </div>
+
+    <div class="step-block">
+      <div class="step-num">Step 02</div>
+      <div class="step-content">
+        <h3>Update agent.py to use ContextManager</h3>
+        <p>Now tell Claude Code to wire the <code>ContextManager</code> into the agent loop. The core loop logic stays the same — this is just plumbing that routes messages through the manager rather than appending directly to a list:</p>
+
+        <div class="cc-prompt-block">
+          <div class="cc-prompt-label">Claude Code prompt</div>
+          <div class="cc-prompt-body">
+            Update agent.py to use the ContextManager from memory.py. The run_scout function should:<br>
+            1. Accept an optional session_id parameter (default "default")<br>
+            2. At startup, try to load an existing session with load_session(session_id) — if found, use it; if not, create a new ContextManager<br>
+            3. Use ctx.add_message() instead of directly appending to messages<br>
+            4. After each assistant response, check ctx.should_compress() — if true, call ctx.compress(client, MODEL)<br>
+            5. At the end of each run, call save_session(session_id, ctx) to persist the session<br>
+            6. Also: update the system prompt to tell Scout that it has context compression and can trust that key facts from earlier in the session survive compression in structured form<br><br>
+            Keep the main loop logic the same — just swap messages list for ctx.to_messages().
+          </div>
+        </div>
+
+        <p>The key structural changes in <code>agent.py</code>:</p>
+
+        <div class="code-block"><code># Key changes to agent.py
+
+from memory import ContextManager, save_session, load_session
+
+MODEL = "claude-opus-4-7"
+
+def run_scout(question: str, session_id: str = "default") -> ContextManager:
+    # Load existing session or start fresh
+    ctx = load_session(session_id) or ContextManager()
+
+    ctx.add_message("user", question)
+    print(f"\nScout researching: {question}\n")
+
+    for turn in range(10):
+        response = client.messages.create(
+            model=MODEL,
+            max_tokens=4096,
+            system=SYSTEM,
+            tools=TOOLS,
+            messages=ctx.to_messages()   # <-- use ctx, not raw list
+        )
+
+        ctx.add_message("assistant", response.content)
+
+        # Compress if we've crossed the threshold
+        if ctx.should_compress():
+            ctx.compress(client, MODEL)
+
+        if response.stop_reason == "end_turn":
+            for block in response.content:
+                if hasattr(block, "text"):
+                    print(f"\nScout: {block.text}")
+            break
+
+        elif response.stop_reason == "tool_use":
+            tool_results = []
+            for block in response.content:
+                if block.type == "tool_use":
+                    print(f"  → {block.name}({json.dumps(block.input)})")
+                    result = tool_dispatch.get(
+                        block.name,
+                        lambda **kw: {"error": f"unknown tool: {block.name}"}
+                    )(**block.input)
+                    tool_results.append({
+                        "type": "tool_result",
+                        "tool_use_id": block.id,
+                        "content": json.dumps(result)
+                    })
+            ctx.add_message("user", tool_results)
+
+    save_session(session_id, ctx)
+    return ctx
+
+if __name__ == "__main__":
+    import sys
+    session = sys.argv[1] if len(sys.argv) > 1 else "default"
+    question = input("Ask Scout: ")
+    run_scout(question, session_id=session)</code></div>
+      </div>
+    </div>
+
+    <div class="step-block">
+      <div class="step-num">Step 03</div>
+      <div class="step-content">
+        <h3>Test across sessions</h3>
+        <p>The real test of session persistence is asking follow-up questions in a new terminal session. Run Scout twice with the same session ID:</p>
+
+        <div class="code-block"><code># First run — establish some context
+python agent.py my-research-session
+# Ask: "What is the difference between RAG and fine-tuning?"
+
+# Second run — Scout loads the saved session
+python agent.py my-research-session
+# Ask: "Going back to what we just discussed — what were the main tradeoffs?"</code></div>
+
+        <p>In the second run you should see Scout load the saved session before responding:</p>
+
+        <div class="code-block"><code>  [session loaded: sessions/my-research-session.json — 8 messages]
+
+Ask Scout: Going back to what we just discussed — what were the main tradeoffs?
+
+Scout: Based on what we covered in our previous session, the core tradeoff between
+      RAG and fine-tuning comes down to: RAG gives you current, retrievable knowledge
+      at query time — fine-tuning bakes knowledge into weights, which is faster at
+      inference but can go stale and is expensive to update...</code></div>
+
+        <p>To trigger compression, run a longer session — ask 5–6 questions in a row and watch for the compression message after the message count crosses 16:</p>
+
+        <div class="code-block"><code>  [context compressed: 18→7 messages]</code></div>
+
+        <p>After compression fires, continue the session — Scout should maintain coherent context despite the compression having removed the intermediate reasoning steps.</p>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="section-divider"></div>
+
+  <!-- SECTION 4 -->
+  <div class="topic-section" id="section-4">
+    <div class="section-number">Section 04</div>
+    <h2>Under the Hood</h2>
+
+    <p><strong>Why ContextManager lives in its own file.</strong> The single-responsibility principle matters at the file level, not just the function level. <code>agent.py</code> is about what Scout does — the tools it calls, the loop it runs, the questions it answers. <code>memory.py</code> is about what Scout remembers — how long it remembers it, how it compresses old context, where it persists state. Keeping these separate means you can swap the compression strategy entirely — say, replacing the summarization approach with a vector-based retrieval approach — without touching a single line of the agent loop. Conversely, you can refactor the agent loop without worrying about breaking the memory layer. This is the kind of modularity that makes the later modules in this course straightforward to add, because each concern stays in its lane.</p>
+
+    <p><strong>How compression actually works.</strong> There's no magic here. The <code>compress()</code> method takes the oldest messages — everything that came before the last 6 verbatim turns — serializes them to JSON, and sends them to Claude with a compression prompt. The model reads the raw message history and produces a compact summary: a paragraph describing the key trajectory, followed by a bullet list of key facts. That summary replaces the original messages as a single entry in the conversation. The cost is one extra API call per compression cycle. The savings across a long session — potentially thousands of tokens trimmed to a few hundred — far exceed that cost. And crucially, the quality of the summary is good: Claude is reading its own prior outputs, so the compression rarely misses important information.</p>
+
+    <p><strong>The [CONTEXT SUMMARY] marker is load-bearing.</strong> When the model sees a message starting with <code>[CONTEXT SUMMARY — N messages compressed]</code>, it understands it's reading a compressed digest of prior context, not a real user message that requires a response. Without this marker, the model might try to "respond" to the summary as if it were a new question — asking clarifying questions about it, or treating the key facts list as a new research request. The marker is essentially a content-type annotation: it tells the model the semantic role of this block in the conversation. Never strip it out for "cleanliness." It's doing real work.</p>
+
+    <p><strong>Session files as transparent state.</strong> The <code>sessions/</code> directory is Scout's long-term memory in a form you can inspect, copy, version-control, and debug without any special tools. Run <code>cat sessions/my-research-session.json</code> and you'll see exactly what Scout knows: every message, every compressed summary, the full state dict. This transparency is a deliberate design choice, not an accident of simplicity. Agents that store their state opaquely — in a database, in a vector store, in some framework's hidden cache — are agents you can't easily debug when they produce wrong outputs. When you can read the state directly, you can trace exactly why Scout gave a particular answer, exactly what it remembered from three sessions ago, and exactly where it went wrong if something breaks. In production you'll add more sophisticated storage, but the principle — keep agent state inspectable — should survive the upgrade.</p>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <!-- SECTION 5 -->
+  <div class="topic-section" id="section-5">
+    <div class="section-number">Section 05</div>
+    <h2>Checkpoint</h2>
+
+    <div class="callout callout-checkpoint">
+      <div class="callout-label">Before moving to P04, verify:</div>
+      <ul>
+        <li>Run a long research session (ask 4+ questions in sequence) and confirm it stays coherent</li>
+        <li>After ~16 messages, see the compression message fire: <code>[context compressed: 18→7 messages]</code></li>
+        <li>A session file appears in <code>sessions/</code> — inspect it with a text editor and confirm it's readable</li>
+        <li>Start a new run with the same session ID — Scout prints the load message and references prior context</li>
+        <li>Ask "what have we covered so far?" — Scout gives an accurate summary of the prior session's work</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <!-- SECTION 6 -->
+  <div class="topic-section" id="section-6">
+    <div class="section-number">Section 06</div>
+    <h2>What Scout Can Do Now</h2>
+
+    <p>Scout now handles long research sessions without degrading. It compresses its own context window periodically, extracts what matters into a compact summary, and persists that summary — along with its full state — across terminal restarts. This is the inflection point between a demo that works for one conversation and something you'd actually use across a multi-day research project. The notes library from P02 and the session persistence from P03 together give Scout two complementary forms of memory: the notes library is topic-indexed knowledge that can be searched, and the session state is task-indexed context that picks up exactly where you left off. Everything from here builds on this memory foundation — including the parallel subagents in P04, which will each benefit from being able to share state through the same persistence layer.</p>
+  </div>
+
+</div>
+</div>
+
+<footer class="footer">
+  <div class="container">
+    <div class="footer-inner">
+      <div class="footer-text">Build Your Agent · Module P03 · 2026</div>
+      <a href="module-p04.html" class="footer-next">Module P04: Deep Research Mode <span>→</span></a>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

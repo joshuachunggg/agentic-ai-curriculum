@@ -1,0 +1,1019 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Module P02: Scout's Toolkit — Build Your Agent</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;500&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #111118;
+    --surface2: #18181f;
+    --border: #2a2a3a;
+    --accent: #7c6af7;
+    --accent2: #f7c36a;
+    --accent3: #6af7d4;
+    --text: #e8e8f0;
+    --muted: #6b6b80;
+    --danger: #f76a6a;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 300;
+    line-height: 1.7;
+    min-height: 100vh;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.4;
+  }
+
+  /* Sticky nav */
+  .top-nav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(10,10,15,0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .top-nav-inner {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 0 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 52px;
+    gap: 1rem;
+  }
+
+  .nav-back {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.05em;
+    color: var(--muted);
+    text-decoration: none;
+    transition: color 0.2s;
+    white-space: nowrap;
+  }
+
+  .nav-back:hover { color: var(--text); }
+
+  .nav-module-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    color: var(--muted);
+    text-transform: uppercase;
+    text-align: center;
+    flex: 1;
+  }
+
+  .nav-next {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.05em;
+    color: var(--muted);
+    text-decoration: none;
+    transition: color 0.2s;
+    white-space: nowrap;
+  }
+
+  .nav-next:hover { color: var(--accent); }
+
+  /* Container */
+  .container {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 0 2rem;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Hero */
+  .hero {
+    padding: 4.5rem 0 3.5rem;
+    border-bottom: 1px solid var(--border);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero::after {
+    content: '';
+    position: absolute;
+    top: -100px;
+    right: -200px;
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, rgba(106,247,212,0.10) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .hero-eyebrow {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.2em;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+  }
+
+  .module-badge {
+    display: inline-block;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.1em;
+    padding: 0.25rem 0.6rem;
+    border-radius: 4px;
+    margin-bottom: 1.2rem;
+    background: rgba(106,247,212,0.12);
+    color: var(--accent3);
+    border: 1px solid rgba(106,247,212,0.3);
+  }
+
+  .hero h1 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: clamp(2rem, 4.5vw, 3.2rem);
+    line-height: 1.08;
+    margin-bottom: 1.4rem;
+    letter-spacing: -0.02em;
+  }
+
+  .hero-sub {
+    font-size: 1.05rem;
+    color: #a0a0b8;
+    max-width: 620px;
+    line-height: 1.8;
+    margin-bottom: 2rem;
+  }
+
+  .hero-meta {
+    display: flex;
+    gap: 2.5rem;
+    flex-wrap: wrap;
+  }
+
+  .meta-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+  }
+
+  .meta-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.15em;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+
+  .meta-value {
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    font-size: 1rem;
+    color: var(--text);
+  }
+
+  .meta-value.teal { color: var(--accent3); }
+
+  /* Main content */
+  .content {
+    padding: 4rem 0 6rem;
+  }
+
+  /* Topic sections */
+  .topic-section {
+    margin-bottom: 5rem;
+  }
+
+  .topic-section:last-child {
+    margin-bottom: 0;
+  }
+
+  .section-number {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+  }
+
+  .topic-section h2 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 1.65rem;
+    letter-spacing: -0.01em;
+    line-height: 1.2;
+    margin-bottom: 1.6rem;
+    color: var(--text);
+  }
+
+  .topic-section h3 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    font-size: 1.1rem;
+    letter-spacing: -0.01em;
+    margin-top: 2rem;
+    margin-bottom: 0.8rem;
+    color: var(--text);
+  }
+
+  .topic-section p {
+    font-size: 0.97rem;
+    color: #c8c8d8;
+    line-height: 1.8;
+    margin-bottom: 1.2rem;
+  }
+
+  .topic-section p:last-child {
+    margin-bottom: 0;
+  }
+
+  /* Section divider */
+  .section-divider {
+    height: 1px;
+    background: linear-gradient(to right, transparent, var(--border) 20%, var(--border) 80%, transparent);
+    margin: 4.5rem 0;
+  }
+
+  /* Callout boxes */
+  .callout {
+    border-radius: 10px;
+    padding: 1.3rem 1.6rem;
+    margin: 2rem 0;
+  }
+
+  .callout-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 0.6rem;
+    font-weight: 500;
+  }
+
+  .callout p {
+    font-size: 0.92rem;
+    line-height: 1.75;
+    margin-bottom: 0;
+  }
+
+  .callout p + p {
+    margin-top: 0.8rem;
+  }
+
+  .callout-insight {
+    background: rgba(124,106,247,0.07);
+    border: 1px solid rgba(124,106,247,0.25);
+  }
+
+  .callout-insight .callout-label {
+    color: var(--accent);
+  }
+
+  .callout-insight p {
+    color: #b8b0f0;
+  }
+
+  .callout-mistake {
+    background: rgba(247,106,106,0.07);
+    border: 1px solid rgba(247,106,106,0.25);
+  }
+
+  .callout-mistake .callout-label {
+    color: var(--danger);
+  }
+
+  .callout-mistake p {
+    color: #e0b0b0;
+  }
+
+  .callout-example {
+    background: rgba(106,247,212,0.06);
+    border: 1px solid rgba(106,247,212,0.2);
+  }
+
+  .callout-example .callout-label {
+    color: var(--accent3);
+  }
+
+  .callout-example p {
+    color: #a8e8d8;
+  }
+
+  .callout-checkpoint {
+    background: rgba(247,195,106,0.07);
+    border: 1px solid rgba(247,195,106,0.25);
+  }
+
+  .callout-checkpoint .callout-label {
+    color: var(--accent2);
+  }
+
+  .callout-checkpoint p {
+    color: #ddc890;
+  }
+
+  .callout-checkpoint ul {
+    list-style: none;
+    margin-top: 0.6rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
+  }
+
+  .callout-checkpoint ul li {
+    font-size: 0.92rem;
+    color: #ddc890;
+    line-height: 1.65;
+    padding-left: 1.4rem;
+    position: relative;
+  }
+
+  .callout-checkpoint ul li::before {
+    content: '✓';
+    position: absolute;
+    left: 0;
+    color: var(--accent2);
+    font-size: 0.75rem;
+  }
+
+  /* Code blocks */
+  .code-block {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.4rem 1.6rem;
+    margin: 1.6rem 0;
+    overflow-x: auto;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.82rem;
+    line-height: 1.75;
+    color: #c0c0d8;
+  }
+
+  .code-block code {
+    font-family: inherit;
+  }
+
+  /* Claude Code prompt block */
+  .cc-prompt-block {
+    background: rgba(106,247,212,0.04);
+    border: 1px solid rgba(106,247,212,0.3);
+    border-radius: 10px;
+    margin: 1.8rem 0;
+    overflow: hidden;
+  }
+
+  .cc-prompt-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--accent3);
+    padding: 0.55rem 1.3rem;
+    background: rgba(106,247,212,0.08);
+    border-bottom: 1px solid rgba(106,247,212,0.15);
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+
+  .cc-prompt-label::before {
+    content: '▸';
+    font-size: 0.8rem;
+  }
+
+  .cc-prompt-body {
+    padding: 1.2rem 1.6rem;
+    font-size: 0.92rem;
+    color: #b0e8d8;
+    line-height: 1.85;
+  }
+
+  /* Step blocks */
+  .step-block {
+    display: flex;
+    gap: 1.8rem;
+    padding: 2rem 0;
+    border-bottom: 1px solid var(--border);
+    align-items: flex-start;
+  }
+
+  .step-block:last-child {
+    border-bottom: none;
+  }
+
+  .step-num {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--accent);
+    background: rgba(124,106,247,0.1);
+    border: 1px solid rgba(124,106,247,0.22);
+    border-radius: 4px;
+    padding: 0.28rem 0.55rem;
+    white-space: nowrap;
+    flex-shrink: 0;
+    margin-top: 0.2rem;
+  }
+
+  .step-content {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .step-content h3 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    font-size: 1.05rem;
+    color: var(--text);
+    margin-bottom: 0.7rem;
+    margin-top: 0;
+  }
+
+  .step-content p {
+    font-size: 0.95rem;
+    color: #c0c0d8;
+    line-height: 1.82;
+    margin-bottom: 0.9rem;
+  }
+
+  /* Scout state bar */
+  .scout-state {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.2rem 1.6rem;
+    margin: 0 0 3rem;
+    display: flex;
+    align-items: flex-start;
+    gap: 1.2rem;
+  }
+
+  .scout-state-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    white-space: nowrap;
+    flex-shrink: 0;
+    padding-top: 0.1rem;
+  }
+
+  .scout-caps {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .scout-cap {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.68rem;
+    padding: 0.25rem 0.6rem;
+    border-radius: 20px;
+    border: 1px solid;
+  }
+
+  .scout-cap.active {
+    background: rgba(106,247,212,0.08);
+    border-color: rgba(106,247,212,0.3);
+    color: var(--accent3);
+  }
+
+  .scout-cap.locked {
+    background: rgba(107,107,128,0.08);
+    border-color: var(--border);
+    color: var(--muted);
+  }
+
+  /* Inline code */
+  code {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.82em;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    padding: 0.1em 0.35em;
+    color: var(--accent3);
+  }
+
+  .code-block code {
+    background: none;
+    border: none;
+    padding: 0;
+    font-size: inherit;
+    color: inherit;
+    border-radius: 0;
+  }
+
+  strong {
+    font-weight: 500;
+    color: var(--text);
+  }
+
+  /* Footer */
+  .footer {
+    border-top: 1px solid var(--border);
+    padding: 2.5rem 0;
+  }
+
+  .footer-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .footer-text {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.68rem;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+  }
+
+  .footer-next {
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    font-size: 0.92rem;
+    color: var(--accent);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: gap 0.2s;
+  }
+
+  .footer-next:hover { gap: 0.8rem; }
+
+  @media (max-width: 640px) {
+    .hero-meta { gap: 1.5rem; }
+    .step-block { flex-direction: column; gap: 0.8rem; }
+    .scout-state { flex-direction: column; gap: 0.8rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Sticky top nav -->
+<nav class="top-nav">
+  <div class="top-nav-inner">
+    <a href="index.html" class="nav-back">← Course Overview</a>
+    <span class="nav-module-label">Module P02 / 07</span>
+    <a href="module-p03.html" class="nav-next">Module P03 →</a>
+  </div>
+</nav>
+
+<!-- Hero -->
+<div class="hero">
+  <div class="container">
+    <div class="hero-eyebrow">Practical Workshop · Build Your Agent</div>
+    <div class="module-badge">MODULE P02</div>
+    <h1>Scout's Toolkit</h1>
+    <p class="hero-sub">
+      Four tools, one research cycle. This module gives Scout the ability to search, read, save, and retrieve — transforming it from a single-tool agent into a genuine research assistant that builds a persistent knowledge base.
+    </p>
+    <div class="hero-meta">
+      <div class="meta-item">
+        <span class="meta-label">Backed by</span>
+        <span class="meta-value">Module 02 — Tool Design</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">Time</span>
+        <span class="meta-value">~40 min</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">Scout gains</span>
+        <span class="meta-value teal">4 tools, notes library</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Main content -->
+<div class="container">
+<div class="content">
+
+  <!-- Scout state bar -->
+  <div class="scout-state">
+    <div class="scout-state-label">Scout after P02</div>
+    <div class="scout-caps">
+      <span class="scout-cap active">web_search</span>
+      <span class="scout-cap active">read_url</span>
+      <span class="scout-cap active">save_note</span>
+      <span class="scout-cap active">search_notes</span>
+      <span class="scout-cap locked">context_compression</span>
+      <span class="scout-cap locked">persistent_sessions</span>
+      <span class="scout-cap locked">subagents</span>
+      <span class="scout-cap locked">MCP_tools</span>
+      <span class="scout-cap locked">guardrails</span>
+      <span class="scout-cap locked">evals</span>
+      <span class="scout-cap locked">deployment</span>
+    </div>
+  </div>
+
+  <!-- SECTION 1 -->
+  <div class="topic-section" id="section-1">
+    <div class="section-number">Section 01</div>
+    <h2>What We're Building</h2>
+
+    <p>Right now Scout can only call <code>web_search</code> and give you an answer. It can't read the actual contents of a webpage — it only has snippets. It forgets everything between sessions. And when you ask it to research something, it has no way to store what it learned so it can refer back to it the next time the same topic comes up. In practice, this means every conversation starts from zero, no matter how much work Scout did the last time.</p>
+
+    <p>This module gives Scout the tool set of a real research assistant: search the web, read the full content of a URL, save findings as structured notes, and search those notes for previously gathered information. We're also doing something important architecturally — designing four tools that follow the principles in Module 02. Each tool does exactly one thing. Each returns structured data, not freeform text. Each fails honestly with an actionable error rather than silently returning nothing. The result isn't just more tools — it's a coherent research loop that Scout can follow across every session.</p>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <!-- SECTION 2 -->
+  <div class="topic-section" id="section-2">
+    <div class="section-number">Section 02</div>
+    <h2>The Concept — Tool Design</h2>
+
+    <p>The first principle from Module 02 is <strong>one tool, one side-effect domain</strong>. <code>read_url</code> and <code>save_note</code> are categorically different operations — one reads from the world, the other writes to your notes library. They belong in separate tools, not bundled into a single "research" function. This separation matters because it lets you apply different policies to each. You might want human-in-the-loop approval on any write operation (<code>save_note</code>) while letting reads happen freely. If those operations are mixed into one tool, you can't make that distinction without a lot of messy inspection logic. Clean separation keeps your control surface clean.</p>
+
+    <p>Tool names and descriptions aren't documentation — they're <strong>model-facing control logic</strong>. The model reads them at inference time to decide which tool to call and when. "get_content" is strictly worse than "read_url" as a function name, because "read_url" signals "fetch from the web" while "get_content" says nothing about domain. The description has to answer four questions: what does this tool do, what does it return, when should I use it, and crucially — when should I <em>not</em> use it. A description that says "reads a webpage" leaves the model to guess. A description that says "fetch the full text of a URL — use after web_search to get more detail from a specific result, not as a first step" tells the model exactly where this tool fits in the workflow.</p>
+
+    <p>Every tool call can fail. Network timeout. File not found. Invalid URL. Rate limit. The tool must return a <strong>structured error the model can act on</strong> — not an exception that crashes the loop, not <code>None</code> that silently looks like success, not a generic "something went wrong" string that gives no direction. A tool that returns <code>{"error": "timeout", "url": "...", "message": "Request timed out after 10s", "suggestion": "Try a different source or retry"}</code> gives the model something to work with. It can try a different URL. It can note the failure and continue. It can ask the user. The model can only act on information it can read — and a structured error is readable information.</p>
+
+    <p>The last design question is <strong>granularity: how many tools?</strong> Not too few — a single "do_research" tool that bundles search, reading, and saving is impossible to control and gives the model no ability to adapt its approach. Not too many — a model facing a 40-tool list spends reasoning cycles just navigating the options and makes more mistakes. Scout's four tools map to the complete research lifecycle: find information (<code>web_search</code>), read it in depth (<code>read_url</code>), persist it (<code>save_note</code>), and retrieve what you already know (<code>search_notes</code>). That's the cycle. Four tools, one cycle.</p>
+
+    <div class="callout callout-insight">
+      <div class="callout-label">Insight</div>
+      <p>Tool descriptions sit in the context window on every single call. Write them like you're briefing a capable but context-limited assistant on exactly when to reach for each tool. "Use this when you need to verify something from the search results" is more useful than "reads a webpage." The extra specificity costs a few tokens and saves many turns of incorrect tool usage.</p>
+    </div>
+
+    <div class="callout callout-mistake">
+      <div class="callout-label">Common Mistake</div>
+      <p>The silent failure trap. A tool that returns <code>None</code> when a URL 404s — or raises an unhandled exception — will cause the model to silently proceed as if the page loaded successfully. Return a structured error dict with a concrete action the model can take: retry, try a different URL, skip and note the failure. Silence is the worst possible error signal for an agent that needs to self-correct.</p>
+    </div>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <!-- SECTION 3 -->
+  <div class="topic-section" id="section-3">
+    <div class="section-number">Section 03</div>
+    <h2>Build It</h2>
+
+    <div class="step-block">
+      <div class="step-num">Step 01</div>
+      <div class="step-content">
+        <h3>Add three new tools to tools.py</h3>
+        <p>Open your <code>scout-agent/</code> directory in Claude Code and run the following prompt. Claude Code will update <code>tools.py</code> in place — adding the three new functions, updating the <code>TOOLS</code> list with complete descriptions for all four tools, and adding the new dependencies to <code>requirements.txt</code>.</p>
+
+        <div class="cc-prompt-block">
+          <div class="cc-prompt-label">Claude Code prompt</div>
+          <div class="cc-prompt-body">
+            Update tools.py to add three new tools alongside the existing web_search.<br><br>
+            1. read_url(url: str) — fetches the content of a URL and returns a dict with: url, title (extract from HTML if possible), content (first 3000 chars of visible text, stripped of HTML tags), word_count, and fetched_at timestamp. If the fetch fails for any reason, return a structured error dict with keys: error (string code), url, message, and suggestion. Use the requests library and beautifulsoup4 for parsing. Handle timeouts (10s), HTTP errors, and parsing failures explicitly.<br><br>
+            2. save_note(title: str, content: str, tags: list[str] = None) — saves a note as a JSON file in a notes/ subdirectory. The filename should be a slugified version of the title. Returns a dict with: saved (bool), filename, title, tag_count, and note_id (use a short uuid4). Create the notes/ directory if it doesn't exist.<br><br>
+            3. search_notes(query: str) — reads all JSON files from notes/, does a simple case-insensitive substring search on title + content + tags, and returns a list of matching notes (title, filename, preview of first 200 chars, tags). Returns an empty list if nothing matches, not an error.<br><br>
+            Add all four tools to TOOLS (keep web_search) with complete descriptions. Add requests and beautifulsoup4 to requirements.txt.
+          </div>
+        </div>
+
+        <p>After Claude Code runs, your complete <code>tools.py</code> should look like this:</p>
+
+        <div class="code-block"><code># tools.py (complete, after P02)
+import json
+import os
+import re
+import time
+import uuid
+from pathlib import Path
+from datetime import datetime
+
+NOTES_DIR = Path("notes")
+
+def web_search(query: str) -> dict:
+    """Stub — returns realistic fake results. Replace with Brave/Serper in P05."""
+    return {
+        "query": query,
+        "results": [
+            {
+                "title": f"Understanding {query}: A Complete Guide",
+                "url": "https://example.com/guide",
+                "snippet": f"A comprehensive overview of {query}, covering key concepts, recent developments...",
+                "source": "example.com"
+            },
+            {
+                "title": f"{query} — Research and Analysis",
+                "url": "https://research.example.com/analysis",
+                "snippet": f"Recent analysis of {query} with practical applications and case studies...",
+                "source": "research.example.com"
+            },
+            {
+                "title": f"How {query} Works: Technical Deep Dive",
+                "url": "https://technical.example.com/deep-dive",
+                "snippet": f"Technical examination of {query}, underlying mechanisms and implementation details...",
+                "source": "technical.example.com"
+            }
+        ],
+        "timestamp": time.time()
+    }
+
+def read_url(url: str) -> dict:
+    try:
+        import requests
+        from bs4 import BeautifulSoup
+
+        resp = requests.get(url, timeout=10, headers={"User-Agent": "Scout-Research-Agent/1.0"})
+        resp.raise_for_status()
+
+        soup = BeautifulSoup(resp.text, "html.parser")
+        for tag in soup(["script", "style", "nav", "footer", "header"]):
+            tag.decompose()
+
+        title = soup.title.string.strip() if soup.title else url
+        text = " ".join(soup.get_text().split())
+
+        return {
+            "url": url,
+            "title": title,
+            "content": text[:3000],
+            "word_count": len(text.split()),
+            "fetched_at": datetime.now().isoformat()
+        }
+    except requests.exceptions.Timeout:
+        return {"error": "timeout", "url": url,
+                "message": "Request timed out after 10s",
+                "suggestion": "Try a different source or retry"}
+    except requests.exceptions.HTTPError as e:
+        return {"error": "http_error", "url": url,
+                "message": str(e),
+                "suggestion": "Check the URL or try a different source"}
+    except Exception as e:
+        return {"error": "parse_error", "url": url,
+                "message": str(e),
+                "suggestion": "Try a different URL"}
+
+def save_note(title: str, content: str, tags: list = None) -> dict:
+    NOTES_DIR.mkdir(exist_ok=True)
+
+    slug = re.sub(r"[^a-z0-9]+", "-", title.lower()).strip("-")
+    note_id = str(uuid.uuid4())[:8]
+    filename = f"{slug}-{note_id}.json"
+
+    note = {
+        "id": note_id,
+        "title": title,
+        "content": content,
+        "tags": tags or [],
+        "created_at": datetime.now().isoformat(),
+        "filename": filename
+    }
+
+    (NOTES_DIR / filename).write_text(json.dumps(note, indent=2))
+
+    return {
+        "saved": True,
+        "filename": filename,
+        "title": title,
+        "tag_count": len(tags or []),
+        "note_id": note_id
+    }
+
+def search_notes(query: str) -> dict:
+    if not NOTES_DIR.exists():
+        return {"query": query, "results": [], "total": 0}
+
+    query_lower = query.lower()
+    results = []
+
+    for f in NOTES_DIR.glob("*.json"):
+        try:
+            note = json.loads(f.read_text())
+            searchable = (
+                f"{note.get('title','')} "
+                f"{note.get('content','')} "
+                f"{' '.join(note.get('tags',[]))}"
+            ).lower()
+            if query_lower in searchable:
+                results.append({
+                    "title": note["title"],
+                    "filename": note["filename"],
+                    "preview": note["content"][:200],
+                    "tags": note.get("tags", []),
+                    "created_at": note.get("created_at", "")
+                })
+        except Exception:
+            continue
+
+    return {"query": query, "results": results, "total": len(results)}
+
+TOOLS = [
+    {
+        "name": "web_search",
+        "description": "Search the web for current information. Returns titles, URLs, and snippets. Use when you need factual information or sources to cite. Be specific in your query.",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "query": {"type": "string", "description": "Specific search query"}
+            },
+            "required": ["query"]
+        }
+    },
+    {
+        "name": "read_url",
+        "description": "Fetch and read the full text content of a webpage. Use after web_search to get more detail from a specific result. Returns title, content (first 3000 chars), and word count. If a URL fails, try a different source rather than retrying the same URL.",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "url": {"type": "string", "description": "Full URL to fetch (must start with http:// or https://)"}
+            },
+            "required": ["url"]
+        }
+    },
+    {
+        "name": "save_note",
+        "description": "Save research findings as a persistent note. Use this to record key information you've found so it can be retrieved in future sessions. Include meaningful tags to make retrieval easier.",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "title": {"type": "string", "description": "Descriptive title for the note"},
+                "content": {"type": "string", "description": "The note content — research findings, summaries, key facts"},
+                "tags": {
+                    "type": "array",
+                    "items": {"type": "string"},
+                    "description": "Tags for categorization and retrieval (e.g. ['AI', 'agents', 'MCP'])"
+                }
+            },
+            "required": ["title", "content"]
+        }
+    },
+    {
+        "name": "search_notes",
+        "description": "Search your saved notes for previously researched information. Use this at the start of a research session — you may have already covered this topic. Returns matching notes with previews.",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "query": {"type": "string", "description": "Search term to look for in note titles, content, and tags"}
+            },
+            "required": ["query"]
+        }
+    }
+]</code></div>
+      </div>
+    </div>
+
+    <div class="step-block">
+      <div class="step-num">Step 02</div>
+      <div class="step-content">
+        <h3>Update agent.py to handle all four tools</h3>
+        <p>Now tell Claude Code to update the agent loop to dispatch to all four tools and update Scout's system prompt to encode the research workflow:</p>
+
+        <div class="cc-prompt-block">
+          <div class="cc-prompt-label">Claude Code prompt</div>
+          <div class="cc-prompt-body">
+            Update agent.py to handle all four tools from the updated tools.py. The run_scout function needs to dispatch to read_url, save_note, and search_notes in addition to web_search. Also update the system prompt to tell Scout it has all four tools and that it should: (1) always check search_notes first before doing a web_search, in case the topic was already researched; (2) save important findings as notes with meaningful tags. Keep everything else the same.
+          </div>
+        </div>
+
+        <p>The key changes to <code>agent.py</code> are the system prompt and the tool dispatch dictionary. You should see something like this:</p>
+
+        <div class="code-block"><code># Changes to agent.py
+
+from tools import web_search, read_url, save_note, search_notes, TOOLS
+
+# Updated system prompt
+SYSTEM = """You are Scout, a research assistant with four tools: web_search, read_url, save_note, and search_notes.
+
+Your research workflow:
+1. Start every research session by calling search_notes to check if you've already covered this topic
+2. Use web_search to find current sources
+3. Use read_url to get the full content of the most relevant results
+4. Synthesize your findings and save key insights with save_note (meaningful tags help future retrieval)
+5. Always cite your sources by URL in your final answer
+
+Be thorough but efficient. One well-read source beats three skimmed snippets."""
+
+# Updated tool dispatch in run_scout
+tool_dispatch = {
+    "web_search": web_search,
+    "read_url": read_url,
+    "save_note": save_note,
+    "search_notes": search_notes,
+}
+
+# In the tool_use loop:
+if block.name in tool_dispatch:
+    result = tool_dispatch[block.name](**block.input)
+else:
+    result = {"error": f"unknown tool: {block.name}"}</code></div>
+
+        <p>The dispatch dict pattern is the right way to route tool calls. It's O(1), easily extended, and handles the "unknown tool" case cleanly. A chain of <code>if/elif</code> statements would work but breaks down as your tool list grows.</p>
+      </div>
+    </div>
+
+    <div class="step-block">
+      <div class="step-num">Step 03</div>
+      <div class="step-content">
+        <h3>Install dependencies and test the full research cycle</h3>
+        <p>Install the new dependencies, then run Scout and ask it to research a topic and save what it learns:</p>
+
+        <div class="code-block"><code>pip install requests beautifulsoup4
+python agent.py</code></div>
+
+        <p>Try: <em>"Research how the Model Context Protocol works and save what you learn."</em> You should see Scout move through all four tools in sequence:</p>
+
+        <div class="code-block"><code>Scout researching: research how the Model Context Protocol works and save what you learn
+
+  → search_notes({"query": "Model Context Protocol"})
+  → web_search({"query": "Model Context Protocol MCP how it works 2024"})
+  → read_url({"url": "https://..."})
+  → save_note({"title": "Model Context Protocol — How It Works",
+               "content": "...",
+               "tags": ["MCP", "agents", "tools", "Anthropic"]})
+
+Scout: Here's what I found about MCP...
+      [Saved as note: "Model Context Protocol — How It Works"]</code></div>
+
+        <p>After this run, check your <code>scout-agent/notes/</code> directory — there should be a <code>.json</code> file containing the note Scout saved. Run Scout again and ask about the same topic. Because <code>search_notes</code> runs first, Scout will find the existing note and reference it rather than repeating the full research cycle from scratch.</p>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="section-divider"></div>
+
+  <!-- SECTION 4 -->
+  <div class="topic-section" id="section-4">
+    <div class="section-number">Section 04</div>
+    <h2>Under the Hood</h2>
+
+    <p><strong>Why search_notes runs first.</strong> The system prompt instructs Scout to always check its notes before doing a web search. Right now, with the stub web search, those notes will almost always miss — the stub returns fake results regardless. But when you replace web_search with real Brave Search in P05, this ordering becomes a meaningful optimization: returning to a topic you already researched skips the API call entirely and uses your local knowledge base instead. You're building the habit now so the behavior is in place when it matters. This is the foundation of agent memory — not a database, not embeddings, just structured files and a well-ordered workflow.</p>
+
+    <p><strong>The dispatch dict pattern.</strong> Mapping tool names to callable functions is the right architecture for tool routing. Not a chain of <code>if/elif</code> — that's linear in the number of tools, brittle when you rename something, and produces dead code when a tool is removed. The dispatch dict is O(1) lookup, scales cleanly as the tool list grows, and makes the "unknown tool" case trivially explicit: if the name isn't in the dict, return a structured error. This same pattern applies at any scale — you'll see it in production agent frameworks too, usually with some additional validation layer on top of the raw function call.</p>
+
+    <p><strong>Why read_url extracts text and not raw HTML.</strong> The model pays per token. Sending raw HTML — with all its tags, inline scripts, navigation markup, and boilerplate — is expensive and noisy. A typical webpage might be 30,000 tokens of raw HTML but only 3,000 tokens of actual content. Stripping to visible text is context engineering: delivering the same information at a fraction of the token cost. The BeautifulSoup decompose calls that remove <code>&lt;script&gt;</code>, <code>&lt;style&gt;</code>, <code>&lt;nav&gt;</code>, and <code>&lt;footer&gt;</code> tags aren't cosmetic — they're meaningful cost and quality improvements. The 3,000-character cap is a deliberate tradeoff: enough to capture the substance of most articles, small enough to keep each tool result manageable within the context window.</p>
+
+    <p><strong>The unknown tool case always needs handling.</strong> Language models can hallucinate tool names — especially as the tool list grows or the system prompt is ambiguous. If your dispatch logic doesn't handle an unknown tool name, you'll get a Python <code>KeyError</code> that crashes the agent loop entirely. A structured error return — <code>{"error": "unknown tool: make_coffee"}</code> — lets the model self-correct. In practice, Claude rarely hallucinates tool names when descriptions are clear, but the defensive handling is cheap and the benefit if it does happen is large: the loop continues, the model sees the error, and it typically picks the right tool on the next turn.</p>
+
+    <div class="callout callout-insight">
+      <div class="callout-label">Insight</div>
+      <p>Scout's <code>search_notes → web_search → read_url → save_note</code> workflow is a genuine research loop. Each tool call serves a different part of the information lifecycle: find what you know, find new sources, read them in depth, store what matters. Most useful real-world agents follow this same pattern — the domain changes, the tools change, but the underlying structure of "check memory, find new, read deeply, persist" is remarkably consistent across domains.</p>
+    </div>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <!-- SECTION 5 -->
+  <div class="topic-section" id="section-5">
+    <div class="section-number">Section 05</div>
+    <h2>Checkpoint</h2>
+
+    <div class="callout callout-checkpoint">
+      <div class="callout-label">Before moving to P03, verify:</div>
+      <ul>
+        <li>Run <code>python agent.py</code> and ask Scout to research a topic you care about</li>
+        <li>Scout calls <code>search_notes</code> first, then <code>web_search</code>, then at least one <code>read_url</code></li>
+        <li>A <code>.json</code> file appears in the <code>notes/</code> directory with the saved research</li>
+        <li>Run Scout again and ask about the same topic — it finds and references the saved note</li>
+        <li>Deliberately break a URL and confirm Scout returns a structured error rather than crashing</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <!-- SECTION 6 -->
+  <div class="topic-section" id="section-6">
+    <div class="section-number">Section 06</div>
+    <h2>What Scout Can Do Now</h2>
+
+    <p>Scout is now a research loop. It knows to check what it already knows before reaching for the web. It reads full pages, not just snippets. It saves findings for next time so that returning to a topic costs less than researching it fresh. The four tools are still partially stubbed — <code>web_search</code> returns fake results until P05 — but the architecture is fully real. The tool design, the dispatch pattern, the structured error handling, the note format: all of this carries forward unchanged into the production version. In Module P03, we tackle the next hidden problem: as Scout researches across a long session, the message history grows until the model starts losing the thread. We'll add rolling context compression that keeps the context window lean without losing what matters.</p>
+  </div>
+
+</div>
+</div>
+
+<footer class="footer">
+  <div class="container">
+    <div class="footer-inner">
+      <div class="footer-text">Build Your Agent · Module P02 · 2026</div>
+      <a href="module-p03.html" class="footer-next">Module P03: Memory That Persists <span>→</span></a>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
