@@ -142,6 +142,9 @@
   .card-agentic { border-top: 3px solid var(--accent); }
   .card-agentic:hover { border-color: var(--accent); box-shadow: 0 12px 40px rgba(124,106,247,0.10); }
 
+  .card-practical { border-top: 3px solid var(--accent2); }
+  .card-practical:hover { border-color: var(--accent2); box-shadow: 0 12px 40px rgba(247,195,106,0.08); }
+
   .card-header {
     padding: 2rem 2rem 1.5rem;
     border-bottom: 1px solid var(--border);
@@ -170,6 +173,12 @@
     border: 1px solid rgba(124,106,247,0.2);
   }
 
+  .tag-practical {
+    color: var(--accent2);
+    background: rgba(247,195,106,0.1);
+    border: 1px solid rgba(247,195,106,0.2);
+  }
+
   .card-title {
     font-family: 'Syne', sans-serif;
     font-weight: 700;
@@ -182,6 +191,7 @@
 
   .card-foundations .card-title span { color: var(--accent3); }
   .card-agentic .card-title span { color: var(--accent); }
+  .card-practical .card-title span { color: var(--accent2); }
 
   .card-desc {
     font-size: 0.92rem;
@@ -281,6 +291,7 @@
 
   .card-foundations .cta-text { color: var(--accent3); }
   .card-agentic .cta-text { color: var(--accent); }
+  .card-practical .cta-text { color: var(--accent2); }
 
   /* Path indicator between cards */
   .path-connector {
@@ -438,13 +449,52 @@
       </div>
     </a>
 
+    <!-- PRACTICAL COURSE CARD -->
+    <a href="practical/index.html" class="curriculum-card card-practical">
+      <div class="card-header">
+        <div class="card-tag tag-practical">Hands-On Workshop</div>
+        <div class="card-title">Build Your <span>Agent</span></div>
+        <div class="card-desc">A step-by-step practical workshop. Every module, you ship. By the end, Scout — your personal research agent — is running, tested, and yours to customize. Use Claude Code to build it; we explain exactly what was built and why.</div>
+      </div>
+      <div class="card-meta">
+        <div class="meta-pair">
+          <span class="meta-key">Modules</span>
+          <span class="meta-val">7</span>
+        </div>
+        <div class="meta-pair">
+          <span class="meta-key">Duration</span>
+          <span class="meta-val">~5 hours</span>
+        </div>
+        <div class="meta-pair">
+          <span class="meta-key">Prerequisites</span>
+          <span class="meta-val">Agentic AI curriculum</span>
+        </div>
+      </div>
+      <div class="card-modules">
+        <div class="modules-label">What you'll build</div>
+        <div class="module-pills">
+          <div class="module-pill"><span class="pill-num">P01</span> ReAct loop from scratch</div>
+          <div class="module-pill"><span class="pill-num">P02</span> Research toolkit (4 tools)</div>
+          <div class="module-pill"><span class="pill-num">P03</span> Context compression + sessions</div>
+          <div class="module-pill"><span class="pill-num">P04</span> Parallel subagents</div>
+          <div class="module-pill"><span class="pill-num">P05</span> MCP — real web search</div>
+          <div class="module-pill"><span class="pill-num">P06</span> Guardrails + evals</div>
+          <div class="module-pill"><span class="pill-num">P07</span> Customize + deploy</div>
+        </div>
+      </div>
+      <div class="card-cta">
+        <span class="cta-text">Start Building</span>
+        <span class="cta-arrow">→</span>
+      </div>
+    </a>
+
   </div>
 </div>
 
 <footer class="footer">
   <div class="container">
     <div class="footer-inner">
-      <div class="footer-text">AI Curriculum · Internal Training · 2026 Edition · 13 Modules Total</div>
+      <div class="footer-text">AI Curriculum · Internal Training · 2026 Edition · 20 Modules Total</div>
     </div>
   </div>
 </footer>
