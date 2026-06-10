@@ -857,18 +857,13 @@
           <div class="cc-prompt-block">
             <div class="cc-prompt-label">Claude Code Prompt</div>
             <div class="cc-prompt-body">
-              I need to set up the Brave Search MCP server for Scout. Help me:<br>
-              1. Install the @modelcontextprotocol/server-brave-search package<br>
-              2. Create a .env file for the BRAVE_API_KEY (I'll fill in the actual key)<br>
-              3. Test that the server starts correctly<br><br>
-              Also, what do I need to sign up for to get a Brave Search API key?<br><br>
-              Only install the package and create .env — don't modify any Python files yet.
+              Set up the Brave Search MCP server for Scout. Do these in order:<br>
+              1. Install: npm install -g @modelcontextprotocol/server-brave-search<br>
+              2. Create .env with: BRAVE_API_KEY=your_key_here<br>
+              3. Create (or update) .gitignore to include: .env, sessions/, notes/<br><br>
+              Don't modify any Python files yet. Show me the .gitignore contents after.<br><br>
+              Only install the package and create/update .env and .gitignore.
             </div>
-          </div>
-
-          <div class="callout callout-mistake">
-            <div class="callout-label">Security Note</div>
-            <p>Before continuing, make sure <code>.env</code> is in your <code>.gitignore</code>. Your Brave API key is a credential — committing it to a public repo exposes it immediately. Ask Claude Code: <strong>"Add .env, sessions/, and notes/ to .gitignore — create the file if it doesn't exist."</strong></p>
           </div>
 
           <p>Claude Code will run the install and create the env file. The commands it runs:</p>
@@ -878,11 +873,10 @@
 # Create .env with placeholder
 echo "BRAVE_API_KEY=your_key_here" > .env
 
-# Test the server starts (Ctrl+C to stop)
-npx @modelcontextprotocol/server-brave-search
-# Should print: Brave Search MCP Server running on stdio</code></div>
+# Create/update .gitignore
+echo ".env\nsessions/\nnotes/" >> .gitignore</code></div>
 
-          <p>To get a real API key: sign up at <strong>brave.com/search/api/</strong> — the free tier includes 2,000 queries per month, which is more than enough for development and testing. Once you have the key, replace <code>your_key_here</code> in <code>.env</code> with the actual key. Do not commit <code>.env</code> to git — add it to <code>.gitignore</code> now if it isn't already there.</p>
+          <p>To get a real API key: sign up at <strong>brave.com/search/api/</strong> — the free tier includes 2,000 queries per month, which is more than enough for development and testing. Once you have the key, replace <code>your_key_here</code> in <code>.env</code> with the actual key.</p>
         </div>
       </div>
 
@@ -896,12 +890,16 @@ npx @modelcontextprotocol/server-brave-search
           <div class="cc-prompt-block">
             <div class="cc-prompt-label">Claude Code Prompt</div>
             <div class="cc-prompt-body">
-              Create mcp_tools.py. It should:<br>
-              1. Load BRAVE_API_KEY from the .env file using python-dotenv<br>
-              2. Provide an async function get_brave_tools() that returns the brave_web_search tool definition in Anthropic API format<br>
-              3. Provide an async function call_brave_search(query: str, count: int = 5) -&gt; dict that starts the Brave Search MCP server as a subprocess, sends it an initialize request followed by a tools/call request over stdin, and parses the response from stdout<br>
-              4. Add python-dotenv to requirements.txt<br><br>
-              Use a direct subprocess approach — start the server with asyncio.create_subprocess_exec, pipe JSON-RPC messages in, parse the JSON lines out. Don't use the SDK's MCPServerStdio class for now — I want to understand the wire protocol.<br><br>Only create mcp_tools.py.
+              Do these two steps in order:<br><br>
+              Step A — Create mcp_tools.py:<br>
+              1. Load BRAVE_API_KEY from .env using python-dotenv<br>
+              2. Provide async function get_brave_tools() returning the brave_web_search tool definition in Anthropic API format<br>
+              3. Provide async function call_brave_search(query: str, count: int = 5) -&gt; dict that starts the Brave Search MCP server as a subprocess, sends an initialize request then a tools/call request over stdin, and parses stdout<br>
+              4. Add python-dotenv to requirements.txt<br>
+              Use asyncio.create_subprocess_exec — I want to understand the wire protocol directly.<br><br>
+              Step B — Update tools.py:<br>
+              Update web_search in tools.py to use Brave Search when BRAVE_API_KEY is set in the environment, falling back to the stub when not. Import call_brave_search from mcp_tools and use asyncio.run() to call it from the sync web_search function. Add a comment at the top of the function showing which mode is active.<br><br>
+              Only touch mcp_tools.py and tools.py. Keep the web_search function signature identical.
             </div>
           </div>
 
@@ -1019,85 +1017,6 @@ async def call_brave_search(query: str, count: int = 5) -> dict:
         }</code></div>
 
           <p>The <code>asyncio.wait_for</code> timeout wrapper is important: without it, a hung server process will block your agent indefinitely. 15 seconds is generous for a search request; reduce it to 8 seconds in production.</p>
-        </div>
-      </div>
-
-      <!-- Step 3 -->
-      <div class="step-block">
-        <div class="step-num">Step 03</div>
-        <div class="step-content">
-          <h3>Update tools.py to use real Brave Search</h3>
-          <p>Now swap the stub for the real implementation with a clean fallback:</p>
-
-          <div class="cc-prompt-block">
-            <div class="cc-prompt-label">Claude Code Prompt</div>
-            <div class="cc-prompt-body">
-              Update the web_search function in tools.py to use Brave Search when BRAVE_API_KEY is set in the environment, and fall back to the stub when it's not set. Import call_brave_search from mcp_tools and use asyncio.run() to call it from the sync web_search function. Add a comment at the top of the function showing how to tell which mode is active.<br><br>Only modify tools.py — keep the function signature identical to what's already there.
-            </div>
-          </div>
-
-          <p>The updated <code>web_search</code> function:</p>
-
-          <div class="code-block"><code class="language-python"># Updated web_search in tools.py
-
-def web_search(query: str, count: int = 5) -> dict:
-    """
-    Search the web for information.
-    Real mode: BRAVE_API_KEY is set in environment -> uses Brave Search MCP
-    Stub mode:  BRAVE_API_KEY not set             -> returns placeholder results
-    Check active mode: result.get("_stub") is True means stub is active.
-    """
-    import os
-    import asyncio
-
-    if os.getenv("BRAVE_API_KEY"):
-        from mcp_tools import call_brave_search
-        try:
-            result = asyncio.run(call_brave_search(query, count))
-            if "error" not in result:
-                return result
-            # MCP call failed — fall through to stub with a warning
-            print(f"  [warning] Brave Search error ({result.get('error')}): {result.get('message')} — using stub")
-        except RuntimeError:
-            # asyncio.run() raises RuntimeError if called inside a running event loop
-            # (e.g., when called from within subagents.py's async context).
-            # In that case, the caller should use `await asyncio.to_thread(web_search, query)`.
-            print("  [warning] asyncio loop conflict in web_search — using stub")
-
-    # Stub fallback
-    import time
-    return {
-        "query": query,
-        "results": [
-            {
-                "title": f"Understanding {query}: A Guide",
-                "url": "https://example.com/guide",
-                "snippet": f"A comprehensive overview of {query}...",
-                "source": "example.com"
-            },
-            {
-                "title": f"{query} — Analysis",
-                "url": "https://research.example.com",
-                "snippet": f"Analysis of {query} and related topics...",
-                "source": "research.example.com"
-            },
-            {
-                "title": f"How {query} Works",
-                "url": "https://technical.example.com",
-                "snippet": f"Technical examination of {query}...",
-                "source": "technical.example.com"
-            }
-        ],
-        "timestamp": time.time(),
-        "_stub": True
-    }</code></div>
-
-          <p>The <code>_stub: True</code> flag in stub results lets you programmatically detect which mode is active during testing — check for its presence in debug output or assertions.</p>
-
-          <div class="callout callout-cc-tip">
-            <div class="callout-label">Claude Code Tip</div>
-            <p>MCP integration touches multiple files. Run <code>/compact</code> after this step — the subprocess/JSON-RPC details don't need to stay in context; what matters is the interface (the updated <code>web_search</code> signature and fallback logic).</p>
-          </div>
         </div>
       </div>
 

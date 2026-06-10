@@ -941,12 +941,12 @@
           <div class="cc-prompt-block">
             <div class="cc-prompt-label">Claude Code Prompt — Second</div>
             <div class="cc-prompt-body">
-              Now update agent.py, tools.py, guardrails.py, and memory.py to import their constants from config.py instead of hardcoding them. Specifically:<br>
+              Use subagents — one per file — to update these four files in parallel, importing their constants from config.py instead of hardcoding them:<br>
               - agent.py: import MODEL, MAX_TURNS, SYSTEM (or AGENT_PERSONA), HITL_ENABLED from config<br>
               - tools.py: import NOTES_DIR from config<br>
               - guardrails.py: import HITL_ENABLED from config (if referenced)<br>
               - memory.py: import SESSION_DIR, COMPRESS_THRESHOLD, KEEP_RECENT from config if they exist there<br><br>
-              Keep logic changes minimal — only import changes, no restructuring. If a constant doesn't exist in config.py yet, add it.<br><br>
+              Each file update is independent — subagents can edit them simultaneously. Keep logic changes minimal: only import changes, no restructuring. If a constant doesn't exist in config.py yet, add it.<br><br>
               Only modify agent.py, tools.py, guardrails.py, and memory.py — don't touch config.py.
             </div>
           </div>

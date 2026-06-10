@@ -841,36 +841,17 @@
       <div class="step-block">
         <div class="step-num">Step 01</div>
         <div class="step-content">
-          <h3>Set up the project</h3>
+          <h3>Set up the project and CLAUDE.md</h3>
           <p>Start Claude Code in your terminal and give it this prompt:</p>
 
           <div class="cc-prompt-block">
             <div class="cc-prompt-label">Claude Code Prompt</div>
             <div class="cc-prompt-body">
-              Create scout-agent/ directory with three files:<br>
+              Create scout-agent/ with these four files:<br>
               - agent.py (empty)<br>
               - tools.py (empty)<br>
-              - requirements.txt containing just: anthropic<br><br>
-              Show me the directory structure after.<br><br>
-              Only create these three files — don't write any code yet.
-            </div>
-          </div>
-
-          <p>Claude Code will create the directory and three files. This is your entire project structure for this module — intentionally minimal. <code>requirements.txt</code> with just <code>anthropic</code> means the only dependency is the official Anthropic Python SDK. No frameworks, no abstractions you don't understand. Everything Scout does in this module comes from that one package plus the standard library.</p>
-        </div>
-      </div>
-
-      <!-- Step 2: CLAUDE.md -->
-      <div class="step-block">
-        <div class="step-num">Step 02</div>
-        <div class="step-content">
-          <h3>Set up CLAUDE.md</h3>
-          <p>Before writing any agent code, set up <code>CLAUDE.md</code> — a persistent context file Claude Code reads at the start of every session. This is the single most important setup step in the course. Every prompt from here on is short and direct <em>because</em> CLAUDE.md carries the permanent project context.</p>
-
-          <div class="cc-prompt-block">
-            <div class="cc-prompt-label">Claude Code Prompt</div>
-            <div class="cc-prompt-body">
-              Create CLAUDE.md in scout-agent/ with this content:<br><br>
+              - requirements.txt containing just: anthropic<br>
+              - CLAUDE.md with this exact content:<br><br>
               # Scout Agent<br>
               Personal research assistant. Anthropic SDK only.<br><br>
               ## Files<br>
@@ -886,22 +867,25 @@
               ## Run<br>
               python agent.py (set ANTHROPIC_API_KEY first)<br><br>
               ## Context notes<br>
-              When compacting, always preserve the list of active tools and any modified files.
+              When compacting, always preserve the list of active tools and any modified files.<br><br>
+              Show me the directory structure after. Only create these four files — don't write any code yet.
             </div>
           </div>
+
+          <p>Claude Code creates the directory and four files. <code>requirements.txt</code> with just <code>anthropic</code> means the only dependency is the official Anthropic Python SDK — no frameworks, no abstractions you don't understand yet.</p>
 
           <div class="callout callout-cc-tip">
             <div class="callout-label">Claude Code Tip</div>
             <p>You can also run <code>/init</code> in Claude Code to auto-generate CLAUDE.md by scanning your existing project files. Use that after you've written more code — it produces a richer context file than a blank project. The manual version above is better for a fresh project because you control exactly what's in it from the start.</p>
           </div>
 
-          <p><strong>Why this matters:</strong> From this point on, every prompt in the course drops the "we're building a Python research assistant on the Anthropic SDK" preamble — Claude already knows. The prompts stay short and focused. CLAUDE.md is the project's persistent memory.</p>
+          <p><strong>Why CLAUDE.md matters:</strong> Every prompt in the course drops the "we're building a Python research assistant on the Anthropic SDK" preamble — Claude already knows from CLAUDE.md. The prompts stay short and focused. CLAUDE.md is the project's persistent memory.</p>
         </div>
       </div>
 
       <!-- Step 3 -->
       <div class="step-block">
-        <div class="step-num">Step 03</div>
+        <div class="step-num">Step 02</div>
         <div class="step-content">
           <h3>Define Scout's first tool</h3>
           <p>Give Claude Code this prompt to build the tool definition:</p>
@@ -978,7 +962,7 @@ TOOLS = [
 
       <!-- Step 4 -->
       <div class="step-block">
-        <div class="step-num">Step 04</div>
+        <div class="step-num">Step 03</div>
         <div class="step-content">
           <h3>Build the ReAct loop</h3>
           <p>Now give Claude Code the core of the agent:</p>
@@ -1068,7 +1052,7 @@ if __name__ == "__main__":
 
       <!-- Step 5 -->
       <div class="step-block">
-        <div class="step-num">Step 05</div>
+        <div class="step-num">Step 04</div>
         <div class="step-content">
           <h3>Run it</h3>
           <p>Install the dependency and run Scout. Make sure your API key is set first.</p>
