@@ -589,6 +589,34 @@
     border-color: rgba(106,247,212,0.4);
   }
 
+  .cc-prompt-copy-btn {
+    margin-left: auto;
+    flex-shrink: 0;
+    background: transparent;
+    border: 1px solid rgba(106,247,212,0.2);
+    border-radius: 4px;
+    color: rgba(106,247,212,0.45);
+    cursor: pointer;
+    padding: 0.18rem 0.42rem;
+    display: flex;
+    align-items: center;
+    gap: 0.28rem;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.58rem;
+    letter-spacing: 0.04em;
+    transition: color 0.15s, border-color 0.15s, background 0.15s;
+    line-height: 1;
+  }
+  .cc-prompt-copy-btn:hover {
+    color: var(--accent3);
+    border-color: rgba(106,247,212,0.5);
+    background: rgba(106,247,212,0.06);
+  }
+  .cc-prompt-copy-btn.copied {
+    color: var(--accent3);
+    border-color: rgba(106,247,212,0.5);
+  }
+
   /* Prism token color overrides */
   .code-block code[class*="language-"] {
     font-family: 'IBM Plex Mono', monospace;
