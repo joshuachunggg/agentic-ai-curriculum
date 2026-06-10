@@ -879,12 +879,16 @@
         <div class="step-num">Step 01</div>
         <div class="step-content">
           <h3>Set up the project and CLAUDE.md</h3>
-          <p>Start Claude Code in your terminal and give it this prompt:</p>
+          <p>First, create your project folder and start Claude Code <em>inside it</em> — not in a parent directory like your home folder or Downloads:</p>
+
+          <div class="code-block bash"><pre><code class="language-bash">mkdir scout-agent && cd scout-agent && claude</code></pre></div>
+
+          <p>Claude Code opens in <code>scout-agent/</code>. Now give it this prompt:</p>
 
           <div class="cc-prompt-block">
             <div class="cc-prompt-label">Claude Code Prompt</div>
             <div class="cc-prompt-body">
-              Create scout-agent/ with these four files:<br>
+              Create these four files in the current directory:<br>
               - agent.py (empty)<br>
               - tools.py (empty)<br>
               - requirements.txt containing just: anthropic<br>
@@ -909,7 +913,7 @@
             </div>
           </div>
 
-          <p>Claude Code creates the directory and four files. <code>requirements.txt</code> with just <code>anthropic</code> means the only dependency is the official Anthropic Python SDK — no frameworks, no abstractions you don't understand yet.</p>
+          <p>Claude Code creates the four files. <code>requirements.txt</code> with just <code>anthropic</code> means the only dependency is the official Anthropic Python SDK — no frameworks, no abstractions you don't understand yet.</p>
 
           <div class="callout callout-cc-tip">
             <div class="callout-label">Claude Code Tip</div>
