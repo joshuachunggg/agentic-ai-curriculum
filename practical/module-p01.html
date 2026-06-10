@@ -823,14 +823,15 @@
     <p>Open your terminal and run <code>claude</code> to start Claude Code. Then give it the following prompts, one at a time. After each one, read the explanation to understand what was built and why.</p>
 
     <div class="callout callout-cc-tip">
-      <div class="callout-label">Claude Code Workflow</div>
-      <p>The prompts in this course are optimized for Claude Code. A few practices that make every session better:</p>
+      <div class="callout-label">Claude Code Workflow — read this first</div>
+      <p>These practices apply to every module. Learn them here:</p>
       <ul>
-        <li><code>/init</code> — auto-generates CLAUDE.md by scanning your project (run once per project)</li>
-        <li><code>/clear</code> — fresh context slate; use at the start of each new module</li>
-        <li><code>/compact</code> — compresses session history mid-module when context gets long</li>
-        <li>One task per prompt — Claude Code works best with focused, scoped instructions</li>
-        <li>Scope constraints ("only change tools.py") prevent unintended edits</li>
+        <li><strong>Context engineering:</strong> every irrelevant token in context degrades response quality. <code>/clear</code> between unrelated tasks costs nothing — do it freely. CLAUDE.md survives clears; conversation history doesn't</li>
+        <li><strong>Plan before building:</strong> press <code>Shift+Tab</code> to enter Plan Mode — Claude reads and reasons without writing code. Use it whenever a step touches multiple files. Have Claude write a <code>plan.md</code>, review it yourself (<code>Ctrl+G</code> opens it in your editor), then exit plan mode and execute</li>
+        <li><strong>Files over context:</strong> have Claude write findings and plans into <code>plan.md</code> / <code>notes.md</code>. Start new sessions by handing Claude those files — not the conversation history</li>
+        <li><strong>Model selection:</strong> Sonnet (default) handles most coding. <code>/model opus</code> for architecture decisions, complex debugging, or multi-file planning. Extended thinking is automatic on hard problems — no keywords needed</li>
+        <li><code>/compact</code> — summarize history mid-session after heavy steps</li>
+        <li>One task per prompt; end each prompt with a scope constraint: "Only touch tools.py"</li>
       </ul>
     </div>
 
@@ -870,18 +871,21 @@
             <div class="cc-prompt-body">
               Create CLAUDE.md in scout-agent/ with this content:<br><br>
               # Scout Agent<br>
-              Personal research assistant. Anthropic SDK only — no LangChain/CrewAI.<br><br>
+              Personal research assistant. Anthropic SDK only.<br><br>
               ## Files<br>
               - agent.py — ReAct loop, run_scout() entry<br>
               - tools.py — tool functions + TOOLS list for Anthropic API<br>
               - requirements.txt — pip dependencies<br><br>
               ## Rules<br>
+              IMPORTANT: No external agent frameworks (no LangChain, no CrewAI, no AutoGen).<br>
               - Tool dispatch via dict: {"name": fn, ...}<br>
               - Tool results: JSON-serializable dicts<br>
               - messages list is the only agent memory<br>
               - Max 10 turns per run<br><br>
               ## Run<br>
-              python agent.py (ANTHROPIC_API_KEY must be set)
+              python agent.py (set ANTHROPIC_API_KEY first)<br><br>
+              ## Context notes<br>
+              When compacting, always preserve the list of active tools and any modified files.
             </div>
           </div>
 

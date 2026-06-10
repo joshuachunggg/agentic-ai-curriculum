@@ -552,6 +552,121 @@
     .hero-stats { gap: 2rem; }
     .module-grid { grid-template-columns: 1fr; }
   }
+
+  /* Workflow section */
+  .workflow-section {
+    padding: 5rem 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .workflow-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+    margin: 2.5rem 0 2rem;
+  }
+
+  @media (max-width: 760px) {
+    .workflow-grid { grid-template-columns: 1fr; }
+  }
+
+  .workflow-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.8rem;
+    transition: border-color 0.2s;
+  }
+
+  .workflow-card:hover { border-color: rgba(106,247,212,0.3); }
+
+  .workflow-card-num {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--accent3);
+    margin-bottom: 0.7rem;
+  }
+
+  .workflow-card-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 1.05rem;
+    color: var(--text);
+    margin-bottom: 0.75rem;
+    letter-spacing: -0.01em;
+  }
+
+  .workflow-card-body {
+    font-size: 0.92rem;
+    color: #a8a8c0;
+    line-height: 1.82;
+  }
+
+  .workflow-card-body code {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.82em;
+    background: rgba(106,247,212,0.08);
+    border: 1px solid rgba(106,247,212,0.18);
+    color: var(--accent3);
+    padding: 0.1rem 0.38rem;
+    border-radius: 3px;
+  }
+
+  .workflow-card-body strong { color: var(--text); font-weight: 500; }
+
+  /* Quick reference bar */
+  .workflow-ref {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.8rem 2rem;
+  }
+
+  .workflow-ref-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 1.3rem;
+  }
+
+  .workflow-ref-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.9rem 2.5rem;
+  }
+
+  @media (max-width: 760px) {
+    .workflow-ref-grid { grid-template-columns: 1fr 1fr; }
+  }
+
+  @media (max-width: 480px) {
+    .workflow-ref-grid { grid-template-columns: 1fr; }
+  }
+
+  .workflow-ref-item {
+    display: flex;
+    align-items: baseline;
+    gap: 0.75rem;
+    font-size: 0.87rem;
+    color: #8888a0;
+    line-height: 1.55;
+  }
+
+  .workflow-cmd {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.75rem;
+    background: rgba(106,247,212,0.07);
+    border: 1px solid rgba(106,247,212,0.15);
+    color: var(--accent3);
+    padding: 0.15rem 0.45rem;
+    border-radius: 3px;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
 </style>
 <style>
   .site-nav { position: sticky; top: 0; z-index: 100; background: rgba(10,10,15,0.92); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); }
@@ -702,6 +817,74 @@
       </div>
 
     </div>
+  </div>
+</div>
+
+<!-- Workflow practices -->
+<div class="container">
+  <div class="workflow-section">
+    <div class="section-eyebrow">Before you start</div>
+    <div class="section-title">Mastering your build tool</div>
+    <p class="section-intro">This course uses Claude Code to build Scout. There's a right way to use it — and knowing it before module one turns an hour of frustration into a focused 30-minute session. These aren't optional tips; they're the workflow.</p>
+
+    <div class="workflow-grid">
+
+      <div class="workflow-card">
+        <div class="workflow-card-num">01</div>
+        <div class="workflow-card-title">Context engineering</div>
+        <div class="workflow-card-body">Every token in context that isn't directly relevant makes the response worse. Keep context minimal. Use <code>/clear</code> aggressively between unrelated tasks — it resets the conversation while CLAUDE.md keeps project context intact. Cost: zero. Value: sharp responses every time.</div>
+      </div>
+
+      <div class="workflow-card">
+        <div class="workflow-card-num">02</div>
+        <div class="workflow-card-title">Plan before you build</div>
+        <div class="workflow-card-body">Press <code>Shift+Tab</code> to enter <strong>Plan Mode</strong> — Claude reads and reasons without writing code. Use it for any step that touches multiple files. Have Claude write a <code>plan.md</code>, review it yourself, then exit plan mode to execute against it. This is how you avoid half-built states and wrong-architecture rewrites.</div>
+      </div>
+
+      <div class="workflow-card">
+        <div class="workflow-card-num">03</div>
+        <div class="workflow-card-title">Write findings to files</div>
+        <div class="workflow-card-body">Don't trust conversation history to hold research. Have Claude write its findings and plans into <code>plan.md</code> or <code>notes.md</code>. When you start a new session, hand Claude those files — not the conversation. Files outlive context windows. Notes do too.</div>
+      </div>
+
+      <div class="workflow-card">
+        <div class="workflow-card-num">04</div>
+        <div class="workflow-card-title">Pick the right model</div>
+        <div class="workflow-card-body"><strong>Sonnet</strong> is the default — fast and capable for most coding. Switch to <strong>Opus</strong> (<code>/model opus</code>) for architecture decisions, multi-file planning, or complex debugging. Extended thinking is automatic on hard problems — no keywords needed. Use Opus in plan mode for the hard design steps; Sonnet for execution.</div>
+      </div>
+
+    </div>
+
+    <div class="workflow-ref">
+      <div class="workflow-ref-label">Quick reference</div>
+      <div class="workflow-ref-grid">
+        <div class="workflow-ref-item">
+          <code class="workflow-cmd">/clear</code>
+          <span>Fresh context. Use between modules.</span>
+        </div>
+        <div class="workflow-ref-item">
+          <code class="workflow-cmd">/compact</code>
+          <span>Summarize session. Use mid-module after heavy steps.</span>
+        </div>
+        <div class="workflow-ref-item">
+          <code class="workflow-cmd">Shift+Tab</code>
+          <span>Toggle Plan Mode. Reads + reasons, no code.</span>
+        </div>
+        <div class="workflow-ref-item">
+          <code class="workflow-cmd">/model opus</code>
+          <span>Switch to Opus for architecture and hard reasoning.</span>
+        </div>
+        <div class="workflow-ref-item">
+          <code class="workflow-cmd">/init</code>
+          <span>Auto-generate CLAUDE.md from existing project files.</span>
+        </div>
+        <div class="workflow-ref-item">
+          <code class="workflow-cmd">Ctrl+G</code>
+          <span>Open plan.md in editor while in Plan Mode.</span>
+        </div>
+      </div>
+    </div>
+
   </div>
 </div>
 
