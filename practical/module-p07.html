@@ -903,6 +903,11 @@
       <p>Start fresh for this module: run <code>/clear</code> in Claude Code. Your <code>CLAUDE.md</code> keeps the project context — <code>/clear</code> just wipes the conversation history from the previous module so Claude isn't confused by unrelated context.</p>
     </div>
 
+    <div class="callout callout-cc-tip">
+      <div class="callout-label">Use Plan Mode for Step 01</div>
+      <p>Step 01 updates 5 files simultaneously — the biggest refactor in the course. Before running the prompts, press <code>Shift+Tab</code> for Plan Mode and ask Claude to outline exactly which constants move from which files to config.py. Review <code>plan.md</code> before executing. This is the right moment for <code>opusplan</code> — Opus plans the refactor, Sonnet makes the edits.</p>
+    </div>
+
     <p>Open your terminal, run <code>claude</code> to start Claude Code, and navigate to your <code>scout-agent</code> directory.</p>
 
     <div class="step-list">
@@ -927,8 +932,30 @@
               7. NOTES_DIR: Path — where notes are stored (default "notes/")<br>
               8. MODEL: str — which Claude model to use (default "claude-opus-4-7")<br>
               9. MAX_TURNS: int — max turns per ReAct loop (default 10)<br><br>
-              Then update agent.py, tools.py, guardrails.py, and memory.py to import their constants from config.py instead of hardcoding them. Keep the logic changes minimal — only import changes, no restructuring.<br><br>
-              Only create config.py.
+              Only create config.py. Don't modify any other files yet.
+            </div>
+          </div>
+
+          <p>Review <code>config.py</code> before running the second prompt — make sure all the constants are present and correctly typed. This is the right time to customize values (model name, max turns, notes directory) before they propagate to the rest of the codebase.</p>
+
+          <div class="cc-prompt-block">
+            <div class="cc-prompt-label">Claude Code Prompt — Second</div>
+            <div class="cc-prompt-body">
+              Now update agent.py, tools.py, guardrails.py, and memory.py to import their constants from config.py instead of hardcoding them. Specifically:<br>
+              - agent.py: import MODEL, MAX_TURNS, SYSTEM (or AGENT_PERSONA), HITL_ENABLED from config<br>
+              - tools.py: import NOTES_DIR from config<br>
+              - guardrails.py: import HITL_ENABLED from config (if referenced)<br>
+              - memory.py: import SESSION_DIR, COMPRESS_THRESHOLD, KEEP_RECENT from config if they exist there<br><br>
+              Keep logic changes minimal — only import changes, no restructuring. If a constant doesn't exist in config.py yet, add it.<br><br>
+              Only modify agent.py, tools.py, guardrails.py, and memory.py — don't touch config.py.
+            </div>
+          </div>
+
+          <div class="cc-prompt-block">
+            <div class="cc-prompt-label">Verify with Claude Code</div>
+            <div class="cc-prompt-body">
+              Run and show output:<br><br>
+              python -c "import agent, tools, guardrails, memory, config; print('all imports OK — agent name:', config.AGENT_NAME)"
             </div>
           </div>
 
@@ -1169,6 +1196,13 @@ python main.py --deep "Landscape of vector database providers in 2026"</code></d
           </table>
 
           <p>After editing <code>config.py</code>, run <code>python main.py</code> and ask your agent to introduce itself. The persona should be immediately recognizable in the response.</p>
+
+          <div class="cc-prompt-block">
+            <div class="cc-prompt-label">Claude Code Prompt</div>
+            <div class="cc-prompt-body">
+              Run python main.py and show me the banner output. Verify the agent name and active tools match what I just set in config.py.
+            </div>
+          </div>
         </div>
       </div>
 

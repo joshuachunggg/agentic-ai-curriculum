@@ -861,8 +861,14 @@
               1. Install the @modelcontextprotocol/server-brave-search package<br>
               2. Create a .env file for the BRAVE_API_KEY (I'll fill in the actual key)<br>
               3. Test that the server starts correctly<br><br>
-              Also, what do I need to sign up for to get a Brave Search API key?
+              Also, what do I need to sign up for to get a Brave Search API key?<br><br>
+              Only install the package and create .env — don't modify any Python files yet.
             </div>
+          </div>
+
+          <div class="callout callout-mistake">
+            <div class="callout-label">Security Note</div>
+            <p>Before continuing, make sure <code>.env</code> is in your <code>.gitignore</code>. Your Brave API key is a credential — committing it to a public repo exposes it immediately. Ask Claude Code: <strong>"Add .env, sessions/, and notes/ to .gitignore — create the file if it doesn't exist."</strong></p>
           </div>
 
           <p>Claude Code will run the install and create the env file. The commands it runs:</p>
@@ -1110,6 +1116,11 @@ echo 'BRAVE_API_KEY=your-key-here' >> .env
 
 python agent.py
 # Ask: "What AI agent frameworks were released or updated in the last 6 months?"</code></div>
+
+          <div class="callout callout-checkpoint">
+            <div class="callout-label">Verify real search is active</div>
+            <p>Check that output URLs are real (not <code>example.com</code>). If you see stub results, run <code>echo $BRAVE_API_KEY</code> — if empty, the env var isn't set in the current shell. Re-run <code>export BRAVE_API_KEY="your-key"</code> and try again.</p>
+          </div>
 
           <p>With a real key you'll see results referencing actual, named projects and dates — not placeholder text:</p>
 

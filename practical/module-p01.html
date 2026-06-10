@@ -851,7 +851,8 @@
               - agent.py (empty)<br>
               - tools.py (empty)<br>
               - requirements.txt containing just: anthropic<br><br>
-              Show me the directory structure after.
+              Show me the directory structure after.<br><br>
+              Only create these three files — don't write any code yet.
             </div>
           </div>
 
@@ -1053,6 +1054,15 @@ def run_scout(question: str) -> list:
 if __name__ == "__main__":
     question = input("Ask Scout: ")
     run_scout(question)</code></div>
+          <div class="cc-prompt-block">
+            <div class="cc-prompt-label">Verify with Claude Code</div>
+            <div class="cc-prompt-body">
+              Run this and show me the output:<br><br>
+              python -c "from tools import web_search, TOOLS; from agent import run_scout; print('imports OK — tools:', len(TOOLS))"
+            </div>
+          </div>
+
+          <p>If the import fails, fix it before running the agent. A broken import means the loop won't execute — catching it here costs 10 seconds; catching it mid-run costs 10 minutes of debugging.</p>
         </div>
       </div>
 
