@@ -357,6 +357,14 @@
     white-space: pre;
   }
 
+  .code-block pre {
+    margin: 0;
+    padding: 0;
+    background: transparent;
+    border: none;
+    overflow: visible;
+  }
+
   .code-block-label {
     font-family: 'IBM Plex Mono', monospace;
     font-size: 0.62rem;
@@ -901,7 +909,7 @@
 
           <p>Claude Code will generate a file close to this:</p>
 
-          <div class="code-block"><code class="language-python"># tools.py — what Claude Code generates
+          <div class="code-block"><pre><code class="language-python"># tools.py — what Claude Code generates
 import time
 
 def web_search(query: str) -> dict:
@@ -951,7 +959,7 @@ TOOLS = [
             "required": ["query"]
         }
     }
-]</code></div>
+]</code></pre></div>
 
           <p><strong>Why the stub returns a dict, not a string:</strong> When the tool result is passed back to the model, it gets JSON-serialized. Structured data — with titled fields — is easier for the model to parse and reference than a flat string blob. The model can extract <code>url</code>, <code>title</code>, and <code>snippet</code> as separate entities to cite. This is a principle from M02: tool outputs should be designed for the model's consumption, not just for human readability.</p>
 
@@ -985,7 +993,7 @@ TOOLS = [
 
           <p>Claude Code will generate the following:</p>
 
-          <div class="code-block"><code class="language-python"># agent.py — what Claude Code generates
+          <div class="code-block"><pre><code class="language-python"># agent.py — what Claude Code generates
 import anthropic
 import json
 from tools import web_search, TOOLS
@@ -1038,7 +1046,7 @@ def run_scout(question: str) -> list:
 
 if __name__ == "__main__":
     question = input("Ask Scout: ")
-    run_scout(question)</code></div>
+    run_scout(question)</code></pre></div>
           <div class="cc-prompt-block">
             <div class="cc-prompt-label">Verify with Claude Code</div>
             <div class="cc-prompt-body">
@@ -1058,10 +1066,10 @@ if __name__ == "__main__":
           <h3>Run it</h3>
           <p>Install the dependency and run Scout. Make sure your API key is set first.</p>
 
-          <div class="code-block bash"><code class="language-bash">cd scout-agent
+          <div class="code-block bash"><pre><code class="language-bash">cd scout-agent
 pip install anthropic
 export ANTHROPIC_API_KEY="your-key-here"
-python agent.py</code></div>
+python agent.py</code></pre></div>
 
           <p>When prompted, try: <em>What is the Model Context Protocol and why does it matter?</em></p>
 

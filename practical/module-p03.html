@@ -375,6 +375,14 @@
     white-space: pre;
   }
 
+  .code-block pre {
+    margin: 0;
+    padding: 0;
+    background: transparent;
+    border: none;
+    overflow: visible;
+  }
+
   /* Claude Code prompt block */
   .cc-prompt-block {
     background: rgba(106,247,212,0.04);
@@ -816,7 +824,7 @@
 
         <p>The complete <code>memory.py</code> Claude Code generates should look like this:</p>
 
-        <div class="code-block"><code class="language-python"># memory.py
+        <div class="code-block"><pre><code class="language-python"># memory.py
 import json
 from pathlib import Path
 from datetime import datetime
@@ -905,7 +913,7 @@ def load_session(session_id: str) -> ContextManager | None:
         return None
     data = json.loads(path.read_text())
     print(f"  [session loaded: {path} — {len(data.get('messages', []))} messages]")
-    return ContextManager.from_dict(data)</code></div>
+    return ContextManager.from_dict(data)</code></pre></div>
       </div>
     </div>
 
@@ -936,7 +944,7 @@ def load_session(session_id: str) -> ContextManager | None:
 
         <p>The key structural changes in <code>agent.py</code>:</p>
 
-        <div class="code-block"><code class="language-python"># Key changes to agent.py
+        <div class="code-block"><pre><code class="language-python"># Key changes to agent.py
 
 from memory import ContextManager, save_session, load_session
 
@@ -993,7 +1001,7 @@ if __name__ == "__main__":
     import sys
     session = sys.argv[1] if len(sys.argv) > 1 else "default"
     question = input("Ask Scout: ")
-    run_scout(question, session_id=session)</code></div>
+    run_scout(question, session_id=session)</code></pre></div>
       </div>
     </div>
 
@@ -1003,28 +1011,28 @@ if __name__ == "__main__":
         <h3>Test across sessions</h3>
         <p>The real test of session persistence is asking follow-up questions in a new terminal session. Run Scout twice with the same session ID:</p>
 
-        <div class="code-block bash"><code class="language-bash"># First run — establish some context
+        <div class="code-block bash"><pre><code class="language-bash"># First run — establish some context
 python agent.py my-research-session
 # Ask: "What is the difference between RAG and fine-tuning?"
 
 # Second run — Scout loads the saved session
 python agent.py my-research-session
-# Ask: "Going back to what we just discussed — what were the main tradeoffs?"</code></div>
+# Ask: "Going back to what we just discussed — what were the main tradeoffs?"</code></pre></div>
 
         <p>In the second run you should see Scout load the saved session before responding:</p>
 
-        <div class="code-block bash"><code class="language-bash">  [session loaded: sessions/my-research-session.json — 8 messages]
+        <div class="code-block bash"><pre><code class="language-bash">  [session loaded: sessions/my-research-session.json — 8 messages]
 
 Ask Scout: Going back to what we just discussed — what were the main tradeoffs?
 
 Scout: Based on what we covered in our previous session, the core tradeoff between
       RAG and fine-tuning comes down to: RAG gives you current, retrievable knowledge
       at query time — fine-tuning bakes knowledge into weights, which is faster at
-      inference but can go stale and is expensive to update...</code></div>
+      inference but can go stale and is expensive to update...</code></pre></div>
 
         <p>To trigger compression, run a longer session — ask 5–6 questions in a row and watch for the compression message after the message count crosses 16:</p>
 
-        <div class="code-block bash"><code class="language-bash">  [context compressed: 18→7 messages]</code></div>
+        <div class="code-block bash"><pre><code class="language-bash">  [context compressed: 18→7 messages]</code></pre></div>
 
         <p>After compression fires, continue the session — Scout should maintain coherent context despite the compression having removed the intermediate reasoning steps.</p>
       </div>

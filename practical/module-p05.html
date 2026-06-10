@@ -365,6 +365,14 @@
     white-space: pre;
   }
 
+  .code-block pre {
+    margin: 0;
+    padding: 0;
+    background: transparent;
+    border: none;
+    overflow: visible;
+  }
+
   .code-block-label {
     font-family: 'IBM Plex Mono', monospace;
     font-size: 0.62rem;
@@ -869,13 +877,13 @@
 
           <p>Claude Code will run the install and create the env file. The commands it runs:</p>
 
-          <div class="code-block bash"><code class="language-bash">npm install -g @modelcontextprotocol/server-brave-search
+          <div class="code-block bash"><pre><code class="language-bash">npm install -g @modelcontextprotocol/server-brave-search
 
 # Create .env with placeholder
 echo "BRAVE_API_KEY=your_key_here" > .env
 
 # Create/update .gitignore
-echo ".env\nsessions/\nnotes/" >> .gitignore</code></div>
+echo ".env\nsessions/\nnotes/" >> .gitignore</code></pre></div>
 
           <p>To get a real API key: sign up at <strong>brave.com/search/api/</strong> — the free tier includes 2,000 queries per month, which is more than enough for development and testing. Once you have the key, replace <code>your_key_here</code> in <code>.env</code> with the actual key.</p>
         </div>
@@ -906,7 +914,7 @@ echo ".env\nsessions/\nnotes/" >> .gitignore</code></div>
 
           <p>Claude Code will generate a file close to this:</p>
 
-          <div class="code-block"><code class="language-python"># mcp_tools.py
+          <div class="code-block"><pre><code class="language-python"># mcp_tools.py
 import os
 import json
 import asyncio
@@ -1015,7 +1023,7 @@ async def call_brave_search(query: str, count: int = 5) -> dict:
         return {
             "error": "not_installed",
             "message": "npx not found — install Node.js and run: npm install -g @modelcontextprotocol/server-brave-search"
-        }</code></div>
+        }</code></pre></div>
 
           <p>The <code>asyncio.wait_for</code> timeout wrapper is important: without it, a hung server process will block your agent indefinitely. 15 seconds is generous for a search request; reduce it to 8 seconds in production.</p>
         </div>
@@ -1028,14 +1036,14 @@ async def call_brave_search(query: str, count: int = 5) -> dict:
           <h3>Test real search</h3>
           <p>Set your API key and ask Scout something that requires current information:</p>
 
-          <div class="code-block bash"><code class="language-bash"># Option A: export in shell session
+          <div class="code-block bash"><pre><code class="language-bash"># Option A: export in shell session
 export BRAVE_API_KEY="your-key-from-brave-api"
 
 # Option B: add to .env (load_dotenv() in mcp_tools.py will pick it up)
 echo 'BRAVE_API_KEY=your-key-here' >> .env
 
 python agent.py
-# Ask: "What AI agent frameworks were released or updated in the last 6 months?"</code></div>
+# Ask: "What AI agent frameworks were released or updated in the last 6 months?"</code></pre></div>
 
           <div class="callout callout-checkpoint">
             <div class="callout-label">Verify real search is active</div>

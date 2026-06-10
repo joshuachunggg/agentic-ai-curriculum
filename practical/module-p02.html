@@ -375,6 +375,14 @@
     white-space: pre;
   }
 
+  .code-block pre {
+    margin: 0;
+    padding: 0;
+    background: transparent;
+    border: none;
+    overflow: visible;
+  }
+
   /* Claude Code prompt block */
   .cc-prompt-block {
     background: rgba(106,247,212,0.04);
@@ -812,7 +820,7 @@
 
         <p>After Claude Code runs, your complete <code>tools.py</code> should look like this:</p>
 
-        <div class="code-block"><code class="language-python"># tools.py (complete, after P02)
+        <div class="code-block"><pre><code class="language-python"># tools.py (complete, after P02)
 import json
 import os
 import re
@@ -990,7 +998,7 @@ TOOLS = [
             "required": ["query"]
         }
     }
-]</code></div>
+]</code></pre></div>
 
           <div class="cc-prompt-block">
             <div class="cc-prompt-label">Verify with Claude Code</div>
@@ -1022,7 +1030,7 @@ TOOLS = [
 
         <p>The key changes to <code>agent.py</code> are the system prompt and the tool dispatch dictionary. You should see something like this:</p>
 
-        <div class="code-block"><code class="language-python"># Changes to agent.py
+        <div class="code-block"><pre><code class="language-python"># Changes to agent.py
 
 from tools import web_search, read_url, save_note, search_notes, TOOLS
 
@@ -1050,7 +1058,7 @@ tool_dispatch = {
 if block.name in tool_dispatch:
     result = tool_dispatch[block.name](**block.input)
 else:
-    result = {"error": f"unknown tool: {block.name}"}</code></div>
+    result = {"error": f"unknown tool: {block.name}"}</code></pre></div>
 
         <p>The dispatch dict pattern is the right way to route tool calls. It's O(1), easily extended, and handles the "unknown tool" case cleanly. A chain of <code>if/elif</code> statements would work but breaks down as your tool list grows.</p>
       </div>
@@ -1062,12 +1070,12 @@ else:
         <h3>Install dependencies and test the full research cycle</h3>
         <p>Install the new dependencies, then run Scout and ask it to research a topic and save what it learns:</p>
 
-        <div class="code-block bash"><code class="language-bash">pip install requests beautifulsoup4
-python agent.py</code></div>
+        <div class="code-block bash"><pre><code class="language-bash">pip install requests beautifulsoup4
+python agent.py</code></pre></div>
 
         <p>Try: <em>"Research how the Model Context Protocol works and save what you learn."</em> You should see Scout move through all four tools in sequence:</p>
 
-        <div class="code-block bash"><code class="language-bash">Scout researching: research how the Model Context Protocol works and save what you learn
+        <div class="code-block bash"><pre><code class="language-bash">Scout researching: research how the Model Context Protocol works and save what you learn
 
   → search_notes({"query": "Model Context Protocol"})
   → web_search({"query": "Model Context Protocol MCP how it works 2024"})
@@ -1077,7 +1085,7 @@ python agent.py</code></div>
                "tags": ["MCP", "agents", "tools", "Anthropic"]})
 
 Scout: Here's what I found about MCP...
-      [Saved as note: "Model Context Protocol — How It Works"]</code></div>
+      [Saved as note: "Model Context Protocol — How It Works"]</code></pre></div>
 
         <p>After this run, check your <code>scout-agent/notes/</code> directory — there should be a <code>.json</code> file containing the note Scout saved. Run Scout again and ask about the same topic. Because <code>search_notes</code> runs first, Scout will find the existing note and reference it rather than repeating the full research cycle from scratch.</p>
       </div>

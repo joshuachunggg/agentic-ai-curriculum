@@ -365,6 +365,14 @@
     white-space: pre;
   }
 
+  .code-block pre {
+    margin: 0;
+    padding: 0;
+    background: transparent;
+    border: none;
+    overflow: visible;
+  }
+
   .code-block-label {
     font-family: 'IBM Plex Mono', monospace;
     font-size: 0.62rem;
@@ -962,7 +970,7 @@
 
           <p>Claude Code generates a file close to this:</p>
 
-          <div class="code-block"><code class="language-python"># config.py — customize Scout here. This is the only file you need to edit.
+          <div class="code-block"><pre><code class="language-python"># config.py — customize Scout here. This is the only file you need to edit.
 from pathlib import Path
 
 AGENT_NAME = "Scout"
@@ -1008,12 +1016,12 @@ HITL_ENABLED = True      # Set False to skip confirmation for note saves
 SESSION_DIR = Path("sessions")
 NOTES_DIR   = Path("notes")
 MODEL       = "claude-opus-4-7"
-MAX_TURNS   = 10</code></div>
+MAX_TURNS   = 10</code></pre></div>
 
           <p>The corresponding change in <code>agent.py</code> is a four-line import block replacing several hardcoded constants:</p>
 
           <div class="code-block-label">agent.py — before and after</div>
-          <div class="code-block"><code class="language-python"># Before (hardcoded):
+          <div class="code-block"><pre><code class="language-python"># Before (hardcoded):
 MODEL = "claude-opus-4-7"
 MAX_TURNS = 10
 SYSTEM = """You are Scout, a research assistant..."""
@@ -1023,7 +1031,7 @@ from config import (
     AGENT_NAME, AGENT_PERSONA, MODEL, MAX_TURNS,
     ACTIVE_TOOLS, DEEP_RESEARCH_TRIGGERS, HITL_ENABLED
 )
-SYSTEM = AGENT_PERSONA.format(agent_name=AGENT_NAME)</code></div>
+SYSTEM = AGENT_PERSONA.format(agent_name=AGENT_NAME)</code></pre></div>
 
           <p>The <code>HITL_ENABLED</code> flag in <code>config.py</code> connects to the <code>require_hitl_for_note</code> call in <code>guardrails.py</code> — import it there and wrap the confirmation in an <code>if HITL_ENABLED</code> check. This lets you disable HITL for automated pipeline contexts without touching the guardrail logic itself.</p>
         </div>
@@ -1052,7 +1060,7 @@ SYSTEM = AGENT_PERSONA.format(agent_name=AGENT_NAME)</code></div>
 
           <p>The complete <code>main.py</code>:</p>
 
-          <div class="code-block"><code class="language-python"># main.py
+          <div class="code-block"><pre><code class="language-python"># main.py
 import argparse
 import sys
 from config import AGENT_NAME, ACTIVE_TOOLS, SESSION_DIR, NOTES_DIR
@@ -1113,11 +1121,11 @@ def main():
         print(f"\nGoodbye.")
 
 if __name__ == "__main__":
-    main()</code></div>
+    main()</code></pre></div>
 
           <p>Usage examples:</p>
 
-          <div class="code-block bash"><code class="language-bash"># Interactive mode (start the REPL)
+          <div class="code-block bash"><pre><code class="language-bash"># Interactive mode (start the REPL)
 python main.py
 
 # Interactive with a named session
@@ -1130,7 +1138,7 @@ python main.py "What is the difference between RAG and fine-tuning?"
 python main.py --session startup-research "What are the top YC companies from W25?"
 
 # Force deep research mode on a specific query
-python main.py --deep "Landscape of vector database providers in 2026"</code></div>
+python main.py --deep "Landscape of vector database providers in 2026"</code></pre></div>
 
           <div class="callout callout-cc-tip">
             <div class="callout-label">Claude Code Tip</div>
@@ -1228,8 +1236,8 @@ python main.py --deep "Landscape of vector database providers in 2026"</code></d
           </div>
 
           <p>Once generated, run it with:</p>
-          <div class="code-block bash"><code class="language-bash">uvicorn server:app --reload
-# Open http://localhost:8000 in your browser</code></div>
+          <div class="code-block bash"><pre><code class="language-bash">uvicorn server:app --reload
+# Open http://localhost:8000 in your browser</code></pre></div>
 
           <p>The web UI wraps the same <code>run_scout</code> function — no changes to agent logic. If you add it, you can run Scout from a phone or share it with a collaborator on your local network. Skip this step if the CLI is sufficient; the agent is fully capable either way.</p>
         </div>

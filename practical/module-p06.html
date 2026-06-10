@@ -365,6 +365,14 @@
     white-space: pre;
   }
 
+  .code-block pre {
+    margin: 0;
+    padding: 0;
+    background: transparent;
+    border: none;
+    overflow: visible;
+  }
+
   .code-block-label {
     font-family: 'IBM Plex Mono', monospace;
     font-size: 0.62rem;
@@ -859,7 +867,7 @@
 
           <p>Claude Code will generate a file close to this. Review it and make any adjustments:</p>
 
-          <div class="code-block"><code class="language-python"># guardrails.py
+          <div class="code-block"><pre><code class="language-python"># guardrails.py
 import re
 import os
 
@@ -946,7 +954,7 @@ def require_hitl_for_note(title: str, content: str) -> bool:
         response = input("  Save? [Y/n]: ").strip().lower()
         return response not in ("n", "no")
     except (KeyboardInterrupt, EOFError):
-        return False</code></div>
+        return False</code></pre></div>
 
           <p>The <code>INJECTION_PATTERNS</code> list uses a negative lookahead on the "act as" pattern to allow the phrase "act as a research assistant" — which Scout's own system prompt uses — while still blocking adversarial uses. Adjust the exception to match your system prompt wording if you customize it in P07.</p>
 
@@ -979,25 +987,25 @@ def require_hitl_for_note(title: str, content: str) -> bool:
           <p>The three additions to <code>agent.py</code> are small and local. Here is what each one looks like:</p>
 
           <div class="code-block-label">agent.py — import and input check</div>
-          <div class="code-block"><code class="language-python">from guardrails import check_input, check_output, require_hitl_for_note
+          <div class="code-block"><pre><code class="language-python">from guardrails import check_input, check_output, require_hitl_for_note
 
 # At the start of run_scout, before any API call:
 input_check = check_input(question)
 if not input_check["allowed"]:
     print(f"\n[blocked] {input_check['reason']} [{input_check['code']}]")
-    return ctx</code></div>
+    return ctx</code></pre></div>
 
           <div class="code-block-label">agent.py — output check after end_turn</div>
-          <div class="code-block"><code class="language-python"># After receiving end_turn response:
+          <div class="code-block"><pre><code class="language-python"># After receiving end_turn response:
 for block in response.content:
     if hasattr(block, "text"):
         output_check = check_output(block.text)
         for warning in output_check.get("warnings", []):
             print(f"  [warning] {warning}")
-        print(f"\nScout: {block.text}")</code></div>
+        print(f"\nScout: {block.text}")</code></pre></div>
 
           <div class="code-block-label">agent.py — HITL wrapper for save_note</div>
-          <div class="code-block"><code class="language-python"># Replace the direct save_note entry in tool_dispatch with a guarded wrapper:
+          <div class="code-block"><pre><code class="language-python"># Replace the direct save_note entry in tool_dispatch with a guarded wrapper:
 def guarded_save_note(title: str, content: str, tags: list = None) -> dict:
     if not require_hitl_for_note(title, content):
         return {"saved": False, "reason": "declined by user", "title": title}
@@ -1008,7 +1016,7 @@ tool_dispatch = {
     "read_url":     read_url,
     "save_note":    guarded_save_note,   # wrapped with HITL
     "search_notes": search_notes,
-}</code></div>
+}</code></pre></div>
 
           <p>The <code>guarded_save_note</code> wrapper is local to <code>agent.py</code> — <code>tools.py</code> is unchanged. Scout's subagents call <code>save_note</code> through the same dispatch table, so the HITL check applies everywhere automatically.</p>
         </div>
