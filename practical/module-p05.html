@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>P05: Real Connections with MCP — Build Your Agent</title>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;500&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
 <style>
   :root {
     --bg: #0a0a0f;
@@ -356,6 +357,7 @@
     font-size: 0.82rem;
     line-height: 1.75;
     color: #c0c0d8;
+    position: relative;
   }
 
   .code-block code {
@@ -364,15 +366,28 @@
 
   .code-block-label {
     font-family: 'IBM Plex Mono', monospace;
-    font-size: 0.6rem;
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
+    font-size: 0.62rem;
+    letter-spacing: 0.08em;
+    text-transform: lowercase;
     color: var(--muted);
-    margin-bottom: -0.4rem;
+    background: #13131c;
+    border: 1px solid var(--border);
+    border-bottom: none;
+    border-radius: 8px 8px 0 0;
+    padding: 0.5rem 1.2rem 0.45rem;
     margin-top: 1.6rem;
+    margin-bottom: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
   }
 
   .code-block-label:first-child { margin-top: 0; }
+
+  .code-block-label + .code-block {
+    border-radius: 0 0 8px 8px;
+    margin-top: 0 !important;
+  }
 
   /* Bash code block variant */
   .code-block.bash {
@@ -382,6 +397,90 @@
 
   .code-block.bash code {
     color: #b0c8a0;
+  }
+
+  /* Copy button */
+  .code-copy-btn {
+    position: absolute;
+    top: 0.65rem;
+    right: 0.75rem;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.58rem;
+    letter-spacing: 0.03em;
+    color: #4a4a62;
+    background: var(--surface2);
+    border: 1px solid #2a2a3a;
+    border-radius: 3px;
+    padding: 0.18rem 0.5rem;
+    cursor: pointer;
+    transition: color 0.15s, border-color 0.15s, opacity 0.15s;
+    opacity: 0;
+    z-index: 1;
+  }
+
+  .code-block:hover .code-copy-btn { opacity: 1; }
+
+  .code-copy-btn:hover {
+    color: var(--accent3);
+    border-color: rgba(106,247,212,0.4);
+  }
+
+  /* Prism token color overrides */
+  .code-block code[class*="language-"] {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: inherit;
+    line-height: inherit;
+    background: none !important;
+    padding: 0 !important;
+    border: none !important;
+    border-radius: 0 !important;
+    text-shadow: none !important;
+    color: #c0c0d8;
+  }
+
+  .token.comment, .token.prolog, .token.cdata { color: #5a5a72; font-style: italic; }
+  .token.keyword, .token.important { color: #c792ea; }
+  .token.string, .token.char, .token.attr-value { color: #c3e88d; }
+  .token.function { color: #82aaff; }
+  .token.number, .token.boolean { color: #f78c6c; }
+  .token.operator, .token.attr-name { color: #89ddff; }
+  .token.class-name, .token.builtin { color: #ffcb6b; }
+  .token.punctuation { color: #89ddff; }
+  .token.variable { color: #e8e8f0; }
+
+  /* Claude Code tip callout */
+  .callout-cc-tip {
+    background: rgba(247,195,106,0.05);
+    border: 1px solid rgba(247,195,106,0.22);
+  }
+  .callout-cc-tip .callout-label { color: var(--accent2); }
+  .callout-cc-tip p { color: #ddc890; line-height: 1.75; }
+  .callout-cc-tip code {
+    background: rgba(247,195,106,0.1);
+    border-color: rgba(247,195,106,0.2);
+    color: var(--accent2);
+  }
+  .callout-cc-tip ul {
+    list-style: none;
+    margin: 0.6rem 0 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+  .callout-cc-tip ul li {
+    font-size: 0.9rem;
+    color: #ddc890;
+    line-height: 1.6;
+    padding-left: 1.4rem;
+    position: relative;
+  }
+  .callout-cc-tip ul li::before {
+    content: '→';
+    position: absolute;
+    left: 0;
+    color: var(--accent2);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.8rem;
   }
 
   /* Inline code */
@@ -739,6 +838,11 @@
   <div class="topic-section">
     <div class="section-number">Section 03</div>
     <h2>Step by step — Build it</h2>
+    <div class="callout callout-cc-tip">
+      <div class="callout-label">Claude Code Tip</div>
+      <p>Start fresh for this module: run <code>/clear</code> in Claude Code. Your <code>CLAUDE.md</code> keeps the project context — <code>/clear</code> just wipes the conversation history from the previous module so Claude isn't confused by unrelated context.</p>
+    </div>
+
     <p>Open your terminal, run <code>claude</code> to start Claude Code, and navigate to your <code>scout-agent</code> directory.</p>
 
     <div class="step-list">
@@ -763,7 +867,7 @@
 
           <p>Claude Code will run the install and create the env file. The commands it runs:</p>
 
-          <div class="code-block bash"><code>npm install -g @modelcontextprotocol/server-brave-search
+          <div class="code-block bash"><code class="language-bash">npm install -g @modelcontextprotocol/server-brave-search
 
 # Create .env with placeholder
 echo "BRAVE_API_KEY=your_key_here" > .env
@@ -791,13 +895,13 @@ npx @modelcontextprotocol/server-brave-search
               2. Provide an async function get_brave_tools() that returns the brave_web_search tool definition in Anthropic API format<br>
               3. Provide an async function call_brave_search(query: str, count: int = 5) -&gt; dict that starts the Brave Search MCP server as a subprocess, sends it an initialize request followed by a tools/call request over stdin, and parses the response from stdout<br>
               4. Add python-dotenv to requirements.txt<br><br>
-              Use a direct subprocess approach — start the server with asyncio.create_subprocess_exec, pipe JSON-RPC messages in, parse the JSON lines out. Don't use the SDK's MCPServerStdio class for now — I want to understand the wire protocol.
+              Use a direct subprocess approach — start the server with asyncio.create_subprocess_exec, pipe JSON-RPC messages in, parse the JSON lines out. Don't use the SDK's MCPServerStdio class for now — I want to understand the wire protocol.<br><br>Only create mcp_tools.py.
             </div>
           </div>
 
           <p>Claude Code will generate a file close to this:</p>
 
-          <div class="code-block"><code># mcp_tools.py
+          <div class="code-block"><code class="language-python"># mcp_tools.py
 import os
 import json
 import asyncio
@@ -922,13 +1026,13 @@ async def call_brave_search(query: str, count: int = 5) -> dict:
           <div class="cc-prompt-block">
             <div class="cc-prompt-label">Claude Code Prompt</div>
             <div class="cc-prompt-body">
-              Update the web_search function in tools.py to use Brave Search when BRAVE_API_KEY is set in the environment, and fall back to the stub when it's not set. Import call_brave_search from mcp_tools and use asyncio.run() to call it from the sync web_search function. Add a comment at the top of the function showing how to tell which mode is active.
+              Update the web_search function in tools.py to use Brave Search when BRAVE_API_KEY is set in the environment, and fall back to the stub when it's not set. Import call_brave_search from mcp_tools and use asyncio.run() to call it from the sync web_search function. Add a comment at the top of the function showing how to tell which mode is active.<br><br>Only modify tools.py — keep the function signature identical to what's already there.
             </div>
           </div>
 
           <p>The updated <code>web_search</code> function:</p>
 
-          <div class="code-block"><code># Updated web_search in tools.py
+          <div class="code-block"><code class="language-python"># Updated web_search in tools.py
 
 def web_search(query: str, count: int = 5) -> dict:
     """
@@ -983,6 +1087,11 @@ def web_search(query: str, count: int = 5) -> dict:
     }</code></div>
 
           <p>The <code>_stub: True</code> flag in stub results lets you programmatically detect which mode is active during testing — check for its presence in debug output or assertions.</p>
+
+          <div class="callout callout-cc-tip">
+            <div class="callout-label">Claude Code Tip</div>
+            <p>MCP integration touches multiple files. Run <code>/compact</code> after this step — the subprocess/JSON-RPC details don't need to stay in context; what matters is the interface (the updated <code>web_search</code> signature and fallback logic).</p>
+          </div>
         </div>
       </div>
 
@@ -993,7 +1102,7 @@ def web_search(query: str, count: int = 5) -> dict:
           <h3>Test real search</h3>
           <p>Set your API key and ask Scout something that requires current information:</p>
 
-          <div class="code-block bash"><code># Option A: export in shell session
+          <div class="code-block bash"><code class="language-bash"># Option A: export in shell session
 export BRAVE_API_KEY="your-key-from-brave-api"
 
 # Option B: add to .env (load_dotenv() in mcp_tools.py will pick it up)
@@ -1088,5 +1197,25 @@ Sources: https://blog.langchain.dev/langgraph-0-3 · https://microsoft.github.io
   </div>
 </footer>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+<script>
+document.querySelectorAll('.code-block').forEach(block => {
+  const codeEl = block.querySelector('code');
+  if (!codeEl) return;
+  const btn = document.createElement('button');
+  btn.className = 'code-copy-btn';
+  btn.textContent = 'copy';
+  btn.addEventListener('click', e => {
+    e.stopPropagation();
+    navigator.clipboard.writeText(codeEl.textContent).then(() => {
+      btn.textContent = 'copied!';
+      setTimeout(() => { btn.textContent = 'copy'; }, 2000);
+    });
+  });
+  block.insertBefore(btn, block.firstChild);
+});
+</script>
 </body>
 </html>

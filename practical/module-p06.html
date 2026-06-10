@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>P06: Harden for Production — Build Your Agent</title>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;500&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
 <style>
   :root {
     --bg: #0a0a0f;
@@ -356,6 +357,7 @@
     font-size: 0.82rem;
     line-height: 1.75;
     color: #c0c0d8;
+    position: relative;
   }
 
   .code-block code {
@@ -364,15 +366,28 @@
 
   .code-block-label {
     font-family: 'IBM Plex Mono', monospace;
-    font-size: 0.6rem;
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
+    font-size: 0.62rem;
+    letter-spacing: 0.08em;
+    text-transform: lowercase;
     color: var(--muted);
-    margin-bottom: -0.4rem;
+    background: #13131c;
+    border: 1px solid var(--border);
+    border-bottom: none;
+    border-radius: 8px 8px 0 0;
+    padding: 0.5rem 1.2rem 0.45rem;
     margin-top: 1.6rem;
+    margin-bottom: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
   }
 
   .code-block-label:first-child { margin-top: 0; }
+
+  .code-block-label + .code-block {
+    border-radius: 0 0 8px 8px;
+    margin-top: 0 !important;
+  }
 
   /* Bash code block variant */
   .code-block.bash {
@@ -382,6 +397,90 @@
 
   .code-block.bash code {
     color: #b0c8a0;
+  }
+
+  /* Copy button */
+  .code-copy-btn {
+    position: absolute;
+    top: 0.65rem;
+    right: 0.75rem;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.58rem;
+    letter-spacing: 0.03em;
+    color: #4a4a62;
+    background: var(--surface2);
+    border: 1px solid #2a2a3a;
+    border-radius: 3px;
+    padding: 0.18rem 0.5rem;
+    cursor: pointer;
+    transition: color 0.15s, border-color 0.15s, opacity 0.15s;
+    opacity: 0;
+    z-index: 1;
+  }
+
+  .code-block:hover .code-copy-btn { opacity: 1; }
+
+  .code-copy-btn:hover {
+    color: var(--accent3);
+    border-color: rgba(106,247,212,0.4);
+  }
+
+  /* Prism token color overrides */
+  .code-block code[class*="language-"] {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: inherit;
+    line-height: inherit;
+    background: none !important;
+    padding: 0 !important;
+    border: none !important;
+    border-radius: 0 !important;
+    text-shadow: none !important;
+    color: #c0c0d8;
+  }
+
+  .token.comment, .token.prolog, .token.cdata { color: #5a5a72; font-style: italic; }
+  .token.keyword, .token.important { color: #c792ea; }
+  .token.string, .token.char, .token.attr-value { color: #c3e88d; }
+  .token.function { color: #82aaff; }
+  .token.number, .token.boolean { color: #f78c6c; }
+  .token.operator, .token.attr-name { color: #89ddff; }
+  .token.class-name, .token.builtin { color: #ffcb6b; }
+  .token.punctuation { color: #89ddff; }
+  .token.variable { color: #e8e8f0; }
+
+  /* Claude Code tip callout */
+  .callout-cc-tip {
+    background: rgba(247,195,106,0.05);
+    border: 1px solid rgba(247,195,106,0.22);
+  }
+  .callout-cc-tip .callout-label { color: var(--accent2); }
+  .callout-cc-tip p { color: #ddc890; line-height: 1.75; }
+  .callout-cc-tip code {
+    background: rgba(247,195,106,0.1);
+    border-color: rgba(247,195,106,0.2);
+    color: var(--accent2);
+  }
+  .callout-cc-tip ul {
+    list-style: none;
+    margin: 0.6rem 0 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+  .callout-cc-tip ul li {
+    font-size: 0.9rem;
+    color: #ddc890;
+    line-height: 1.6;
+    padding-left: 1.4rem;
+    position: relative;
+  }
+  .callout-cc-tip ul li::before {
+    content: '→';
+    position: absolute;
+    left: 0;
+    color: var(--accent2);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.8rem;
   }
 
   /* Inline code */
@@ -713,6 +812,12 @@
   <div class="topic-section">
     <div class="section-number">Section 03</div>
     <h2>Step by step — Build it</h2>
+
+    <div class="callout callout-cc-tip">
+      <div class="callout-label">Claude Code Tip</div>
+      <p>Start fresh for this module: run <code>/clear</code> in Claude Code. Your <code>CLAUDE.md</code> keeps the project context — <code>/clear</code> just wipes the conversation history from the previous module so Claude isn't confused by unrelated context.</p>
+    </div>
+
     <p>Open your terminal, run <code>claude</code> to start Claude Code, and navigate to your <code>scout-agent</code> directory.</p>
 
     <div class="step-list">
@@ -740,13 +845,14 @@
               - Length check: flag (but allow) outputs over 5000 chars with a "truncated" flag<br>
               - Basic PII patterns: warn if output contains SSN patterns (xxx-xx-xxxx), 16-digit credit card sequences, or email addresses<br><br>
               3. <code>require_hitl_for_note(title: str, content: str) -&gt; bool</code><br>
-              Prints a confirmation prompt to the terminal. Returns True if user confirms (default yes), False if user types 'n' or 'no'. Add an AUTO_CONFIRM environment variable that bypasses the prompt for testing.
+              Prints a confirmation prompt to the terminal. Returns True if user confirms (default yes), False if user types 'n' or 'no'. Add an AUTO_CONFIRM environment variable that bypasses the prompt for testing.<br><br>
+              Only create guardrails.py.
             </div>
           </div>
 
           <p>Claude Code will generate a file close to this. Review it and make any adjustments:</p>
 
-          <div class="code-block"><code># guardrails.py
+          <div class="code-block"><code class="language-python"># guardrails.py
 import re
 import os
 
@@ -836,6 +942,11 @@ def require_hitl_for_note(title: str, content: str) -> bool:
         return False</code></div>
 
           <p>The <code>INJECTION_PATTERNS</code> list uses a negative lookahead on the "act as" pattern to allow the phrase "act as a research assistant" — which Scout's own system prompt uses — while still blocking adversarial uses. Adjust the exception to match your system prompt wording if you customize it in P07.</p>
+
+          <div class="callout callout-cc-tip">
+            <div class="callout-label">Claude Code Tip</div>
+            <p>Guardrail code is dense with regex patterns and conditional logic. Run <code>/compact</code> before wiring it into agent.py — the summary preserves the function signatures and return format Claude needs without keeping every regex pattern in active context.</p>
+          </div>
         </div>
       </div>
 
@@ -853,14 +964,15 @@ def require_hitl_for_note(title: str, content: str) -> bool:
               1. At the top of run_scout, call check_input(question). If not allowed, print an error message and return early without calling the API.<br>
               2. After each assistant response (when stop_reason == "end_turn"), call check_output on the text response and print any warnings.<br>
               3. In the tool dispatch for save_note, call require_hitl_for_note(title, content) before actually saving. If the user declines, return {"saved": False, "reason": "declined by user"} instead of saving.<br>
-              Keep changes minimal — just the three guardrail hooks, no restructuring.
+              Keep changes minimal — just the three guardrail hooks, no restructuring.<br><br>
+              Only modify agent.py — keep the tool functions unchanged.
             </div>
           </div>
 
           <p>The three additions to <code>agent.py</code> are small and local. Here is what each one looks like:</p>
 
           <div class="code-block-label">agent.py — import and input check</div>
-          <div class="code-block"><code>from guardrails import check_input, check_output, require_hitl_for_note
+          <div class="code-block"><code class="language-python">from guardrails import check_input, check_output, require_hitl_for_note
 
 # At the start of run_scout, before any API call:
 input_check = check_input(question)
@@ -869,7 +981,7 @@ if not input_check["allowed"]:
     return ctx</code></div>
 
           <div class="code-block-label">agent.py — output check after end_turn</div>
-          <div class="code-block"><code># After receiving end_turn response:
+          <div class="code-block"><code class="language-python"># After receiving end_turn response:
 for block in response.content:
     if hasattr(block, "text"):
         output_check = check_output(block.text)
@@ -878,7 +990,7 @@ for block in response.content:
         print(f"\nScout: {block.text}")</code></div>
 
           <div class="code-block-label">agent.py — HITL wrapper for save_note</div>
-          <div class="code-block"><code># Replace the direct save_note entry in tool_dispatch with a guarded wrapper:
+          <div class="code-block"><code class="language-python"># Replace the direct save_note entry in tool_dispatch with a guarded wrapper:
 def guarded_save_note(title: str, content: str, tags: list = None) -> dict:
     if not require_hitl_for_note(title, content):
         return {"saved": False, "reason": "declined by user", "title": title}
@@ -917,13 +1029,14 @@ tool_dispatch = {
               TC-08: Tool error handling — ask Scout to read a non-existent URL — expect: Scout reports the error and tries an alternative<br>
               TC-09: Coherent response on thin results — stub web_search returns repetitive results — expect: response is still coherent and useful<br>
               TC-10: Session persistence — run a query, save session, reload session, check message count &gt; 0<br><br>
-              Print a summary table at the end: TC ID, description, PASS/FAIL, notes. Exit 0 if all pass, 1 otherwise.
+              Print a summary table at the end: TC ID, description, PASS/FAIL, notes. Exit 0 if all pass, 1 otherwise.<br><br>
+              Only create evals/run_evals.py.
             </div>
           </div>
 
           <p>The eval runner structure Claude Code generates:</p>
 
-          <div class="code-block"><code># evals/run_evals.py
+          <div class="code-block"><code class="language-python"># evals/run_evals.py
 import sys
 import os
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
@@ -1019,7 +1132,7 @@ if __name__ == "__main__":
     sys.exit(main())</code></div>
 
           <p>Run the eval suite with:</p>
-          <div class="code-block bash"><code>AUTO_CONFIRM=1 python evals/run_evals.py</code></div>
+          <div class="code-block bash"><code class="language-bash">AUTO_CONFIRM=1 python evals/run_evals.py</code></div>
 
           <p>TC-04 and TC-05 should pass immediately — they test the guardrail functions directly without calling the API. TC-01 and TC-10 make live API calls, so they consume tokens and take a moment to run. In CI environments, separate the API-calling tests from the pure-logic tests using a flag like <code>--fast</code> that skips the live tests.</p>
         </div>
@@ -1095,5 +1208,25 @@ if __name__ == "__main__":
   </div>
 </footer>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+<script>
+document.querySelectorAll('.code-block').forEach(block => {
+  const codeEl = block.querySelector('code');
+  if (!codeEl) return;
+  const btn = document.createElement('button');
+  btn.className = 'code-copy-btn';
+  btn.textContent = 'copy';
+  btn.addEventListener('click', e => {
+    e.stopPropagation();
+    navigator.clipboard.writeText(codeEl.textContent).then(() => {
+      btn.textContent = 'copied!';
+      setTimeout(() => { btn.textContent = 'copy'; }, 2000);
+    });
+  });
+  block.insertBefore(btn, block.firstChild);
+});
+</script>
 </body>
 </html>

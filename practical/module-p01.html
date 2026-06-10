@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>P01: Your First Agent — Build Your Agent</title>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;500&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
 <style>
   :root {
     --bg: #0a0a0f;
@@ -348,6 +349,7 @@
     font-size: 0.82rem;
     line-height: 1.75;
     color: #c0c0d8;
+    position: relative;
   }
 
   .code-block code {
@@ -356,15 +358,28 @@
 
   .code-block-label {
     font-family: 'IBM Plex Mono', monospace;
-    font-size: 0.6rem;
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
+    font-size: 0.62rem;
+    letter-spacing: 0.08em;
+    text-transform: lowercase;
     color: var(--muted);
-    margin-bottom: -0.4rem;
+    background: #13131c;
+    border: 1px solid var(--border);
+    border-bottom: none;
+    border-radius: 8px 8px 0 0;
+    padding: 0.5rem 1.2rem 0.45rem;
     margin-top: 1.6rem;
+    margin-bottom: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
   }
 
   .code-block-label:first-child { margin-top: 0; }
+
+  .code-block-label + .code-block {
+    border-radius: 0 0 8px 8px;
+    margin-top: 0 !important;
+  }
 
   /* Bash code block variant */
   .code-block.bash {
@@ -374,6 +389,90 @@
 
   .code-block.bash code {
     color: #b0c8a0;
+  }
+
+  /* Copy button */
+  .code-copy-btn {
+    position: absolute;
+    top: 0.65rem;
+    right: 0.75rem;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.58rem;
+    letter-spacing: 0.03em;
+    color: #4a4a62;
+    background: var(--surface2);
+    border: 1px solid #2a2a3a;
+    border-radius: 3px;
+    padding: 0.18rem 0.5rem;
+    cursor: pointer;
+    transition: color 0.15s, border-color 0.15s, opacity 0.15s;
+    opacity: 0;
+    z-index: 1;
+  }
+
+  .code-block:hover .code-copy-btn { opacity: 1; }
+
+  .code-copy-btn:hover {
+    color: var(--accent3);
+    border-color: rgba(106,247,212,0.4);
+  }
+
+  /* Prism token color overrides */
+  .code-block code[class*="language-"] {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: inherit;
+    line-height: inherit;
+    background: none !important;
+    padding: 0 !important;
+    border: none !important;
+    border-radius: 0 !important;
+    text-shadow: none !important;
+    color: #c0c0d8;
+  }
+
+  .token.comment, .token.prolog, .token.cdata { color: #5a5a72; font-style: italic; }
+  .token.keyword, .token.important { color: #c792ea; }
+  .token.string, .token.char, .token.attr-value { color: #c3e88d; }
+  .token.function { color: #82aaff; }
+  .token.number, .token.boolean { color: #f78c6c; }
+  .token.operator, .token.attr-name { color: #89ddff; }
+  .token.class-name, .token.builtin { color: #ffcb6b; }
+  .token.punctuation { color: #89ddff; }
+  .token.variable { color: #e8e8f0; }
+
+  /* Claude Code tip callout */
+  .callout-cc-tip {
+    background: rgba(247,195,106,0.05);
+    border: 1px solid rgba(247,195,106,0.22);
+  }
+  .callout-cc-tip .callout-label { color: var(--accent2); }
+  .callout-cc-tip p { color: #ddc890; line-height: 1.75; }
+  .callout-cc-tip code {
+    background: rgba(247,195,106,0.1);
+    border-color: rgba(247,195,106,0.2);
+    color: var(--accent2);
+  }
+  .callout-cc-tip ul {
+    list-style: none;
+    margin: 0.6rem 0 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+  .callout-cc-tip ul li {
+    font-size: 0.9rem;
+    color: #ddc890;
+    line-height: 1.6;
+    padding-left: 1.4rem;
+    position: relative;
+  }
+  .callout-cc-tip ul li::before {
+    content: '→';
+    position: absolute;
+    left: 0;
+    color: var(--accent2);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.8rem;
   }
 
   /* Inline code */
@@ -723,6 +822,18 @@
     <h2>Step by step — Build it</h2>
     <p>Open your terminal and run <code>claude</code> to start Claude Code. Then give it the following prompts, one at a time. After each one, read the explanation to understand what was built and why.</p>
 
+    <div class="callout callout-cc-tip">
+      <div class="callout-label">Claude Code Workflow</div>
+      <p>The prompts in this course are optimized for Claude Code. A few practices that make every session better:</p>
+      <ul>
+        <li><code>/init</code> — auto-generates CLAUDE.md by scanning your project (run once per project)</li>
+        <li><code>/clear</code> — fresh context slate; use at the start of each new module</li>
+        <li><code>/compact</code> — compresses session history mid-module when context gets long</li>
+        <li>One task per prompt — Claude Code works best with focused, scoped instructions</li>
+        <li>Scope constraints ("only change tools.py") prevent unintended edits</li>
+      </ul>
+    </div>
+
     <div class="step-list">
 
       <!-- Step 1 -->
@@ -735,7 +846,11 @@
           <div class="cc-prompt-block">
             <div class="cc-prompt-label">Claude Code Prompt</div>
             <div class="cc-prompt-body">
-              Create a new directory called scout-agent. Inside it, create three files: agent.py (empty), tools.py (empty), and requirements.txt containing just "anthropic". Then show me what you created.
+              Create scout-agent/ directory with three files:<br>
+              - agent.py (empty)<br>
+              - tools.py (empty)<br>
+              - requirements.txt containing just: anthropic<br><br>
+              Show me the directory structure after.
             </div>
           </div>
 
@@ -743,9 +858,45 @@
         </div>
       </div>
 
-      <!-- Step 2 -->
+      <!-- Step 2: CLAUDE.md -->
       <div class="step-block">
         <div class="step-num">Step 02</div>
+        <div class="step-content">
+          <h3>Set up CLAUDE.md</h3>
+          <p>Before writing any agent code, set up <code>CLAUDE.md</code> — a persistent context file Claude Code reads at the start of every session. This is the single most important setup step in the course. Every prompt from here on is short and direct <em>because</em> CLAUDE.md carries the permanent project context.</p>
+
+          <div class="cc-prompt-block">
+            <div class="cc-prompt-label">Claude Code Prompt</div>
+            <div class="cc-prompt-body">
+              Create CLAUDE.md in scout-agent/ with this content:<br><br>
+              # Scout Agent<br>
+              Personal research assistant. Anthropic SDK only — no LangChain/CrewAI.<br><br>
+              ## Files<br>
+              - agent.py — ReAct loop, run_scout() entry<br>
+              - tools.py — tool functions + TOOLS list for Anthropic API<br>
+              - requirements.txt — pip dependencies<br><br>
+              ## Rules<br>
+              - Tool dispatch via dict: {"name": fn, ...}<br>
+              - Tool results: JSON-serializable dicts<br>
+              - messages list is the only agent memory<br>
+              - Max 10 turns per run<br><br>
+              ## Run<br>
+              python agent.py (ANTHROPIC_API_KEY must be set)
+            </div>
+          </div>
+
+          <div class="callout callout-cc-tip">
+            <div class="callout-label">Claude Code Tip</div>
+            <p>You can also run <code>/init</code> in Claude Code to auto-generate CLAUDE.md by scanning your existing project files. Use that after you've written more code — it produces a richer context file than a blank project. The manual version above is better for a fresh project because you control exactly what's in it from the start.</p>
+          </div>
+
+          <p><strong>Why this matters:</strong> From this point on, every prompt in the course drops the "we're building a Python research assistant on the Anthropic SDK" preamble — Claude already knows. The prompts stay short and focused. CLAUDE.md is the project's persistent memory.</p>
+        </div>
+      </div>
+
+      <!-- Step 3 -->
+      <div class="step-block">
+        <div class="step-num">Step 03</div>
         <div class="step-content">
           <h3>Define Scout's first tool</h3>
           <p>Give Claude Code this prompt to build the tool definition:</p>
@@ -753,13 +904,14 @@
           <div class="cc-prompt-block">
             <div class="cc-prompt-label">Claude Code Prompt</div>
             <div class="cc-prompt-body">
-              In tools.py, create a web_search stub function and a TOOLS list for the Anthropic SDK. The web_search(query: str) function should return a dict with: the query, a list of 3 realistic-looking fake results (each with title, url, snippet, source fields), and a timestamp. The TOOLS list should define web_search with a proper description and input_schema that tells Claude when and how to use it. The description should say: use this to find current information, recent news, or sources to cite. Make the tool description genuinely helpful — the model reads it.
+              In tools.py, create a web_search stub function and a TOOLS list for the Anthropic SDK. The web_search(query: str) function should return a dict with: the query, a list of 3 realistic-looking fake results (each with title, url, snippet, source fields), and a timestamp. The TOOLS list should define web_search with a proper description and input_schema that tells Claude when and how to use it. The description should say: use this to find current information, recent news, or sources to cite. Make the tool description genuinely helpful — the model reads it.<br><br>
+              Only touch tools.py.
             </div>
           </div>
 
           <p>Claude Code will generate a file close to this:</p>
 
-          <div class="code-block"><code># tools.py — what Claude Code generates
+          <div class="code-block"><code class="language-python"># tools.py — what Claude Code generates
 import time
 
 def web_search(query: str) -> dict:
@@ -819,9 +971,9 @@ TOOLS = [
         </div>
       </div>
 
-      <!-- Step 3 -->
+      <!-- Step 4 -->
       <div class="step-block">
-        <div class="step-num">Step 03</div>
+        <div class="step-num">Step 04</div>
         <div class="step-content">
           <h3>Build the ReAct loop</h3>
           <p>Now give Claude Code the core of the agent:</p>
@@ -836,13 +988,14 @@ TOOLS = [
               4. If the model returns end_turn, print the final response<br>
               5. Repeat up to 10 turns<br>
               6. Print a brief trace line each time a tool is called: "→ web_search(query)"<br><br>
-              At the bottom, add a simple if __name__ == "__main__" block that reads a question from input() and calls run_scout(question).
+              At the bottom, add a simple if __name__ == "__main__" block that reads a question from input() and calls run_scout(question).<br><br>
+              Only touch agent.py.
             </div>
           </div>
 
           <p>Claude Code will generate the following:</p>
 
-          <div class="code-block"><code># agent.py — what Claude Code generates
+          <div class="code-block"><code class="language-python"># agent.py — what Claude Code generates
 import anthropic
 import json
 from tools import web_search, TOOLS
@@ -899,14 +1052,14 @@ if __name__ == "__main__":
         </div>
       </div>
 
-      <!-- Step 4 -->
+      <!-- Step 5 -->
       <div class="step-block">
-        <div class="step-num">Step 04</div>
+        <div class="step-num">Step 05</div>
         <div class="step-content">
           <h3>Run it</h3>
           <p>Install the dependency and run Scout. Make sure your API key is set first.</p>
 
-          <div class="code-block bash"><code>cd scout-agent
+          <div class="code-block bash"><code class="language-bash">cd scout-agent
 pip install anthropic
 export ANTHROPIC_API_KEY="your-key-here"
 python agent.py</code></div>
@@ -934,6 +1087,11 @@ Sources: https://example.com/guide · https://research.example.com/analysis</spa
       </div>
 
     </div><!-- end step-list -->
+
+    <div class="callout callout-cc-tip">
+      <div class="callout-label">Claude Code Tip</div>
+      <p>After creating and running agent.py, use <code>/compact</code> if you plan to continue in the same session. You've built two files and run several prompts — compressing now keeps future responses focused on what you're adding next, not what you already built.</p>
+    </div>
   </div>
 
   <div class="section-divider"></div>
@@ -1010,5 +1168,25 @@ Sources: https://example.com/guide · https://research.example.com/analysis</spa
   </div>
 </footer>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+<script>
+document.querySelectorAll('.code-block').forEach(block => {
+  const codeEl = block.querySelector('code');
+  if (!codeEl) return;
+  const btn = document.createElement('button');
+  btn.className = 'code-copy-btn';
+  btn.textContent = 'copy';
+  btn.addEventListener('click', e => {
+    e.stopPropagation();
+    navigator.clipboard.writeText(codeEl.textContent).then(() => {
+      btn.textContent = 'copied!';
+      setTimeout(() => { btn.textContent = 'copy'; }, 2000);
+    });
+  });
+  block.insertBefore(btn, block.firstChild);
+});
+</script>
 </body>
 </html>

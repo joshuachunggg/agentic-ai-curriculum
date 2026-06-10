@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Module P03: Memory That Persists — Build Your Agent</title>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;500&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
 <style>
   :root {
     --bg: #0a0a0f;
@@ -366,6 +367,7 @@
     font-size: 0.82rem;
     line-height: 1.75;
     color: #c0c0d8;
+    position: relative;
   }
 
   .code-block code {
@@ -525,6 +527,117 @@
     border-radius: 0;
   }
 
+  .code-block-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.08em;
+    text-transform: lowercase;
+    color: var(--muted);
+    background: #13131c;
+    border: 1px solid var(--border);
+    border-bottom: none;
+    border-radius: 8px 8px 0 0;
+    padding: 0.5rem 1.2rem 0.45rem;
+    margin-top: 1.6rem;
+    margin-bottom: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .code-block-label:first-child { margin-top: 0; }
+
+  .code-block-label + .code-block {
+    border-radius: 0 0 8px 8px;
+    margin-top: 0 !important;
+  }
+
+  .code-block.bash code { color: #b0c8a0; }
+
+  /* Copy button */
+  .code-copy-btn {
+    position: absolute;
+    top: 0.65rem;
+    right: 0.75rem;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.58rem;
+    letter-spacing: 0.03em;
+    color: #4a4a62;
+    background: var(--surface2);
+    border: 1px solid #2a2a3a;
+    border-radius: 3px;
+    padding: 0.18rem 0.5rem;
+    cursor: pointer;
+    transition: color 0.15s, border-color 0.15s, opacity 0.15s;
+    opacity: 0;
+    z-index: 1;
+  }
+
+  .code-block:hover .code-copy-btn { opacity: 1; }
+
+  .code-copy-btn:hover {
+    color: var(--accent3);
+    border-color: rgba(106,247,212,0.4);
+  }
+
+  /* Prism token color overrides */
+  .code-block code[class*="language-"] {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: inherit;
+    line-height: inherit;
+    background: none !important;
+    padding: 0 !important;
+    border: none !important;
+    border-radius: 0 !important;
+    text-shadow: none !important;
+    color: #c0c0d8;
+  }
+
+  .token.comment, .token.prolog, .token.cdata { color: #5a5a72; font-style: italic; }
+  .token.keyword, .token.important { color: #c792ea; }
+  .token.string, .token.char, .token.attr-value { color: #c3e88d; }
+  .token.function { color: #82aaff; }
+  .token.number, .token.boolean { color: #f78c6c; }
+  .token.operator, .token.attr-name { color: #89ddff; }
+  .token.class-name, .token.builtin { color: #ffcb6b; }
+  .token.punctuation { color: #89ddff; }
+  .token.variable { color: #e8e8f0; }
+
+  /* Claude Code tip callout */
+  .callout-cc-tip {
+    background: rgba(247,195,106,0.05);
+    border: 1px solid rgba(247,195,106,0.22);
+  }
+  .callout-cc-tip .callout-label { color: var(--accent2); }
+  .callout-cc-tip p { color: #ddc890; line-height: 1.75; }
+  .callout-cc-tip code {
+    background: rgba(247,195,106,0.1);
+    border-color: rgba(247,195,106,0.2);
+    color: var(--accent2);
+  }
+  .callout-cc-tip ul {
+    list-style: none;
+    margin: 0.6rem 0 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+  .callout-cc-tip ul li {
+    font-size: 0.9rem;
+    color: #ddc890;
+    line-height: 1.6;
+    padding-left: 1.4rem;
+    position: relative;
+  }
+  .callout-cc-tip ul li::before {
+    content: '→';
+    position: absolute;
+    left: 0;
+    color: var(--accent2);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.8rem;
+  }
+
   strong {
     font-weight: 500;
     color: var(--text);
@@ -674,6 +787,11 @@
     <div class="section-number">Section 03</div>
     <h2>Build It</h2>
 
+    <div class="callout callout-cc-tip">
+      <div class="callout-label">Claude Code Tip</div>
+      <p>Start fresh for this module: run <code>/clear</code> in Claude Code. Your <code>CLAUDE.md</code> keeps the project context — <code>/clear</code> just wipes the conversation history from the previous module so Claude isn't confused by unrelated context.</p>
+    </div>
+
     <div class="step-block">
       <div class="step-num">Step 01</div>
       <div class="step-content">
@@ -691,13 +809,13 @@
             &nbsp;&nbsp;- A to_messages() method that returns the current messages list<br>
             &nbsp;&nbsp;- A get_state() and set_state(key, value) method for the state dict<br><br>
             2. Session persistence: save_session(session_id, manager) and load_session(session_id) functions that save/load the context manager's state to/from a JSON file in a sessions/ directory. The session file should store: messages, state, and timestamp.<br><br>
-            Keep it simple — no external dependencies beyond json and pathlib.
+            Keep it simple — no external dependencies beyond json and pathlib.<br><br>Only touch memory.py — don't modify other files.
           </div>
         </div>
 
         <p>The complete <code>memory.py</code> Claude Code generates should look like this:</p>
 
-        <div class="code-block"><code># memory.py
+        <div class="code-block"><code class="language-python"># memory.py
 import json
 from pathlib import Path
 from datetime import datetime
@@ -790,6 +908,11 @@ def load_session(session_id: str) -> ContextManager | None:
       </div>
     </div>
 
+    <div class="callout callout-cc-tip">
+      <div class="callout-label">Claude Code Tip</div>
+      <p><code>memory.py</code> is the largest file you've built yet. Run <code>/compact</code> before moving to the agent.py update — it summarizes what was just built without losing the key details Claude needs for the next step.</p>
+    </div>
+
     <div class="step-block">
       <div class="step-num">Step 02</div>
       <div class="step-content">
@@ -806,13 +929,13 @@ def load_session(session_id: str) -> ContextManager | None:
             4. After each assistant response, check ctx.should_compress() — if true, call ctx.compress(client, MODEL)<br>
             5. At the end of each run, call save_session(session_id, ctx) to persist the session<br>
             6. Also: update the system prompt to tell Scout that it has context compression and can trust that key facts from earlier in the session survive compression in structured form<br><br>
-            Keep the main loop logic the same — just swap messages list for ctx.to_messages().
+            Keep the agent loop structure the same — only add the memory wiring. Don't modify memory.py or tools.py.
           </div>
         </div>
 
         <p>The key structural changes in <code>agent.py</code>:</p>
 
-        <div class="code-block"><code># Key changes to agent.py
+        <div class="code-block"><code class="language-python"># Key changes to agent.py
 
 from memory import ContextManager, save_session, load_session
 
@@ -879,7 +1002,7 @@ if __name__ == "__main__":
         <h3>Test across sessions</h3>
         <p>The real test of session persistence is asking follow-up questions in a new terminal session. Run Scout twice with the same session ID:</p>
 
-        <div class="code-block"><code># First run — establish some context
+        <div class="code-block bash"><code class="language-bash"># First run — establish some context
 python agent.py my-research-session
 # Ask: "What is the difference between RAG and fine-tuning?"
 
@@ -889,7 +1012,7 @@ python agent.py my-research-session
 
         <p>In the second run you should see Scout load the saved session before responding:</p>
 
-        <div class="code-block"><code>  [session loaded: sessions/my-research-session.json — 8 messages]
+        <div class="code-block bash"><code class="language-bash">  [session loaded: sessions/my-research-session.json — 8 messages]
 
 Ask Scout: Going back to what we just discussed — what were the main tradeoffs?
 
@@ -900,7 +1023,7 @@ Scout: Based on what we covered in our previous session, the core tradeoff betwe
 
         <p>To trigger compression, run a longer session — ask 5–6 questions in a row and watch for the compression message after the message count crosses 16:</p>
 
-        <div class="code-block"><code>  [context compressed: 18→7 messages]</code></div>
+        <div class="code-block bash"><code class="language-bash">  [context compressed: 18→7 messages]</code></div>
 
         <p>After compression fires, continue the session — Scout should maintain coherent context despite the compression having removed the intermediate reasoning steps.</p>
       </div>
@@ -965,5 +1088,25 @@ Scout: Based on what we covered in our previous session, the core tradeoff betwe
   </div>
 </footer>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+<script>
+document.querySelectorAll('.code-block').forEach(block => {
+  const codeEl = block.querySelector('code');
+  if (!codeEl) return;
+  const btn = document.createElement('button');
+  btn.className = 'code-copy-btn';
+  btn.textContent = 'copy';
+  btn.addEventListener('click', e => {
+    e.stopPropagation();
+    navigator.clipboard.writeText(codeEl.textContent).then(() => {
+      btn.textContent = 'copied!';
+      setTimeout(() => { btn.textContent = 'copy'; }, 2000);
+    });
+  });
+  block.insertBefore(btn, block.firstChild);
+});
+</script>
 </body>
 </html>

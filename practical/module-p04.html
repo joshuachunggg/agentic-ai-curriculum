@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>P04: Deep Research Mode — Build Your Agent</title>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;500&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
 <style>
   :root {
     --bg: #0a0a0f;
@@ -356,6 +357,7 @@
     font-size: 0.82rem;
     line-height: 1.75;
     color: #c0c0d8;
+    position: relative;
   }
 
   .code-block code {
@@ -364,15 +366,28 @@
 
   .code-block-label {
     font-family: 'IBM Plex Mono', monospace;
-    font-size: 0.6rem;
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
+    font-size: 0.62rem;
+    letter-spacing: 0.08em;
+    text-transform: lowercase;
     color: var(--muted);
-    margin-bottom: -0.4rem;
+    background: #13131c;
+    border: 1px solid var(--border);
+    border-bottom: none;
+    border-radius: 8px 8px 0 0;
+    padding: 0.5rem 1.2rem 0.45rem;
     margin-top: 1.6rem;
+    margin-bottom: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
   }
 
   .code-block-label:first-child { margin-top: 0; }
+
+  .code-block-label + .code-block {
+    border-radius: 0 0 8px 8px;
+    margin-top: 0 !important;
+  }
 
   /* Bash code block variant */
   .code-block.bash {
@@ -382,6 +397,90 @@
 
   .code-block.bash code {
     color: #b0c8a0;
+  }
+
+  /* Copy button */
+  .code-copy-btn {
+    position: absolute;
+    top: 0.65rem;
+    right: 0.75rem;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.58rem;
+    letter-spacing: 0.03em;
+    color: #4a4a62;
+    background: var(--surface2);
+    border: 1px solid #2a2a3a;
+    border-radius: 3px;
+    padding: 0.18rem 0.5rem;
+    cursor: pointer;
+    transition: color 0.15s, border-color 0.15s, opacity 0.15s;
+    opacity: 0;
+    z-index: 1;
+  }
+
+  .code-block:hover .code-copy-btn { opacity: 1; }
+
+  .code-copy-btn:hover {
+    color: var(--accent3);
+    border-color: rgba(106,247,212,0.4);
+  }
+
+  /* Prism token color overrides */
+  .code-block code[class*="language-"] {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: inherit;
+    line-height: inherit;
+    background: none !important;
+    padding: 0 !important;
+    border: none !important;
+    border-radius: 0 !important;
+    text-shadow: none !important;
+    color: #c0c0d8;
+  }
+
+  .token.comment, .token.prolog, .token.cdata { color: #5a5a72; font-style: italic; }
+  .token.keyword, .token.important { color: #c792ea; }
+  .token.string, .token.char, .token.attr-value { color: #c3e88d; }
+  .token.function { color: #82aaff; }
+  .token.number, .token.boolean { color: #f78c6c; }
+  .token.operator, .token.attr-name { color: #89ddff; }
+  .token.class-name, .token.builtin { color: #ffcb6b; }
+  .token.punctuation { color: #89ddff; }
+  .token.variable { color: #e8e8f0; }
+
+  /* Claude Code tip callout */
+  .callout-cc-tip {
+    background: rgba(247,195,106,0.05);
+    border: 1px solid rgba(247,195,106,0.22);
+  }
+  .callout-cc-tip .callout-label { color: var(--accent2); }
+  .callout-cc-tip p { color: #ddc890; line-height: 1.75; }
+  .callout-cc-tip code {
+    background: rgba(247,195,106,0.1);
+    border-color: rgba(247,195,106,0.2);
+    color: var(--accent2);
+  }
+  .callout-cc-tip ul {
+    list-style: none;
+    margin: 0.6rem 0 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+  .callout-cc-tip ul li {
+    font-size: 0.9rem;
+    color: #ddc890;
+    line-height: 1.6;
+    padding-left: 1.4rem;
+    position: relative;
+  }
+  .callout-cc-tip ul li::before {
+    content: '→';
+    position: absolute;
+    left: 0;
+    color: var(--accent2);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.8rem;
   }
 
   /* Inline code */
@@ -732,6 +831,11 @@
   <div class="topic-section">
     <div class="section-number">Section 03</div>
     <h2>Step by step — Build it</h2>
+    <div class="callout callout-cc-tip">
+      <div class="callout-label">Claude Code Tip</div>
+      <p>Start fresh for this module: run <code>/clear</code> in Claude Code. Your <code>CLAUDE.md</code> keeps the project context — <code>/clear</code> just wipes the conversation history from the previous module so Claude isn't confused by unrelated context.</p>
+    </div>
+
     <p>Open your terminal, run <code>claude</code> to start Claude Code, and navigate to your <code>scout-agent</code> directory. Give Claude Code the following prompts one at a time.</p>
 
     <div class="step-list">
@@ -758,13 +862,13 @@
               &nbsp;&nbsp;&nbsp;- No tools — just synthesis<br>
               &nbsp;&nbsp;&nbsp;- Returns JSON with keys: topic, summary (2-3 paragraph executive summary), key_findings (list of strings), sources_cited (list of URLs), confidence (high/medium/low based on source quality and consensus)<br>
               &nbsp;&nbsp;&nbsp;- System prompt: "You are a research synthesizer. Given raw research findings, produce a clear structured report. Be direct, cite sources, and note where sources disagree."<br><br>
-              Both functions should be async (use asyncio). Add a run_deep_research(topic, client, model) function that runs both with asyncio.gather and returns a combined result dict.
+              Both functions should be async (use asyncio). Add a run_deep_research(topic, client, model) function that runs both with asyncio.gather and returns a combined result dict.<br><br>Only create subagents.py — don't modify agent.py yet.
             </div>
           </div>
 
           <p>Claude Code will generate a file close to this. Review it carefully — the tool call dispatch loop mirrors what you built in agent.py:</p>
 
-          <div class="code-block"><code># subagents.py
+          <div class="code-block"><code class="language-python"># subagents.py
 import asyncio
 import json
 import anthropic
@@ -912,6 +1016,11 @@ async def run_deep_research(
     }</code></div>
 
           <p>One note on the architecture: the Searcher and Synthesizer are sequential here (Synthesizer needs the Searcher's output to work from), but <code>asyncio.to_thread</code> still provides value — each API call runs in a thread pool rather than blocking the event loop. If you were to extend this with a third parallel subagent that doesn't depend on the Searcher, <code>asyncio.gather</code> would give you genuine parallelism for free.</p>
+
+          <div class="callout callout-cc-tip">
+            <div class="callout-label">Claude Code Tip</div>
+            <p><code>subagents.py</code> is dense — async functions, multiple agents, JSON parsing. Run <code>/compact</code> after it's created. The summary preserves the architecture Claude needs to wire the routing into agent.py without re-reading the full implementation.</p>
+          </div>
         </div>
       </div>
 
@@ -925,13 +1034,13 @@ async def run_deep_research(
           <div class="cc-prompt-block">
             <div class="cc-prompt-label">Claude Code Prompt</div>
             <div class="cc-prompt-body">
-              Update agent.py to detect when a request needs deep research and route it to the subagent pipeline. Add an is_deep_research_request(question: str) function that uses a simple heuristic — returns True if the question contains phrases like "comprehensive", "analysis", "compare", "landscape", "research in depth", "thorough", "overview of", "everything about". When detected, call run_deep_research from subagents.py (using asyncio.run), format the result nicely, save it as a note, and return it without going through the normal ReAct loop. For all other questions, use the existing ReAct loop unchanged.
+              Update agent.py to detect when a request needs deep research and route it to the subagent pipeline. Add an is_deep_research_request(question: str) function that uses a simple heuristic — returns True if the question contains phrases like "comprehensive", "analysis", "compare", "landscape", "research in depth", "thorough", "overview of", "everything about". When detected, call run_deep_research from subagents.py (using asyncio.run), format the result nicely, save it as a note, and return it without going through the normal ReAct loop. For all other questions, use the existing ReAct loop unchanged.<br><br>Only modify agent.py — don't touch subagents.py.
             </div>
           </div>
 
           <p>Claude Code will add detection logic and a routing branch. The additions look like this:</p>
 
-          <div class="code-block"><code># Additions to agent.py
+          <div class="code-block"><code class="language-python"># Additions to agent.py
 
 import asyncio
 from subagents import run_deep_research
@@ -993,7 +1102,7 @@ def run_scout(question: str, ctx: dict = None) -> dict:
           <h3>Test deep research mode</h3>
           <p>Run Scout and ask it a question that triggers deep research mode:</p>
 
-          <div class="code-block bash"><code>python agent.py
+          <div class="code-block bash"><code class="language-bash">python agent.py
 # Ask: "Give me a comprehensive analysis of how vector databases work"</code></div>
 
           <p>You should see Scout print the mode switch, both subagent completion messages, and then the formatted report:</p>
@@ -1094,5 +1203,25 @@ def run_scout(question: str, ctx: dict = None) -> dict:
   </div>
 </footer>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+<script>
+document.querySelectorAll('.code-block').forEach(block => {
+  const codeEl = block.querySelector('code');
+  if (!codeEl) return;
+  const btn = document.createElement('button');
+  btn.className = 'code-copy-btn';
+  btn.textContent = 'copy';
+  btn.addEventListener('click', e => {
+    e.stopPropagation();
+    navigator.clipboard.writeText(codeEl.textContent).then(() => {
+      btn.textContent = 'copied!';
+      setTimeout(() => { btn.textContent = 'copy'; }, 2000);
+    });
+  });
+  block.insertBefore(btn, block.firstChild);
+});
+</script>
 </body>
 </html>

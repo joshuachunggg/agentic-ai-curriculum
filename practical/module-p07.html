@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>P07: Make It Yours — Build Your Agent</title>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;500&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
 <style>
   :root {
     --bg: #0a0a0f;
@@ -356,6 +357,7 @@
     font-size: 0.82rem;
     line-height: 1.75;
     color: #c0c0d8;
+    position: relative;
   }
 
   .code-block code {
@@ -364,15 +366,28 @@
 
   .code-block-label {
     font-family: 'IBM Plex Mono', monospace;
-    font-size: 0.6rem;
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
+    font-size: 0.62rem;
+    letter-spacing: 0.08em;
+    text-transform: lowercase;
     color: var(--muted);
-    margin-bottom: -0.4rem;
+    background: #13131c;
+    border: 1px solid var(--border);
+    border-bottom: none;
+    border-radius: 8px 8px 0 0;
+    padding: 0.5rem 1.2rem 0.45rem;
     margin-top: 1.6rem;
+    margin-bottom: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
   }
 
   .code-block-label:first-child { margin-top: 0; }
+
+  .code-block-label + .code-block {
+    border-radius: 0 0 8px 8px;
+    margin-top: 0 !important;
+  }
 
   /* Bash code block variant */
   .code-block.bash {
@@ -382,6 +397,90 @@
 
   .code-block.bash code {
     color: #b0c8a0;
+  }
+
+  /* Copy button */
+  .code-copy-btn {
+    position: absolute;
+    top: 0.65rem;
+    right: 0.75rem;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.58rem;
+    letter-spacing: 0.03em;
+    color: #4a4a62;
+    background: var(--surface2);
+    border: 1px solid #2a2a3a;
+    border-radius: 3px;
+    padding: 0.18rem 0.5rem;
+    cursor: pointer;
+    transition: color 0.15s, border-color 0.15s, opacity 0.15s;
+    opacity: 0;
+    z-index: 1;
+  }
+
+  .code-block:hover .code-copy-btn { opacity: 1; }
+
+  .code-copy-btn:hover {
+    color: var(--accent3);
+    border-color: rgba(106,247,212,0.4);
+  }
+
+  /* Prism token color overrides */
+  .code-block code[class*="language-"] {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: inherit;
+    line-height: inherit;
+    background: none !important;
+    padding: 0 !important;
+    border: none !important;
+    border-radius: 0 !important;
+    text-shadow: none !important;
+    color: #c0c0d8;
+  }
+
+  .token.comment, .token.prolog, .token.cdata { color: #5a5a72; font-style: italic; }
+  .token.keyword, .token.important { color: #c792ea; }
+  .token.string, .token.char, .token.attr-value { color: #c3e88d; }
+  .token.function { color: #82aaff; }
+  .token.number, .token.boolean { color: #f78c6c; }
+  .token.operator, .token.attr-name { color: #89ddff; }
+  .token.class-name, .token.builtin { color: #ffcb6b; }
+  .token.punctuation { color: #89ddff; }
+  .token.variable { color: #e8e8f0; }
+
+  /* Claude Code tip callout */
+  .callout-cc-tip {
+    background: rgba(247,195,106,0.05);
+    border: 1px solid rgba(247,195,106,0.22);
+  }
+  .callout-cc-tip .callout-label { color: var(--accent2); }
+  .callout-cc-tip p { color: #ddc890; line-height: 1.75; }
+  .callout-cc-tip code {
+    background: rgba(247,195,106,0.1);
+    border-color: rgba(247,195,106,0.2);
+    color: var(--accent2);
+  }
+  .callout-cc-tip ul {
+    list-style: none;
+    margin: 0.6rem 0 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+  .callout-cc-tip ul li {
+    font-size: 0.9rem;
+    color: #ddc890;
+    line-height: 1.6;
+    padding-left: 1.4rem;
+    position: relative;
+  }
+  .callout-cc-tip ul li::before {
+    content: '→';
+    position: absolute;
+    left: 0;
+    color: var(--accent2);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.8rem;
   }
 
   /* Inline code */
@@ -798,6 +897,12 @@
   <div class="topic-section">
     <div class="section-number">Section 03</div>
     <h2>Step by step — Build it</h2>
+
+    <div class="callout callout-cc-tip">
+      <div class="callout-label">Claude Code Tip</div>
+      <p>Start fresh for this module: run <code>/clear</code> in Claude Code. Your <code>CLAUDE.md</code> keeps the project context — <code>/clear</code> just wipes the conversation history from the previous module so Claude isn't confused by unrelated context.</p>
+    </div>
+
     <p>Open your terminal, run <code>claude</code> to start Claude Code, and navigate to your <code>scout-agent</code> directory.</p>
 
     <div class="step-list">
@@ -822,13 +927,14 @@
               7. NOTES_DIR: Path — where notes are stored (default "notes/")<br>
               8. MODEL: str — which Claude model to use (default "claude-opus-4-7")<br>
               9. MAX_TURNS: int — max turns per ReAct loop (default 10)<br><br>
-              Then update agent.py, tools.py, guardrails.py, and memory.py to import their constants from config.py instead of hardcoding them. Keep the logic changes minimal — only import changes, no restructuring.
+              Then update agent.py, tools.py, guardrails.py, and memory.py to import their constants from config.py instead of hardcoding them. Keep the logic changes minimal — only import changes, no restructuring.<br><br>
+              Only create config.py.
             </div>
           </div>
 
           <p>Claude Code generates a file close to this:</p>
 
-          <div class="code-block"><code># config.py — customize Scout here. This is the only file you need to edit.
+          <div class="code-block"><code class="language-python"># config.py — customize Scout here. This is the only file you need to edit.
 from pathlib import Path
 
 AGENT_NAME = "Scout"
@@ -879,7 +985,7 @@ MAX_TURNS   = 10</code></div>
           <p>The corresponding change in <code>agent.py</code> is a four-line import block replacing several hardcoded constants:</p>
 
           <div class="code-block-label">agent.py — before and after</div>
-          <div class="code-block"><code># Before (hardcoded):
+          <div class="code-block"><code class="language-python"># Before (hardcoded):
 MODEL = "claude-opus-4-7"
 MAX_TURNS = 10
 SYSTEM = """You are Scout, a research assistant..."""
@@ -911,13 +1017,14 @@ SYSTEM = AGENT_PERSONA.format(agent_name=AGENT_NAME)</code></div>
               3. If no QUESTION, enter an interactive REPL: prompt is "{AGENT_NAME} ({session}) &gt; ", loop until user types "exit", "quit", or presses Ctrl+C<br>
               4. On startup, print a brief banner: agent name, current session, note count, active tools<br>
               5. Handle KeyboardInterrupt gracefully with a friendly exit message<br><br>
-              Remove the if __name__ == "__main__" block from agent.py — main.py replaces it entirely.
+              Remove the if __name__ == "__main__" block from agent.py — main.py replaces it entirely.<br><br>
+              Only create main.py.
             </div>
           </div>
 
           <p>The complete <code>main.py</code>:</p>
 
-          <div class="code-block"><code># main.py
+          <div class="code-block"><code class="language-python"># main.py
 import argparse
 import sys
 from config import AGENT_NAME, ACTIVE_TOOLS, SESSION_DIR, NOTES_DIR
@@ -982,7 +1089,7 @@ if __name__ == "__main__":
 
           <p>Usage examples:</p>
 
-          <div class="code-block bash"><code># Interactive mode (start the REPL)
+          <div class="code-block bash"><code class="language-bash"># Interactive mode (start the REPL)
 python main.py
 
 # Interactive with a named session
@@ -996,6 +1103,11 @@ python main.py --session startup-research "What are the top YC companies from W2
 
 # Force deep research mode on a specific query
 python main.py --deep "Landscape of vector database providers in 2026"</code></div>
+
+          <div class="callout callout-cc-tip">
+            <div class="callout-label">Claude Code Tip</div>
+            <p>You've just built the final two files. Run <code>/compact</code> before customizing — you'll be making config changes and asking questions, and a fresh summary keeps Claude focused on Scout's current state rather than how it was built.</p>
+          </div>
         </div>
       </div>
 
@@ -1011,6 +1123,11 @@ python main.py --deep "Landscape of vector database providers in 2026"</code></d
           <p><strong>2. Edit AGENT_PERSONA.</strong> Uncomment one of the example personas or write your own. The persona is the largest lever you have over how the agent behaves. Keep it specific: vague instructions produce vague behavior. Include the research workflow steps you actually want — the default is a good starting point, but a persona written for your exact use case will feel qualitatively different.</p>
 
           <p><strong>3. Adjust ACTIVE_TOOLS.</strong> Remove tools that don't fit your use case. A knowledge base assistant that processes documents you provide doesn't need <code>web_search</code>. A news digest tool might skip <code>save_note</code> entirely — ephemeral daily output, no persistence needed. Every tool you remove narrows the scope in a way you can reason about completely.</p>
+
+          <div class="callout callout-cc-tip">
+            <div class="callout-label">Claude Code Tip</div>
+            <p>As you customize Scout, keep <code>CLAUDE.md</code> in sync. Update the agent name, active tools, and any new constraints. A quick prompt works: <code>Update CLAUDE.md to reflect that Scout is now named [X], uses these tools: [list], and has guardrails enabled.</code> This keeps future sessions accurate without manual editing.</p>
+          </div>
 
           <p>Example configurations for four common use cases:</p>
 
@@ -1076,7 +1193,7 @@ python main.py --deep "Landscape of vector database providers in 2026"</code></d
           </div>
 
           <p>Once generated, run it with:</p>
-          <div class="code-block bash"><code>uvicorn server:app --reload
+          <div class="code-block bash"><code class="language-bash">uvicorn server:app --reload
 # Open http://localhost:8000 in your browser</code></div>
 
           <p>The web UI wraps the same <code>run_scout</code> function — no changes to agent logic. If you add it, you can run Scout from a phone or share it with a collaborator on your local network. Skip this step if the CLI is sufficient; the agent is fully capable either way.</p>
@@ -1186,5 +1303,25 @@ python main.py --deep "Landscape of vector database providers in 2026"</code></d
   </div>
 </footer>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+<script>
+document.querySelectorAll('.code-block').forEach(block => {
+  const codeEl = block.querySelector('code');
+  if (!codeEl) return;
+  const btn = document.createElement('button');
+  btn.className = 'code-copy-btn';
+  btn.textContent = 'copy';
+  btn.addEventListener('click', e => {
+    e.stopPropagation();
+    navigator.clipboard.writeText(codeEl.textContent).then(() => {
+      btn.textContent = 'copied!';
+      setTimeout(() => { btn.textContent = 'copy'; }, 2000);
+    });
+  });
+  block.insertBefore(btn, block.firstChild);
+});
+</script>
 </body>
 </html>

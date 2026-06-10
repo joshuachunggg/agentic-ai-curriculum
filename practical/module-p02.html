@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Module P02: Scout's Toolkit — Build Your Agent</title>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;500&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
 <style>
   :root {
     --bg: #0a0a0f;
@@ -366,6 +367,7 @@
     font-size: 0.82rem;
     line-height: 1.75;
     color: #c0c0d8;
+    position: relative;
   }
 
   .code-block code {
@@ -525,6 +527,117 @@
     border-radius: 0;
   }
 
+  .code-block-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.08em;
+    text-transform: lowercase;
+    color: var(--muted);
+    background: #13131c;
+    border: 1px solid var(--border);
+    border-bottom: none;
+    border-radius: 8px 8px 0 0;
+    padding: 0.5rem 1.2rem 0.45rem;
+    margin-top: 1.6rem;
+    margin-bottom: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .code-block-label:first-child { margin-top: 0; }
+
+  .code-block-label + .code-block {
+    border-radius: 0 0 8px 8px;
+    margin-top: 0 !important;
+  }
+
+  .code-block.bash code { color: #b0c8a0; }
+
+  /* Copy button */
+  .code-copy-btn {
+    position: absolute;
+    top: 0.65rem;
+    right: 0.75rem;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.58rem;
+    letter-spacing: 0.03em;
+    color: #4a4a62;
+    background: var(--surface2);
+    border: 1px solid #2a2a3a;
+    border-radius: 3px;
+    padding: 0.18rem 0.5rem;
+    cursor: pointer;
+    transition: color 0.15s, border-color 0.15s, opacity 0.15s;
+    opacity: 0;
+    z-index: 1;
+  }
+
+  .code-block:hover .code-copy-btn { opacity: 1; }
+
+  .code-copy-btn:hover {
+    color: var(--accent3);
+    border-color: rgba(106,247,212,0.4);
+  }
+
+  /* Prism token color overrides */
+  .code-block code[class*="language-"] {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: inherit;
+    line-height: inherit;
+    background: none !important;
+    padding: 0 !important;
+    border: none !important;
+    border-radius: 0 !important;
+    text-shadow: none !important;
+    color: #c0c0d8;
+  }
+
+  .token.comment, .token.prolog, .token.cdata { color: #5a5a72; font-style: italic; }
+  .token.keyword, .token.important { color: #c792ea; }
+  .token.string, .token.char, .token.attr-value { color: #c3e88d; }
+  .token.function { color: #82aaff; }
+  .token.number, .token.boolean { color: #f78c6c; }
+  .token.operator, .token.attr-name { color: #89ddff; }
+  .token.class-name, .token.builtin { color: #ffcb6b; }
+  .token.punctuation { color: #89ddff; }
+  .token.variable { color: #e8e8f0; }
+
+  /* Claude Code tip callout */
+  .callout-cc-tip {
+    background: rgba(247,195,106,0.05);
+    border: 1px solid rgba(247,195,106,0.22);
+  }
+  .callout-cc-tip .callout-label { color: var(--accent2); }
+  .callout-cc-tip p { color: #ddc890; line-height: 1.75; }
+  .callout-cc-tip code {
+    background: rgba(247,195,106,0.1);
+    border-color: rgba(247,195,106,0.2);
+    color: var(--accent2);
+  }
+  .callout-cc-tip ul {
+    list-style: none;
+    margin: 0.6rem 0 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+  .callout-cc-tip ul li {
+    font-size: 0.9rem;
+    color: #ddc890;
+    line-height: 1.6;
+    padding-left: 1.4rem;
+    position: relative;
+  }
+  .callout-cc-tip ul li::before {
+    content: '→';
+    position: absolute;
+    left: 0;
+    color: var(--accent2);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.8rem;
+  }
+
   strong {
     font-weight: 500;
     color: var(--text);
@@ -674,6 +787,11 @@
     <div class="section-number">Section 03</div>
     <h2>Build It</h2>
 
+    <div class="callout callout-cc-tip">
+      <div class="callout-label">Claude Code Tip</div>
+      <p>Start fresh for this module: run <code>/clear</code> in Claude Code. Your <code>CLAUDE.md</code> keeps the project context — <code>/clear</code> just wipes the conversation history from the previous module so Claude isn't confused by unrelated context.</p>
+    </div>
+
     <div class="step-block">
       <div class="step-num">Step 01</div>
       <div class="step-content">
@@ -687,13 +805,13 @@
             1. read_url(url: str) — fetches the content of a URL and returns a dict with: url, title (extract from HTML if possible), content (first 3000 chars of visible text, stripped of HTML tags), word_count, and fetched_at timestamp. If the fetch fails for any reason, return a structured error dict with keys: error (string code), url, message, and suggestion. Use the requests library and beautifulsoup4 for parsing. Handle timeouts (10s), HTTP errors, and parsing failures explicitly.<br><br>
             2. save_note(title: str, content: str, tags: list[str] = None) — saves a note as a JSON file in a notes/ subdirectory. The filename should be a slugified version of the title. Returns a dict with: saved (bool), filename, title, tag_count, and note_id (use a short uuid4). Create the notes/ directory if it doesn't exist.<br><br>
             3. search_notes(query: str) — reads all JSON files from notes/, does a simple case-insensitive substring search on title + content + tags, and returns a list of matching notes (title, filename, preview of first 200 chars, tags). Returns an empty list if nothing matches, not an error.<br><br>
-            Add all four tools to TOOLS (keep web_search) with complete descriptions. Add requests and beautifulsoup4 to requirements.txt.
+            Add all four tools to TOOLS (keep web_search) with complete descriptions. Add requests and beautifulsoup4 to requirements.txt.<br><br>Only touch tools.py and requirements.txt — don't modify other files.
           </div>
         </div>
 
         <p>After Claude Code runs, your complete <code>tools.py</code> should look like this:</p>
 
-        <div class="code-block"><code># tools.py (complete, after P02)
+        <div class="code-block"><code class="language-python"># tools.py (complete, after P02)
 import json
 import os
 import re
@@ -875,6 +993,11 @@ TOOLS = [
       </div>
     </div>
 
+    <div class="callout callout-cc-tip">
+      <div class="callout-label">Claude Code Tip</div>
+      <p>You've just added 4 new tools in a single session. If you're continuing in the same window, run <code>/compact</code> now. The tool implementations are long — compressing them frees context for the upcoming agent.py changes.</p>
+    </div>
+
     <div class="step-block">
       <div class="step-num">Step 02</div>
       <div class="step-content">
@@ -884,13 +1007,13 @@ TOOLS = [
         <div class="cc-prompt-block">
           <div class="cc-prompt-label">Claude Code prompt</div>
           <div class="cc-prompt-body">
-            Update agent.py to handle all four tools from the updated tools.py. The run_scout function needs to dispatch to read_url, save_note, and search_notes in addition to web_search. Also update the system prompt to tell Scout it has all four tools and that it should: (1) always check search_notes first before doing a web_search, in case the topic was already researched; (2) save important findings as notes with meaningful tags. Keep everything else the same.
+            Update agent.py to handle all four tools from the updated tools.py. The run_scout function needs to dispatch to read_url, save_note, and search_notes in addition to web_search. Also update the system prompt to tell Scout it has all four tools and that it should: (1) always check search_notes first before doing a web_search, in case the topic was already researched; (2) save important findings as notes with meaningful tags. Keep everything else the same.<br><br>Only touch agent.py — don't modify other files.
           </div>
         </div>
 
         <p>The key changes to <code>agent.py</code> are the system prompt and the tool dispatch dictionary. You should see something like this:</p>
 
-        <div class="code-block"><code># Changes to agent.py
+        <div class="code-block"><code class="language-python"># Changes to agent.py
 
 from tools import web_search, read_url, save_note, search_notes, TOOLS
 
@@ -930,12 +1053,12 @@ else:
         <h3>Install dependencies and test the full research cycle</h3>
         <p>Install the new dependencies, then run Scout and ask it to research a topic and save what it learns:</p>
 
-        <div class="code-block"><code>pip install requests beautifulsoup4
+        <div class="code-block bash"><code class="language-bash">pip install requests beautifulsoup4
 python agent.py</code></div>
 
         <p>Try: <em>"Research how the Model Context Protocol works and save what you learn."</em> You should see Scout move through all four tools in sequence:</p>
 
-        <div class="code-block"><code>Scout researching: research how the Model Context Protocol works and save what you learn
+        <div class="code-block bash"><code class="language-bash">Scout researching: research how the Model Context Protocol works and save what you learn
 
   → search_notes({"query": "Model Context Protocol"})
   → web_search({"query": "Model Context Protocol MCP how it works 2024"})
@@ -1015,5 +1138,25 @@ Scout: Here's what I found about MCP...
   </div>
 </footer>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+<script>
+document.querySelectorAll('.code-block').forEach(block => {
+  const codeEl = block.querySelector('code');
+  if (!codeEl) return;
+  const btn = document.createElement('button');
+  btn.className = 'code-copy-btn';
+  btn.textContent = 'copy';
+  btn.addEventListener('click', e => {
+    e.stopPropagation();
+    navigator.clipboard.writeText(codeEl.textContent).then(() => {
+      btn.textContent = 'copied!';
+      setTimeout(() => { btn.textContent = 'copy'; }, 2000);
+    });
+  });
+  block.insertBefore(btn, block.firstChild);
+});
+</script>
 </body>
 </html>
