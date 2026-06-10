@@ -544,6 +544,34 @@
     color: var(--accent3);
   }
 
+  .cc-prompt-copy-btn {
+    margin-left: auto;
+    flex-shrink: 0;
+    background: transparent;
+    border: 1px solid rgba(106,247,212,0.2);
+    border-radius: 4px;
+    color: rgba(106,247,212,0.45);
+    cursor: pointer;
+    padding: 0.18rem 0.42rem;
+    display: flex;
+    align-items: center;
+    gap: 0.28rem;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.58rem;
+    letter-spacing: 0.04em;
+    transition: color 0.15s, border-color 0.15s, background 0.15s;
+    line-height: 1;
+  }
+  .cc-prompt-copy-btn:hover {
+    color: var(--accent3);
+    border-color: rgba(106,247,212,0.5);
+    background: rgba(106,247,212,0.06);
+  }
+  .cc-prompt-copy-btn.copied {
+    color: var(--accent3);
+    border-color: rgba(106,247,212,0.5);
+  }
+
   /* Step blocks */
   .step-list {
     display: flex;
@@ -1111,6 +1139,35 @@ document.querySelectorAll('.code-block').forEach(block => {
   });
   block.insertBefore(btn, block.firstChild);
 });
+
+// Prompt copy buttons
+(function() {
+  var COPY_ICON = '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>copy';
+  var CHECK_ICON = '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>copied!';
+  document.querySelectorAll('.cc-prompt-block').forEach(function(block) {
+    var label = block.querySelector('.cc-prompt-label');
+    var body  = block.querySelector('.cc-prompt-body');
+    if (!label || !body) return;
+    var btn = document.createElement('button');
+    btn.className = 'cc-prompt-copy-btn';
+    btn.innerHTML = COPY_ICON;
+    btn.title = 'Copy prompt';
+    btn.addEventListener('click', function() {
+      var clone = body.cloneNode(true);
+      clone.querySelectorAll('br').forEach(function(br) { br.replaceWith('\n'); });
+      var text = clone.textContent.replace(/\n/g, '\n').trim();
+      navigator.clipboard.writeText(text).then(function() {
+        btn.innerHTML = CHECK_ICON;
+        btn.classList.add('copied');
+        setTimeout(function() {
+          btn.innerHTML = COPY_ICON;
+          btn.classList.remove('copied');
+        }, 2000);
+      });
+    });
+    label.appendChild(btn);
+  });
+})();
 </script>
 </body>
 </html>
