@@ -829,7 +829,7 @@
         <li><strong>Context engineering:</strong> every irrelevant token in context degrades response quality. <code>/clear</code> between unrelated tasks costs nothing — do it freely. CLAUDE.md survives clears; conversation history doesn't</li>
         <li><strong>Plan before building:</strong> press <code>Shift+Tab</code> to enter Plan Mode — Claude reads and reasons without writing code. Use it whenever a step touches multiple files. Have Claude write a <code>plan.md</code>, review it yourself (<code>Ctrl+G</code> opens it in your editor), then exit plan mode and execute</li>
         <li><strong>Files over context:</strong> have Claude write findings and plans into <code>plan.md</code> / <code>notes.md</code>. Start new sessions by handing Claude those files — not the conversation history</li>
-        <li><strong>Model selection:</strong> Sonnet (default) handles most coding. <code>/model opus</code> for architecture decisions, complex debugging, or multi-file planning. Extended thinking is automatic on hard problems — no keywords needed</li>
+        <li><strong>Model selection:</strong> set your model to <code>opusplan</code> — Opus in Plan Mode for reasoning-heavy design decisions, Sonnet for execution. Planning is where model quality matters most; execution just follows the plan. Extended thinking is automatic — no keywords needed</li>
         <li><code>/compact</code> — summarize history mid-session after heavy steps</li>
         <li>One task per prompt; end each prompt with a scope constraint: "Only touch tools.py"</li>
       </ul>

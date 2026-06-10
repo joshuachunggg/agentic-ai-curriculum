@@ -849,8 +849,8 @@
 
       <div class="workflow-card">
         <div class="workflow-card-num">04</div>
-        <div class="workflow-card-title">Pick the right model</div>
-        <div class="workflow-card-body"><strong>Sonnet</strong> is the default — fast and capable for most coding. Switch to <strong>Opus</strong> (<code>/model opus</code>) for architecture decisions, multi-file planning, or complex debugging. Extended thinking is automatic on hard problems — no keywords needed. Use Opus in plan mode for the hard design steps; Sonnet for execution.</div>
+        <div class="workflow-card-title">Opus plans, Sonnet executes</div>
+        <div class="workflow-card-body">Set your model to <code>opusplan</code> — Claude Code automatically uses <strong>Opus</strong> in Plan Mode and <strong>Sonnet</strong> everywhere else. Planning is the reasoning-heavy part; execution just follows the plan. This split gets you the best reasoning when it matters and saves tokens when it doesn't. Extended thinking is automatic on hard problems — no magic keywords needed.</div>
       </div>
 
     </div>
@@ -871,8 +871,8 @@
           <span>Toggle Plan Mode. Reads + reasons, no code.</span>
         </div>
         <div class="workflow-ref-item">
-          <code class="workflow-cmd">/model opus</code>
-          <span>Switch to Opus for architecture and hard reasoning.</span>
+          <code class="workflow-cmd">opusplan</code>
+          <span>Best default model: Opus in plan mode, Sonnet otherwise.</span>
         </div>
         <div class="workflow-ref-item">
           <code class="workflow-cmd">/init</code>
