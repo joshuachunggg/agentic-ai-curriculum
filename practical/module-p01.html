@@ -1020,7 +1020,11 @@ TOOLS = [
           <div class="cc-prompt-block">
             <div class="cc-prompt-label">Claude Code Prompt</div>
             <div class="cc-prompt-body">
-              In agent.py, build Scout's ReAct loop using the Anthropic SDK. Use claude-opus-4-7. Scout should accept a question, call tools when the model requests them, print a trace line for each tool call, and print the final answer when the model reaches end_turn. Cap at 10 turns. Add a __main__ block that reads a question from input().<br><br>
+              In agent.py, build Scout's ReAct loop using the Anthropic SDK. Use claude-opus-4-7. Scout should accept a question, call tools when the model requests them, and print the final answer when the model reaches end_turn. Cap at 10 turns. Add a __main__ block that reads a question from input().<br><br>
+              Use these exact output formats:<br>
+              - On start: <code>Scout researching: {question}</code><br>
+              - Each tool call: <code>  → tool_name({"arg": "value"})</code><br>
+              - Final answer: <code>Scout: {response}</code><br><br>
               Only touch agent.py.
             </div>
           </div>
