@@ -873,15 +873,6 @@
       <p>Start fresh for this module: run <code>/clear</code> in Claude Code. Your <code>CLAUDE.md</code> keeps the project context — <code>/clear</code> just wipes the conversation history from the previous module so Claude isn't confused by unrelated context.</p>
     </div>
 
-    <div class="callout callout-cc-tip">
-      <div class="callout-label">Use Plan Mode for this module</div>
-      <p>This module introduces the biggest architectural change in the course — async subagents that run in parallel. Before giving Claude Code any of the step prompts below, press <code>Shift+Tab</code> to enter Plan Mode and run this:</p>
-      <p style="margin-top:0.8rem; font-family: 'IBM Plex Mono', monospace; font-size: 0.82rem; color: #ddc890; background: rgba(247,195,106,0.06); border: 1px solid rgba(247,195,106,0.15); border-radius: 6px; padding: 0.8rem 1rem; line-height: 1.7;">
-        Read agent.py, tools.py, and memory.py. We're about to add parallel subagents: a Searcher that calls tools and a Synthesizer that summarizes. Before any code, write plan.md with: (1) what subagents.py needs to contain, (2) what changes agent.py needs, (3) what the data flow looks like between the two subagents. Don't write code yet.
-      </p>
-      <p style="margin-top:0.8rem;">Review <code>plan.md</code> (<code>Ctrl+G</code> to open in editor), then press <code>Shift+Tab</code> again to exit plan mode and execute. If you're on <code>opusplan</code>, the model switch is automatic — Opus plans, Sonnet builds. This is exactly the pattern <code>opusplan</code> is designed for.</p>
-    </div>
-
     <p>Open your terminal, run <code>claude</code> to start Claude Code, and navigate to your <code>scout-agent</code> directory. Give Claude Code the following prompts one at a time.</p>
 
     <div class="step-list">
