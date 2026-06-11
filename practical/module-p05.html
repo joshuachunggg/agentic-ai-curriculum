@@ -928,7 +928,7 @@ echo ".env\nsessions/\nnotes/" >> .gitignore</code></pre></div>
               - get_brave_tools() — return the brave_web_search tool definition in Anthropic API format<br>
               - call_brave_search(query: str, count: int = 5) — communicate with the Brave Search MCP server as a subprocess using the MCP JSON-RPC protocol (stdin/stdout). Use asyncio.create_subprocess_exec so the wire protocol is explicit.<br>
               - Add python-dotenv to requirements.txt<br><br>
-              Then update tools.py: make web_search use Brave Search when BRAVE_API_KEY is set, falling back to the stub when not. Keep the web_search function signature identical.<br><br>
+              Then update tools.py: make web_search use Brave Search when BRAVE_API_KEY is set, falling back to the stub when not. When using the stub fallback, include <code>_stub: True</code> in the returned dict so callers can detect which mode is active. Keep the web_search function signature identical.<br><br>
               Only touch mcp_tools.py and tools.py.
             </div>
           </div>

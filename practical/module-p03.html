@@ -839,7 +839,7 @@
           <div class="cc-prompt-label">Claude Code prompt</div>
           <div class="cc-prompt-body">
             Create memory.py with two capabilities:<br><br>
-            1. A ContextManager class that manages the agent's message history — compressing old messages into a summary when the conversation grows long while keeping recent messages intact. It needs add_message(role, content), should_compress(), compress(client, model), and to_dict()/from_dict() methods for serialization. Use configurable thresholds for when compression triggers.<br><br>
+            1. A ContextManager class that manages the agent's message history — compressing old messages into a summary when the conversation grows long while keeping recent messages intact. It needs add_message(role, content), should_compress(), compress(client, model), and to_dict()/from_dict() methods for serialization. Default COMPRESS_THRESHOLD to 16 and KEEP_RECENT to 6.<br><br>
             2. save_session(session_id, manager) and load_session(session_id) module-level functions that persist and restore a ContextManager from a JSON file in a sessions/ directory.<br><br>
             Use these exact print formats for status lines:<br>
             - On save: <code>  [session saved: {path}]</code><br>
