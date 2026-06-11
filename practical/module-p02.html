@@ -1062,6 +1062,13 @@ TOOLS = [
           </div>
         </div>
 
+        <div class="callout callout-insight">
+          <div class="callout-label">Why Scout doesn't always research</div>
+          <p>Scout's workflow is deliberately tiered. When you ask about a topic it's already covered, it answers from its notes directly — no API call, no new note. When a note exists but doesn't fully answer the question, it does targeted research and merges the new findings into the existing note rather than creating a duplicate. Only genuinely new topics trigger full research and a new note file.</p>
+          <p style="margin-top: 0.75rem;">This means <code>notes/</code> accumulates knowledge over time rather than filling up with near-duplicate files. A note on "RAG" grows richer each time you ask a related question — it doesn't multiply into "RAG", "RAG overview", "how RAG works", "RAG explained".</p>
+          <p style="margin-top: 0.75rem;">The same title → same file behavior in <code>save_note</code> is what enforces this. Two saves with the title "RAG" produce one enriched note, not two.</p>
+        </div>
+
         <p>The key changes to <code>agent.py</code> are the system prompt and the tool dispatch dictionary. You should see something like this:</p>
 
         <div class="code-block"><pre><code class="language-python"># Changes to agent.py
