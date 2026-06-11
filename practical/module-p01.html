@@ -872,6 +872,15 @@
       </ul>
     </div>
 
+    <div class="callout callout-insight">
+      <div class="callout-label">Principle: Set goals, not steps</div>
+      <p>Advanced models don't need implementation specs. When you describe <em>what</em> you want achieved — not <em>how</em> to do it — you get better results. The model applies judgment to implementation details that no step-by-step prompt can fully anticipate, and often arrives at a cleaner design than you would have specified.</p>
+      <p style="margin-top: 0.75rem;">The difference looks like this:</p>
+      <p style="margin-top: 0.5rem;"><strong>Over-specified:</strong> <em>"Create a function that takes a URL string, uses requests with a 10s timeout, parses with BeautifulSoup, returns a dict with keys: url, title, content (first 3000 chars of visible text), word_count, fetched_at..."</em></p>
+      <p style="margin-top: 0.5rem;"><strong>Goal-oriented:</strong> <em>"Add a tool that fetches and parses URL content. Handle errors gracefully. Only touch tools.py."</em></p>
+      <p style="margin-top: 0.75rem;">Both produce working code. The second prompt is shorter, yields output that's often better structured, and leaves room for the model to make good decisions you didn't think to specify. Throughout this course, prompts follow this pattern: <strong>state the outcome, name the constraint, leave the implementation to Claude.</strong></p>
+    </div>
+
     <div class="step-list">
 
       <!-- Step 1 -->
@@ -934,7 +943,7 @@
           <div class="cc-prompt-block">
             <div class="cc-prompt-label">Claude Code Prompt</div>
             <div class="cc-prompt-body">
-              In tools.py, create a web_search stub function and a TOOLS list for the Anthropic SDK. The web_search(query: str) function should return a dict with: the query, a list of 3 realistic-looking fake results (each with title, url, snippet, source fields), and a timestamp. The TOOLS list should define web_search with a proper description and input_schema that tells Claude when and how to use it. The description should say: use this to find current information, recent news, or sources to cite. Make the tool description genuinely helpful — the model reads it.<br><br>
+              In tools.py, create a web_search stub that returns realistic-looking fake search results, and a TOOLS list for the Anthropic API that defines web_search with a clear description and input_schema. The tool description should tell Scout when and how to use it — the model reads it to decide whether to call the tool.<br><br>
               Only touch tools.py.
             </div>
           </div>
@@ -1011,14 +1020,7 @@ TOOLS = [
           <div class="cc-prompt-block">
             <div class="cc-prompt-label">Claude Code Prompt</div>
             <div class="cc-prompt-body">
-              In agent.py, build Scout's core ReAct loop using the Anthropic SDK. Scout is a research assistant agent. Here's what it needs to do:<br><br>
-              1. Accept a question from the user<br>
-              2. Send it to claude-opus-4-7 with the TOOLS from tools.py and a system prompt that defines Scout as a research assistant who always cites sources<br>
-              3. If the model returns tool_use, execute the tool (just web_search for now) and append a tool_result back to messages<br>
-              4. If the model returns end_turn, print the final response<br>
-              5. Repeat up to 10 turns<br>
-              6. Print a brief trace line each time a tool is called: "→ web_search(query)"<br><br>
-              At the bottom, add a simple if __name__ == "__main__" block that reads a question from input() and calls run_scout(question).<br><br>
+              In agent.py, build Scout's ReAct loop using the Anthropic SDK. Use claude-opus-4-7. Scout should accept a question, call tools when the model requests them, print a trace line for each tool call, and print the final answer when the model reaches end_turn. Cap at 10 turns. Add a __main__ block that reads a question from input().<br><br>
               Only touch agent.py.
             </div>
           </div>

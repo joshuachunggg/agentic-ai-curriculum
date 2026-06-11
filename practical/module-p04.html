@@ -896,19 +896,11 @@
           <div class="cc-prompt-block">
             <div class="cc-prompt-label">Claude Code Prompt</div>
             <div class="cc-prompt-body">
-              Create subagents.py with two async subagent functions using the Anthropic SDK:<br><br>
-              1. run_searcher(topic: str, client, model: str) -&gt; dict<br>
-              &nbsp;&nbsp;&nbsp;- A focused research agent: searches for the topic, reads 3-4 sources, returns structured JSON with keys: topic, sources (list of {url, title, key_points}), raw_findings (text summary of what was found), search_count (int), and error (optional string if something went wrong)<br>
-              &nbsp;&nbsp;&nbsp;- System prompt: "You are a research specialist. Your job is to find and read sources on a specific topic, then return structured findings. Be thorough — read at least 3 sources. Return JSON."<br>
-              &nbsp;&nbsp;&nbsp;- It should call web_search and read_url from tools.py<br>
-              &nbsp;&nbsp;&nbsp;- At the end, output JSON only — no conversational text<br>
-              &nbsp;&nbsp;&nbsp;- Handle tool calls the same way agent.py does, up to 12 turns<br><br>
-              2. run_synthesizer(topic: str, findings: dict, client, model: str) -&gt; dict<br>
-              &nbsp;&nbsp;&nbsp;- Takes the searcher's findings and generates a structured report<br>
-              &nbsp;&nbsp;&nbsp;- No tools — just synthesis<br>
-              &nbsp;&nbsp;&nbsp;- Returns JSON with keys: topic, summary (2-3 paragraph executive summary), key_findings (list of strings), sources_cited (list of URLs), confidence (high/medium/low based on source quality and consensus)<br>
-              &nbsp;&nbsp;&nbsp;- System prompt: "You are a research synthesizer. Given raw research findings, produce a clear structured report. Be direct, cite sources, and note where sources disagree."<br><br>
-              Both functions should be async (use asyncio). Add a run_deep_research(topic, client, model) function that runs both with asyncio.gather and returns a combined result dict.<br><br>Only create subagents.py — don't modify agent.py yet.
+              Create subagents.py with two async research subagents using the Anthropic SDK:<br><br>
+              - run_searcher(topic, client, model) — a focused research agent that searches for the topic and reads multiple sources, returning structured JSON findings (sources with key points, raw summary, search count). It uses web_search and read_url from tools.py. Output JSON only — no conversational text.<br>
+              - run_synthesizer(topic, findings, client, model) — takes searcher findings and produces a structured report (executive summary, key findings, cited sources, confidence level). No tools — synthesis only. Output JSON only.<br><br>
+              Add run_deep_research(topic, client, model) that runs both with asyncio.gather and returns a combined result.<br><br>
+              Only create subagents.py — don't modify other files.
             </div>
           </div>
 
@@ -1090,7 +1082,8 @@ async def run_deep_research(
           <div class="cc-prompt-block">
             <div class="cc-prompt-label">Claude Code Prompt</div>
             <div class="cc-prompt-body">
-              Update agent.py to detect when a request needs deep research and route it to the subagent pipeline. Add an is_deep_research_request(question: str) function that uses a simple heuristic — returns True if the question contains phrases like "comprehensive", "analysis", "compare", "landscape", "research in depth", "thorough", "overview of", "everything about". When detected, call run_deep_research from subagents.py (using asyncio.run), format the result nicely, save it as a note, and return it without going through the normal ReAct loop. For all other questions, use the existing ReAct loop unchanged.<br><br>Only modify agent.py — don't touch subagents.py.
+              Update agent.py to detect deep research requests and route them to run_deep_research from subagents.py. Use a keyword heuristic to detect when depth is needed (words like "comprehensive", "analysis", "compare", "in-depth", "thorough"). When triggered, save the result as a note and return it directly — skip the ReAct loop. All other questions go through the existing loop unchanged.<br><br>
+              Only modify agent.py — don't touch subagents.py.
             </div>
           </div>
 

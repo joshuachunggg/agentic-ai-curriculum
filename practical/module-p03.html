@@ -838,15 +838,11 @@
         <div class="cc-prompt-block">
           <div class="cc-prompt-label">Claude Code prompt</div>
           <div class="cc-prompt-body">
-            Create a new file called memory.py. It needs to handle two things:<br><br>
-            1. Context compression: a ContextManager class with:<br>
-            &nbsp;&nbsp;- A messages list and a state dict<br>
-            &nbsp;&nbsp;- An add_message(role, content) method that appends to messages and triggers compression if len(messages) > COMPRESS_THRESHOLD (default 16)<br>
-            &nbsp;&nbsp;- A compress(client, model) method that: takes the oldest (len(messages) - KEEP_RECENT) messages (default keep 6), sends them to Claude with a compression prompt asking for a structured summary, replaces the old messages with a single {"role": "user", "content": "[CONTEXT SUMMARY]\n{summary}"} message, and prints "  [context compressed: N→M messages]"<br>
-            &nbsp;&nbsp;- A to_messages() method that returns the current messages list<br>
-            &nbsp;&nbsp;- A get_state() and set_state(key, value) method for the state dict<br><br>
-            2. Session persistence: save_session(session_id, manager) and load_session(session_id) functions that save/load the context manager's state to/from a JSON file in a sessions/ directory. The session file should store: messages, state, and timestamp.<br><br>
-            Keep it simple — no external dependencies beyond json and pathlib.<br><br>Only touch memory.py — don't modify other files.
+            Create memory.py with two capabilities:<br><br>
+            1. A ContextManager class that manages the agent's message history — compressing old messages into a summary when the conversation grows long while keeping recent messages intact. It needs add_message(role, content), should_compress(), compress(client, model), and to_dict()/from_dict() methods for serialization. Use configurable thresholds for when compression triggers.<br><br>
+            2. save_session(session_id, manager) and load_session(session_id) module-level functions that persist and restore a ContextManager from a JSON file in a sessions/ directory.<br><br>
+            No external dependencies beyond json and pathlib.<br><br>
+            Only create memory.py — don't modify other files.
           </div>
         </div>
 
@@ -959,13 +955,7 @@ def load_session(session_id: str) -> ContextManager | None:
         <div class="cc-prompt-block">
           <div class="cc-prompt-label">Claude Code prompt</div>
           <div class="cc-prompt-body">
-            Update agent.py to use the ContextManager from memory.py. The run_scout function should:<br>
-            1. Accept an optional session_id parameter (default "default")<br>
-            2. At startup, try to load an existing session with load_session(session_id) — if found, use it; if not, create a new ContextManager<br>
-            3. Use ctx.add_message() instead of directly appending to messages<br>
-            4. After each assistant response, check ctx.should_compress() — if true, call ctx.compress(client, MODEL)<br>
-            5. At the end of each run, call save_session(session_id, ctx) to persist the session<br>
-            6. Also: update the system prompt to tell Scout that it has context compression and can trust that key facts from earlier in the session survive compression in structured form<br><br>
+            Update agent.py to use ContextManager from memory.py. Scout should accept a session_id, load any existing session at startup (or create a new one), use ctx.add_message() instead of directly appending to messages, compress when should_compress() returns true, and save the session at the end of each run. Update the system prompt to mention that Scout has context compression.<br><br>
             Keep the agent loop structure the same — only add the memory wiring. Don't modify memory.py or tools.py.
           </div>
         </div>

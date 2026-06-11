@@ -959,17 +959,8 @@
           <div class="cc-prompt-block">
             <div class="cc-prompt-label">Claude Code Prompt</div>
             <div class="cc-prompt-body">
-              Create config.py — the single file users edit to customize Scout. It should contain:<br>
-              1. AGENT_NAME: str — default "Scout"<br>
-              2. AGENT_PERSONA: str — a multi-line system prompt for a research assistant, with {agent_name} as a placeholder<br>
-              3. ACTIVE_TOOLS: list[str] — which tools are enabled (default: all four)<br>
-              4. DEEP_RESEARCH_TRIGGERS: list[str] — keywords that trigger deep research mode (currently hardcoded in agent.py)<br>
-              5. HITL_ENABLED: bool — whether to require HITL confirmation for saves (default True)<br>
-              6. SESSION_DIR: Path — where sessions are stored (default "sessions/")<br>
-              7. NOTES_DIR: Path — where notes are stored (default "notes/")<br>
-              8. MODEL: str — which Claude model to use (default "claude-opus-4-7")<br>
-              9. MAX_TURNS: int — max turns per ReAct loop (default 10)<br><br>
-              Only create config.py. Don't modify any other files yet.
+              Create config.py — the single file users edit to customize Scout. It should centralize all hardcoded constants: agent name and persona (with an {agent_name} placeholder in the system prompt), active tools list, deep research trigger keywords, HITL toggle, session and notes directories, model name, and max turns. Include commented-out example personas for common use cases (competitive intelligence, code research, knowledge base).<br><br>
+              Only create config.py. Don't modify other files yet.
             </div>
           </div>
 
@@ -978,13 +969,8 @@
           <div class="cc-prompt-block">
             <div class="cc-prompt-label">Claude Code Prompt — Second</div>
             <div class="cc-prompt-body">
-              Use subagents — one per file — to update these four files in parallel, importing their constants from config.py instead of hardcoding them:<br>
-              - agent.py: import MODEL, MAX_TURNS, SYSTEM (or AGENT_PERSONA), HITL_ENABLED from config<br>
-              - tools.py: import NOTES_DIR from config<br>
-              - guardrails.py: import HITL_ENABLED from config (if referenced)<br>
-              - memory.py: import SESSION_DIR, COMPRESS_THRESHOLD, KEEP_RECENT from config if they exist there<br><br>
-              Each file update is independent — subagents can edit them simultaneously. Keep logic changes minimal: only import changes, no restructuring. If a constant doesn't exist in config.py yet, add it.<br><br>
-              Only modify agent.py, tools.py, guardrails.py, and memory.py — don't touch config.py.
+              Use subagents — one per file — to update agent.py, tools.py, guardrails.py, and memory.py in parallel, importing their hardcoded constants from config.py instead. Each file update is independent — subagents can edit them simultaneously. Keep logic changes minimal: only import substitutions, no restructuring.<br><br>
+              Only modify those four files — don't touch config.py.
             </div>
           </div>
 
@@ -1075,12 +1061,7 @@ SYSTEM = AGENT_PERSONA.format(agent_name=AGENT_NAME)</code></pre></div>
           <div class="cc-prompt-block">
             <div class="cc-prompt-label">Claude Code Prompt</div>
             <div class="cc-prompt-body">
-              Create main.py — a clean CLI entry point for Scout. It should:<br>
-              1. Parse command-line arguments: optional --session flag (default "default"), --deep flag to force deep research mode, and an optional QUESTION positional argument<br>
-              2. If QUESTION is provided, run non-interactively (single query, then exit)<br>
-              3. If no QUESTION, enter an interactive REPL: prompt is "{AGENT_NAME} ({session}) &gt; ", loop until user types "exit", "quit", or presses Ctrl+C<br>
-              4. On startup, print a brief banner: agent name, current session, note count, active tools<br>
-              5. Handle KeyboardInterrupt gracefully with a friendly exit message<br><br>
+              Create main.py — a clean CLI entry point for Scout. Support an optional --session flag, an optional QUESTION positional argument for single-shot mode, and an interactive REPL when no question is given. Print a startup banner with agent name, session, note count, and active tools. Handle Ctrl+C gracefully.<br><br>
               Remove the if __name__ == "__main__" block from agent.py — main.py replaces it entirely.<br><br>
               Only create main.py.
             </div>
@@ -1253,13 +1234,8 @@ python main.py --deep "Landscape of vector database providers in 2026"</code></p
           <div class="cc-prompt-block">
             <div class="cc-prompt-label">Claude Code Prompt — Optional</div>
             <div class="cc-prompt-body">
-              Add a minimal web interface to Scout using FastAPI. Create server.py with:<br>
-              1. A GET / endpoint that serves a simple HTML chat page — use plain HTML, CSS, and JavaScript, no React or build step<br>
-              2. A POST /chat endpoint that accepts {"question": "...", "session": "default"} and streams back Scout's response<br>
-              3. The HTML page: a text input at the bottom, message history scrolling upward, user and assistant messages styled differently<br>
-              4. Wire it to run_scout from agent.py — capture stdout or use a callback to stream tokens if the SDK supports it<br>
-              5. Add fastapi and uvicorn to requirements.txt<br><br>
-              Keep the HTML self-contained in the Python string — no separate template files needed.
+              Add a minimal web interface to Scout using FastAPI. Create server.py with a root endpoint serving a self-contained HTML chat page, and a POST /chat endpoint that accepts a question and session, runs Scout, and returns the response. The HTML page should have message input at the bottom and scrolling history — plain HTML/CSS/JS, no build step or frameworks. Add fastapi and uvicorn to requirements.txt.<br><br>
+              Only create server.py and update requirements.txt.
             </div>
           </div>
 

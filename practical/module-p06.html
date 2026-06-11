@@ -872,9 +872,9 @@
               Create two files in parallel — use subagents for each:<br><br>
               <strong>Subagent 1 — guardrails.py:</strong><br>
               Three functions:<br>
-              1. <code>check_input(text: str) -&gt; dict</code> — returns <code>{"allowed": True}</code> or <code>{"allowed": False, "reason": "...", "code": "..."}</code>. Checks: length over 2000 chars (code: "input_too_long"); injection phrases like "ignore previous instructions", "disregard your", "you are now", "forget everything", "new persona", "act as" (code: "injection_attempt"); jailbreak patterns "DAN", "do anything now", "no restrictions" (code: "jailbreak_attempt"). All case-insensitive.<br>
-              2. <code>check_output(text: str, context: dict = None) -&gt; dict</code> — returns <code>{"allowed": True}</code>. Flag (but allow) outputs over 5000 chars with a "truncated" flag. Warn if output contains SSN patterns, 16-digit credit card sequences, or email addresses.<br>
-              3. <code>require_hitl_for_note(title: str, content: str) -&gt; bool</code> — print a confirmation prompt, return True if user confirms (default yes), False if user types 'n' or 'no'. Add AUTO_CONFIRM env var that bypasses the prompt for testing.<br><br>
+              1. <code>check_input(text: str) -&gt; dict</code> — detect prompt injection attempts, jailbreak patterns, and inputs over 2000 chars. Return <code>{"allowed": True}</code> or <code>{"allowed": False, "reason": "...", "code": "..."}</code> with codes: <code>"input_too_long"</code>, <code>"injection_attempt"</code>, <code>"jailbreak_attempt"</code>.<br>
+              2. <code>check_output(text: str, context: dict = None) -&gt; dict</code> — flag long outputs and PII patterns (SSNs, credit cards, emails) with warnings. Always return <code>{"allowed": True, "warnings": [...]}</code>.<br>
+              3. <code>require_hitl_for_note(title: str, content: str) -&gt; bool</code> — print a confirmation prompt before saving. Return True if confirmed. Support AUTO_CONFIRM env var to bypass for testing.<br><br>
               <strong>Subagent 2 — evals/run_evals.py:</strong><br>
               Create an evals/ directory and evals/run_evals.py. The script runs 10 test cases against Scout and scores each one as PASS/FAIL.<br>
               Test cases:<br>
@@ -1003,12 +1003,8 @@ def require_hitl_for_note(title: str, content: str) -> bool:
           <div class="cc-prompt-block">
             <div class="cc-prompt-label">Claude Code Prompt</div>
             <div class="cc-prompt-body">
-              Update agent.py to use guardrails.py:<br>
-              1. At the top of run_scout, call check_input(question). If not allowed, print an error message and return early without calling the API.<br>
-              2. After each assistant response (when stop_reason == "end_turn"), call check_output on the text response and print any warnings.<br>
-              3. In the tool dispatch for save_note, call require_hitl_for_note(title, content) before actually saving. If the user declines, return {"saved": False, "reason": "declined by user"} instead of saving.<br>
-              Keep changes minimal — just the three guardrail hooks, no restructuring.<br><br>
-              Only modify agent.py — keep the tool functions unchanged.
+              Update agent.py to add three guardrail hooks from guardrails.py: check every input before any API call (block and return early if rejected), check every output before printing it (show any warnings), and wrap save_note to require HITL confirmation before saving. Keep changes minimal — just the three hooks, no restructuring.<br><br>
+              Only modify agent.py.
             </div>
           </div>
 

@@ -894,12 +894,8 @@
           <div class="cc-prompt-block">
             <div class="cc-prompt-label">Claude Code Prompt</div>
             <div class="cc-prompt-body">
-              Set up the Brave Search MCP server for Scout. Do these in order:<br>
-              1. Install: npm install -g @modelcontextprotocol/server-brave-search<br>
-              2. Create .env with: BRAVE_API_KEY=your_key_here<br>
-              3. Create (or update) .gitignore to include: .env, sessions/, notes/<br><br>
-              Don't modify any Python files yet. Show me the .gitignore contents after.<br><br>
-              Only install the package and create/update .env and .gitignore.
+              Set up Brave Search MCP for Scout: install @modelcontextprotocol/server-brave-search via npm, create .env with BRAVE_API_KEY=your_key_here, and update .gitignore to exclude .env, sessions/, and notes/.<br><br>
+              Don't modify any Python files yet. Show me the .gitignore contents after.
             </div>
           </div>
 
@@ -927,16 +923,13 @@ echo ".env\nsessions/\nnotes/" >> .gitignore</code></pre></div>
           <div class="cc-prompt-block">
             <div class="cc-prompt-label">Claude Code Prompt</div>
             <div class="cc-prompt-body">
-              Do these two steps in order:<br><br>
-              Step A — Create mcp_tools.py:<br>
-              1. Load BRAVE_API_KEY from .env using python-dotenv<br>
-              2. Provide async function get_brave_tools() returning the brave_web_search tool definition in Anthropic API format<br>
-              3. Provide async function call_brave_search(query: str, count: int = 5) -&gt; dict that starts the Brave Search MCP server as a subprocess, sends an initialize request then a tools/call request over stdin, and parses stdout<br>
-              4. Add python-dotenv to requirements.txt<br>
-              Use asyncio.create_subprocess_exec — I want to understand the wire protocol directly.<br><br>
-              Step B — Update tools.py:<br>
-              Update web_search in tools.py to use Brave Search when BRAVE_API_KEY is set in the environment, falling back to the stub when not. Import call_brave_search from mcp_tools and use asyncio.run() to call it from the sync web_search function. Add a comment at the top of the function showing which mode is active.<br><br>
-              Only touch mcp_tools.py and tools.py. Keep the web_search function signature identical.
+              Create mcp_tools.py to wrap the Brave Search MCP server:<br><br>
+              - Load BRAVE_API_KEY from .env using python-dotenv<br>
+              - get_brave_tools() — return the brave_web_search tool definition in Anthropic API format<br>
+              - call_brave_search(query: str, count: int = 5) — communicate with the Brave Search MCP server as a subprocess using the MCP JSON-RPC protocol (stdin/stdout). Use asyncio.create_subprocess_exec so the wire protocol is explicit.<br>
+              - Add python-dotenv to requirements.txt<br><br>
+              Then update tools.py: make web_search use Brave Search when BRAVE_API_KEY is set, falling back to the stub when not. Keep the web_search function signature identical.<br><br>
+              Only touch mcp_tools.py and tools.py.
             </div>
           </div>
 

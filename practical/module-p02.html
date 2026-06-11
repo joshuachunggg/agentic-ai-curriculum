@@ -838,11 +838,12 @@
         <div class="cc-prompt-block">
           <div class="cc-prompt-label">Claude Code prompt</div>
           <div class="cc-prompt-body">
-            Update tools.py to add three new tools alongside the existing web_search.<br><br>
-            1. read_url(url: str) — fetches the content of a URL and returns a dict with: url, title (extract from HTML if possible), content (first 3000 chars of visible text, stripped of HTML tags), word_count, and fetched_at timestamp. If the fetch fails for any reason, return a structured error dict with keys: error (string code), url, message, and suggestion. Use the requests library and beautifulsoup4 for parsing. Handle timeouts (10s), HTTP errors, and parsing failures explicitly.<br><br>
-            2. save_note(title: str, content: str, tags: list[str] = None) — saves a note as a JSON file in a notes/ subdirectory. The filename should be a slugified version of the title. Returns a dict with: saved (bool), filename, title, tag_count, and note_id (use a short uuid4). Create the notes/ directory if it doesn't exist.<br><br>
-            3. search_notes(query: str) — reads all JSON files from notes/, does a simple case-insensitive substring search on title + content + tags, and returns a list of matching notes (title, filename, preview of first 200 chars, tags). Returns an empty list if nothing matches, not an error.<br><br>
-            Add all four tools to TOOLS (keep web_search) with complete descriptions. Add requests and beautifulsoup4 to requirements.txt.<br><br>Only touch tools.py and requirements.txt — don't modify other files.
+            In tools.py, add three new tools alongside web_search:<br><br>
+            - read_url(url: str) — fetch and parse a URL's content, returning the title and visible text. Handle network errors, timeouts, and parse failures gracefully.<br>
+            - save_note(title: str, content: str, tags: list[str] = None) — save a note as a JSON file in a notes/ subdirectory (create it if needed). Return confirmation with a unique note ID.<br>
+            - search_notes(query: str) — case-insensitive substring search across all saved notes. Return matching notes with a content preview.<br><br>
+            Update TOOLS with descriptions for all four tools. Add any new dependencies to requirements.txt.<br><br>
+            Only touch tools.py and requirements.txt — don't modify other files.
           </div>
         </div>
 
@@ -1052,7 +1053,8 @@ TOOLS = [
         <div class="cc-prompt-block">
           <div class="cc-prompt-label">Claude Code prompt</div>
           <div class="cc-prompt-body">
-            Update agent.py to handle all four tools from the updated tools.py. The run_scout function needs to dispatch to read_url, save_note, and search_notes in addition to web_search. Also update the system prompt to tell Scout it has all four tools and that it should: (1) always check search_notes first before doing a web_search, in case the topic was already researched; (2) save important findings as notes with meaningful tags. Keep everything else the same.<br><br>Only touch agent.py — don't modify other files.
+            Update agent.py to dispatch all four tools from tools.py. Update Scout's system prompt to tell it: always check search_notes before doing a web_search, and save important findings with meaningful tags. Keep everything else the same.<br><br>
+            Only touch agent.py — don't modify other files.
           </div>
         </div>
 
