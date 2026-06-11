@@ -840,7 +840,7 @@
           <div class="cc-prompt-body">
             In tools.py, add three new tools alongside web_search:<br><br>
             - read_url(url: str) — fetch and parse a URL's content, returning the title and visible text. Handle network errors, timeouts, and parse failures gracefully.<br>
-            - save_note(title: str, content: str, tags: list[str] = None) — save a note as a JSON file in a notes/ subdirectory (create it if needed). Return confirmation with a unique note ID.<br>
+            - save_note(title: str, content: str, tags: list[str] = None) — save a note as a JSON file in a notes/ subdirectory (create it if needed). If a note with the same title already exists, merge the new content into it rather than creating a duplicate. Return confirmation with the note ID.<br>
             - search_notes(query: str) — case-insensitive substring search across all saved notes. Return matching notes with a content preview.<br><br>
             Update TOOLS with descriptions for all four tools. Add any new dependencies to requirements.txt.<br><br>
             Only touch tools.py and requirements.txt — don't modify other files.
@@ -1053,8 +1053,12 @@ TOOLS = [
         <div class="cc-prompt-block">
           <div class="cc-prompt-label">Claude Code prompt</div>
           <div class="cc-prompt-body">
-            Update agent.py to dispatch all four tools from tools.py. Update Scout's system prompt to tell it: always check search_notes before doing a web_search, and save important findings with meaningful tags. Keep everything else the same.<br><br>
-            Only touch agent.py — don't modify other files.
+            Update agent.py to dispatch all four tools from tools.py. Update Scout's system prompt to encode this research workflow:<br><br>
+            1. Always call search_notes first. If a note on this topic already exists and answers the question, respond from it directly — don't re-research.<br>
+            2. If the existing note is relevant but incomplete for this question, do targeted research and save enriched findings under the same note title (which merges them).<br>
+            3. Only do fresh research and create a new note when the topic is genuinely absent from the knowledge base.<br>
+            4. Save notes with meaningful tags to improve future retrieval.<br><br>
+            Keep everything else the same. Only touch agent.py — don't modify other files.
           </div>
         </div>
 
