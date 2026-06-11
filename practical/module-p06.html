@@ -986,10 +986,6 @@ def require_hitl_for_note(title: str, content: str) -> bool:
 
           <p>The <code>INJECTION_PATTERNS</code> list uses a negative lookahead on the "act as" pattern to allow the phrase "act as a research assistant" — which Scout's own system prompt uses — while still blocking adversarial uses. Adjust the exception to match your system prompt wording if you customize it in P07.</p>
 
-          <div class="callout callout-cc-tip">
-            <div class="callout-label">Claude Code Tip</div>
-            <p>Guardrail code is dense with regex patterns and conditional logic. Run <code>/compact</code> before wiring it into agent.py — the summary preserves the function signatures and return format Claude needs without keeping every regex pattern in active context.</p>
-          </div>
         </div>
       </div>
 
