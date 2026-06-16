@@ -829,28 +829,21 @@
       <p>Start fresh for this module: run <code>/clear</code> in Claude Code. Your <code>CLAUDE.md</code> keeps the project context — <code>/clear</code> just wipes the conversation history from the previous module so Claude isn't confused by unrelated context.</p>
     </div>
 
-    <div class="callout callout-cc-tip">
-      <div class="callout-label">You'll need a Brave Search API key</div>
-      <p>Sign up at <strong>brave.com/search/api/</strong> — the free tier includes 2,000 queries per month, more than enough for development. Have the key ready before starting Step 01.</p>
-    </div>
-
     <div class="step-block">
       <div class="step-num">Step 01</div>
       <div class="step-content">
-        <h3>Wire up real web search and add three new tools</h3>
+        <h3>Add three new tools to tools.py</h3>
         <p>Open your <code>scout-agent/</code> directory in Claude Code and give it this prompt:</p>
 
         <div class="cc-prompt-block">
           <div class="cc-prompt-label">Claude Code prompt</div>
           <div class="cc-prompt-body">
-            Update tools.py to replace the web_search stub with a real Brave Search implementation, and add three new tools:<br><br>
-            - web_search(query: str, count: int = 5) — call the Brave Search API (https://api.search.brave.com/res/v1/web/search) using BRAVE_API_KEY from a .env file. Load the key with python-dotenv. Return results as a list of dicts with title, url, snippet, and source. Handle timeout, HTTP errors, and missing key gracefully — if the key is missing, return a structured error explaining how to set it.<br>
+            In tools.py, add three new tools alongside web_search:<br><br>
             - read_url(url: str) — fetch and parse a URL's content, returning the title and visible text. Handle network errors, timeouts, and parse failures gracefully.<br>
             - save_note(title: str, content: str, tags: list[str] = None) — save a note as a JSON file in a notes/ subdirectory (create it if needed). If a note with the same title already exists, merge the new content into it rather than creating a duplicate. Return confirmation with the note ID.<br>
             - search_notes(query: str) — case-insensitive substring search across all saved notes. Return matching notes with a content preview.<br><br>
-            Also create a .env file with BRAVE_API_KEY=your_key_here and add .env, sessions/, and notes/ to .gitignore.<br><br>
-            Update TOOLS with descriptions for all four tools. Add requests, beautifulsoup4, and python-dotenv to requirements.txt.<br><br>
-            Only touch tools.py, requirements.txt, .env, and .gitignore.
+            Update TOOLS with descriptions for all four tools. Add any new dependencies to requirements.txt.<br><br>
+            Only touch tools.py and requirements.txt — don't modify other files.
           </div>
         </div>
 
@@ -860,53 +853,39 @@
 import json
 import os
 import re
+import time
 import uuid
-import requests
 from pathlib import Path
 from datetime import datetime
-from dotenv import load_dotenv
-
-load_dotenv()
 
 NOTES_DIR = Path("notes")
 
-def web_search(query: str, count: int = 5) -> dict:
-    api_key = os.getenv("BRAVE_API_KEY")
-    if not api_key:
-        return {
-            "error": "missing_key",
-            "message": "Set BRAVE_API_KEY in your .env file. Get a free key at brave.com/search/api",
-            "query": query
-        }
-    try:
-        resp = requests.get(
-            "https://api.search.brave.com/res/v1/web/search",
-            headers={
-                "Accept": "application/json",
-                "Accept-Encoding": "gzip",
-                "X-Subscription-Token": api_key
-            },
-            params={"q": query, "count": count},
-            timeout=10
-        )
-        resp.raise_for_status()
-        data = resp.json()
-        results = [
+def web_search(query: str) -> dict:
+    """Stub — returns realistic fake results. Replace with Brave/Serper in P05."""
+    return {
+        "query": query,
+        "results": [
             {
-                "title": r.get("title", ""),
-                "url": r.get("url", ""),
-                "snippet": r.get("description", ""),
-                "source": r.get("meta_url", {}).get("hostname", "")
+                "title": f"Understanding {query}: A Complete Guide",
+                "url": "https://example.com/guide",
+                "snippet": f"A comprehensive overview of {query}, covering key concepts, recent developments...",
+                "source": "example.com"
+            },
+            {
+                "title": f"{query} — Research and Analysis",
+                "url": "https://research.example.com/analysis",
+                "snippet": f"Recent analysis of {query} with practical applications and case studies...",
+                "source": "research.example.com"
+            },
+            {
+                "title": f"How {query} Works: Technical Deep Dive",
+                "url": "https://technical.example.com/deep-dive",
+                "snippet": f"Technical examination of {query}, underlying mechanisms and implementation details...",
+                "source": "technical.example.com"
             }
-            for r in data.get("web", {}).get("results", [])
-        ]
-        return {"query": query, "results": results, "total": len(results)}
-    except requests.exceptions.Timeout:
-        return {"error": "timeout", "message": "Brave Search timed out after 10s", "suggestion": "Retry or narrow your query"}
-    except requests.exceptions.HTTPError as e:
-        return {"error": "http_error", "message": str(e)}
-    except Exception as e:
-        return {"error": "search_error", "message": str(e)}
+        ],
+        "timestamp": time.time()
+    }
 
 def read_url(url: str) -> dict:
     try:
@@ -1127,7 +1106,7 @@ else:
         <h3>Install dependencies and test the full research cycle</h3>
         <p>Install the new dependencies, then run Scout and ask it to research a topic and save what it learns:</p>
 
-        <div class="code-block bash"><pre><code class="language-bash">pip install requests beautifulsoup4 python-dotenv
+        <div class="code-block bash"><pre><code class="language-bash">pip install requests beautifulsoup4
 python agent.py</code></pre></div>
 
         <p>Try: <em>"Research how the Model Context Protocol works and save what you learn."</em> You should see Scout move through all four tools in sequence:</p>
@@ -1156,7 +1135,7 @@ Scout: Here's what I found about MCP...</code></pre></div>
     <div class="section-number">Section 04</div>
     <h2>Under the Hood</h2>
 
-    <p><strong>Why search_notes runs first.</strong> The system prompt instructs Scout to always check its notes before doing a web search. This ordering matters because every <code>web_search</code> call costs an API request. When Scout already has notes on a topic, <code>search_notes</code> returns them instantly at zero cost — no network round-trip, no quota consumed. Returning to a topic you've already researched is faster and cheaper than researching it fresh every time. This is the foundation of agent memory — not a database, not embeddings, just structured files and a well-ordered workflow.</p>
+    <p><strong>Why search_notes runs first.</strong> The system prompt instructs Scout to always check its notes before doing a web search. Right now, with the stub web search, those notes will almost always miss — the stub returns fake results regardless. But when you replace web_search with real Brave Search in P05, this ordering becomes a meaningful optimization: returning to a topic you already researched skips the API call entirely and uses your local knowledge base instead. You're building the habit now so the behavior is in place when it matters. This is the foundation of agent memory — not a database, not embeddings, just structured files and a well-ordered workflow.</p>
 
     <p><strong>The dispatch dict pattern.</strong> Mapping tool names to callable functions is the right architecture for tool routing. Not a chain of <code>if/elif</code> — that's linear in the number of tools, brittle when you rename something, and produces dead code when a tool is removed. The dispatch dict is O(1) lookup, scales cleanly as the tool list grows, and makes the "unknown tool" case trivially explicit: if the name isn't in the dict, return a structured error. This same pattern applies at any scale — you'll see it in production agent frameworks too, usually with some additional validation layer on top of the raw function call.</p>
 
@@ -1196,7 +1175,7 @@ Scout: Here's what I found about MCP...</code></pre></div>
     <div class="section-number">Section 06</div>
     <h2>What Scout Can Do Now</h2>
 
-    <p>Scout is now a complete research loop backed by real web search. It checks what it already knows before reaching for the web. It reads full pages, not just snippets. It saves findings for next time so that returning to a topic costs less than researching it fresh. The tool design, the dispatch pattern, the structured error handling, the note format: all of this carries forward unchanged through the remaining modules. In Module P03, we tackle the next hidden problem: as Scout researches across a long session, the message history grows until the model starts losing the thread. We'll add rolling context compression that keeps the context window lean without losing what matters.</p>
+    <p>Scout is now a research loop. It knows to check what it already knows before reaching for the web. It reads full pages, not just snippets. It saves findings for next time so that returning to a topic costs less than researching it fresh. The four tools are still partially stubbed — <code>web_search</code> returns fake results until P05 — but the architecture is fully real. The tool design, the dispatch pattern, the structured error handling, the note format: all of this carries forward unchanged into the production version. In Module P03, we tackle the next hidden problem: as Scout researches across a long session, the message history grows until the model starts losing the thread. We'll add rolling context compression that keeps the context window lean without losing what matters.</p>
   </div>
 
 </div>

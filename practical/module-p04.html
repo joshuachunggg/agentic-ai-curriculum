@@ -856,7 +856,7 @@
 
     <p>Why MCP matters for the ecosystem is best understood through the alternative. Without it, a Brave Search integration written for Scout would need to be rewritten from scratch to work with a different agent framework, a different language, or a different model provider. With MCP, a tool built once as an MCP server works with any MCP-compatible consumer — Claude Code, your Python agent, any future framework that implements the protocol. The tool investment compounds instead of stacking up as one-off integrations. This is the interoperability layer described in Module 04, and it's practically useful right now: the Brave Search MCP server you install in this module can also be added to Claude Code's config, so Claude Code itself gains that tool for all your sessions.</p>
 
-    <p>Since SDK version 0.40+, the Anthropic Python SDK has built-in support for connecting to MCP servers via <code>MCPServerStdio</code> and related classes. For this module, however, we use a direct subprocess approach to the MCP server — it's more explicit, easier to debug, and works without SDK version dependencies. The pattern is: start the server process, send a JSON-RPC <code>initialize</code> handshake, then send <code>tools/call</code> requests, parse the response. Once you understand the wire protocol, the higher-level SDK abstractions are easy to adopt later.</p>
+    <p>The MCP Python SDK — installed as the <code>mcp</code> package — provides a clean client interface for connecting to any MCP server. The pattern is a <code>ClientSession</code> wrapping a <code>stdio_client</code> context manager: open a pipe to the server process, initialize the session with a handshake, then call tools by name with typed parameters. The SDK handles the JSON-RPC wire format, message framing, and connection lifecycle. What you write is <code>session.call_tool("brave_web_search", {"query": q})</code>; what happens underneath is a JSON-RPC 2.0 exchange over stdio — covered in the Under the Hood section if you want the details.</p>
 
     <div class="callout callout-insight">
       <div class="callout-label">Key Insight</div>
@@ -923,11 +923,11 @@ echo ".env\nsessions/\nnotes/" >> .gitignore</code></pre></div>
           <div class="cc-prompt-block">
             <div class="cc-prompt-label">Claude Code Prompt</div>
             <div class="cc-prompt-body">
-              Create mcp_tools.py to wrap the Brave Search MCP server:<br><br>
+              Create mcp_tools.py to wrap the Brave Search MCP server using the MCP Python SDK:<br><br>
               - Load BRAVE_API_KEY from .env using python-dotenv<br>
               - get_brave_tools() — return the brave_web_search tool definition in Anthropic API format<br>
-              - call_brave_search(query: str, count: int = 5) — communicate with the Brave Search MCP server as a subprocess using the MCP JSON-RPC protocol (stdin/stdout). Use asyncio.create_subprocess_exec so the wire protocol is explicit.<br>
-              - Add python-dotenv to requirements.txt<br><br>
+              - call_brave_search(query: str, count: int = 5) — use the mcp package (ClientSession + stdio_client + StdioServerParameters) to connect to the Brave Search MCP server and call the brave_web_search tool<br>
+              - Add python-dotenv and mcp to requirements.txt<br><br>
               Then update tools.py: make web_search use Brave Search when BRAVE_API_KEY is set, falling back to the stub when not. When using the stub fallback, include <code>_stub: True</code> in the returned dict so callers can detect which mode is active. Keep the web_search function signature identical.<br><br>
               Only touch mcp_tools.py and tools.py.
             </div>
@@ -940,6 +940,9 @@ import os
 import json
 import asyncio
 
+from mcp import ClientSession
+from mcp.client.stdio import stdio_client, StdioServerParameters
+
 try:
     from dotenv import load_dotenv
     load_dotenv()
@@ -948,7 +951,7 @@ except ImportError:
 
 BRAVE_API_KEY = os.getenv("BRAVE_API_KEY", "")
 
-async def get_brave_tools() -> list:
+def get_brave_tools() -> list:
     """Return Brave Search tool definitions in Anthropic tool format."""
     return [
         {
@@ -978,75 +981,35 @@ async def get_brave_tools() -> list:
     ]
 
 async def call_brave_search(query: str, count: int = 5) -> dict:
-    """Call the Brave Search MCP server via subprocess JSON-RPC."""
+    """Call the Brave Search MCP server via the MCP Python SDK."""
     if not BRAVE_API_KEY:
         return {
             "error": "no_api_key",
             "message": "Set BRAVE_API_KEY in .env — get a free key at brave.com/search/api/"
         }
 
-    # MCP JSON-RPC messages
-    init_msg = json.dumps({
-        "jsonrpc": "2.0",
-        "id": 0,
-        "method": "initialize",
-        "params": {
-            "protocolVersion": "2024-11-05",
-            "capabilities": {},
-            "clientInfo": {"name": "scout", "version": "1.0"}
-        }
-    }) + "\n"
-
-    call_msg = json.dumps({
-        "jsonrpc": "2.0",
-        "id": 1,
-        "method": "tools/call",
-        "params": {
-            "name": "brave_web_search",
-            "arguments": {"query": query, "count": count}
-        }
-    }) + "\n"
+    server = StdioServerParameters(
+        command="npx",
+        args=["-y", "@modelcontextprotocol/server-brave-search"],
+        env={**os.environ, "BRAVE_API_KEY": BRAVE_API_KEY}
+    )
 
     try:
-        proc = await asyncio.create_subprocess_exec(
-            "npx", "-y", "@modelcontextprotocol/server-brave-search",
-            stdin=asyncio.subprocess.PIPE,
-            stdout=asyncio.subprocess.PIPE,
-            stderr=asyncio.subprocess.DEVNULL,
-            env={**os.environ, "BRAVE_API_KEY": BRAVE_API_KEY}
-        )
+        async with stdio_client(server) as (read, write):
+            async with ClientSession(read, write) as session:
+                await session.initialize()
+                result = await session.call_tool(
+                    "brave_web_search",
+                    {"query": query, "count": count}
+                )
+                if result.content and result.content[0].type == "text":
+                    return json.loads(result.content[0].text)
+                return {"error": "empty_response", "message": "No content returned"}
 
-        stdout, _ = await asyncio.wait_for(
-            proc.communicate(input=(init_msg + call_msg).encode()),
-            timeout=15.0
-        )
+    except Exception as e:
+        return {"error": "mcp_error", "message": str(e)}</code></pre></div>
 
-        # Parse lines, find the response with id=1
-        for line in reversed(stdout.decode().split("\n")):
-            line = line.strip()
-            if not line:
-                continue
-            try:
-                data = json.loads(line)
-                if data.get("id") == 1:
-                    result = data.get("result", {})
-                    content = result.get("content", [])
-                    if content and content[0].get("type") == "text":
-                        return json.loads(content[0]["text"])
-            except (json.JSONDecodeError, KeyError):
-                continue
-
-        return {"error": "parse_error", "message": "Could not parse MCP server response"}
-
-    except asyncio.TimeoutError:
-        return {"error": "timeout", "message": "MCP server did not respond within 15 seconds"}
-    except FileNotFoundError:
-        return {
-            "error": "not_installed",
-            "message": "npx not found — install Node.js and run: npm install -g @modelcontextprotocol/server-brave-search"
-        }</code></pre></div>
-
-          <p>The <code>asyncio.wait_for</code> timeout wrapper is important: without it, a hung server process will block your agent indefinitely. 15 seconds is generous for a search request; reduce it to 8 seconds in production.</p>
+          <p><code>stdio_client</code> launches the server subprocess and returns a read/write pair. <code>ClientSession</code> handles the JSON-RPC handshake on <code>initialize()</code> and serializes <code>call_tool()</code> into the correct wire format. Both context managers clean up the process on exit — no manual process management needed.</p>
         </div>
       </div>
 
@@ -1101,7 +1064,7 @@ Sources: https://blog.langchain.dev/langgraph-0-3 · https://microsoft.github.io
 
     <p><strong>The stub-to-real upgrade pattern:</strong> Nothing in <code>agent.py</code>, the ReAct loop, or the subagent architecture changed in this module. Only the implementation of <code>web_search</code> changed. This is the payoff of the tool design from Module P02 — tools as swappable implementations behind a stable interface. The agent dispatches to <code>web_search(query=...)</code>; it has no knowledge of whether that call hits Brave or returns fake data. This interface boundary is where the upgrade happened. When you need to swap Brave for a different provider, the change is local to <code>mcp_tools.py</code> and the <code>web_search</code> function — nowhere else.</p>
 
-    <p><strong>MCP protocol basics — JSON-RPC 2.0 over stdio:</strong> Every MCP interaction follows the same two-phase pattern. First: an <code>initialize</code> request where the client announces the protocol version and its capabilities; the server responds with its own capabilities. Second: a sequence of <code>tools/call</code> requests, each with a tool name and typed arguments, each returning a structured result. The server runs as a subprocess and communicates exclusively via stdin/stdout — there's no port to open, no service to run, no daemon. The server starts when you need it and the process exits when the pipe closes. This is why local MCP servers work in sandboxed environments and require no network configuration.</p>
+    <p><strong>What the MCP SDK does for you — JSON-RPC 2.0 over stdio:</strong> Every MCP interaction follows the same two-phase pattern. First: an <code>initialize</code> handshake where the client announces the protocol version and its capabilities; the server responds with its own. Second: a sequence of <code>tools/call</code> requests, each with a tool name and typed arguments, each returning a structured result. <code>ClientSession.initialize()</code> handles the first phase; <code>session.call_tool()</code> handles the second. Under the hood both are JSON-RPC 2.0 messages serialized to stdin and read from stdout. You don't write any of that — the SDK does. The server runs as a subprocess managed by <code>stdio_client</code>: no port to open, no daemon, no network configuration. It starts when you enter the context manager and the process exits when you leave it.</p>
 
     <p><strong>Async in a sync codebase:</strong> <code>asyncio.run()</code> in a synchronous function works correctly when there is no active event loop in the current thread — which is the case when <code>web_search</code> is called from Scout's synchronous ReAct loop. The problem arises if <code>web_search</code> is ever called from within an already-running async context. In that case <code>asyncio.run()</code> raises <code>RuntimeError: This event loop is already running</code>. The fix is to call <code>web_search</code> via <code>await asyncio.to_thread(web_search, query)</code> from async code. You'll encounter this concretely in P05 when the Searcher subagent calls <code>web_search</code> from inside an async function — <code>asyncio.to_thread</code> is the bridge. For a fully clean codebase, the right long-term move is to make <code>web_search</code> itself async and update all callers. For now, the warning message and fallback to stub is an acceptable bridge.</p>
 
