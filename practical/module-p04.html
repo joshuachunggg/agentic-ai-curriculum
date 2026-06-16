@@ -784,11 +784,11 @@
     <div class="hero-eyebrow">Build Your Agent · Practical Workshop</div>
     <div class="module-badge">MODULE P04</div>
     <h1>Deep Research Mode</h1>
-    <p class="hero-sub">Some questions deserve more than a single loop. Scout learns to spawn parallel subagents — a Searcher and a Synthesizer — and orchestrate them into a structured research report.</p>
+    <p class="hero-sub">Some questions deserve more than a single loop. This module builds Scout's subagent architecture — a Searcher and a Synthesizer — that will power deep research mode once real search is in place in P05.</p>
     <div class="hero-meta">
       <div class="meta-item">
         <span class="meta-label">Time</span>
-        <span class="meta-value">~50 min</span>
+        <span class="meta-value">~30 min</span>
       </div>
       <div class="meta-item">
         <span class="meta-label">Backed by</span>
@@ -798,7 +798,7 @@
       </div>
       <div class="meta-item">
         <span class="meta-label">Scout gains</span>
-        <span class="meta-value">Parallel subagents, deep research mode</span>
+        <span class="meta-value">Parallel subagents (Searcher + Synthesizer)</span>
       </div>
     </div>
   </div>
@@ -833,7 +833,7 @@
 
     <p>When you ask Scout "what's the capital of France?" it should answer immediately — no need to search, no need for a pipeline. But when you ask "give me a comprehensive analysis of the competitive landscape in enterprise AI tooling," that's a fundamentally different kind of request. It requires exploring multiple angles, reading multiple sources, and synthesizing potentially conflicting information into a coherent picture. A single linear ReAct loop isn't the right tool for that. It processes one thought at a time, and thoroughness is serial.</p>
 
-    <p>This module adds a "deep research mode." When Scout detects a complex research request, it spawns two parallel subagents: a Searcher that finds and reads multiple sources, and a Synthesizer that turns those raw findings into a structured report. Scout acts as the orchestrator — it decides when to go deep, delegates the work, and assembles the final output. The ReAct loop stays exactly as it is. You're adding a second mode of execution, not replacing the first.</p>
+    <p>This module builds the subagent infrastructure: a Searcher that finds and reads multiple sources, and a Synthesizer that turns raw findings into a structured report. You'll build and verify <code>subagents.py</code> — the complete two-agent pipeline. The routing that connects this pipeline to <code>agent.py</code> comes in P05, after real web search is in place. A deep research mode built on stub data produces empty reports; wiring the routing on real results produces real value.</p>
   </div>
 
   <div class="section-divider"></div>
@@ -1063,119 +1063,6 @@ async def run_deep_research(
         </div>
       </div>
 
-      <!-- Step 2 -->
-      <div class="step-block">
-        <div class="step-num">Step 02</div>
-        <div class="step-content">
-          <h3>Add deep research detection to agent.py</h3>
-          <p>Now update the main agent loop to detect complex research requests and route them to the subagent pipeline:</p>
-
-          <div class="cc-prompt-block">
-            <div class="cc-prompt-label">Claude Code Prompt</div>
-            <div class="cc-prompt-body">
-              Update agent.py to detect deep research requests and route them to run_deep_research from subagents.py. Use a keyword heuristic to detect when depth is needed (words like "comprehensive", "analysis", "compare", "in-depth", "thorough"). When triggered: (1) print the mode banner, (2) run the subagent pipeline, (3) format the result into a readable report and print it to stdout under a "Scout (deep research):" header, (4) save the formatted report as a note, (5) return without entering the ReAct loop. All other questions go through the existing loop unchanged.<br><br>
-              When routing to deep research, print: <code>  [mode: deep research — spawning subagents]</code><br><br>
-              Only modify agent.py — don't touch subagents.py.
-            </div>
-          </div>
-
-          <p>Claude Code will add detection logic and a routing branch. The additions look like this:</p>
-
-          <div class="code-block"><pre><code class="language-python"># Additions to agent.py
-
-import asyncio
-from subagents import run_deep_research
-
-DEEP_RESEARCH_TRIGGERS = [
-    "comprehensive", "in depth", "in-depth", "thorough", "detailed analysis",
-    "compare", "landscape", "overview of", "everything about", "full report on",
-    "research", "analyze"
-]
-
-def is_deep_research_request(question: str) -> bool:
-    q = question.lower()
-    return any(trigger in q for trigger in DEEP_RESEARCH_TRIGGERS)
-
-def format_deep_research_result(result: dict) -> str:
-    synth = result.get("synthesizer", {})
-    lines = [
-        f"## {result['topic']}",
-        f"\n{synth.get('summary', '')}",
-        "\n**Key findings:**"
-    ]
-    for finding in synth.get("key_findings", []):
-        lines.append(f"  * {finding}")
-
-    sources = synth.get("sources_cited", [])
-    if sources:
-        lines.append(f"\n**Sources:** {', '.join(sources)}")
-
-    lines.append(f"\n*Confidence: {synth.get('confidence', 'unknown')}*")
-    return "\n".join(lines)
-
-# In run_scout, BEFORE the main ReAct loop:
-def run_scout(question: str, ctx: dict = None) -> dict:
-    ctx = ctx or {}
-
-    if is_deep_research_request(question):
-        print("  [mode: deep research — spawning subagents]\n")
-        result = asyncio.run(run_deep_research(question, client, MODEL))
-        formatted = format_deep_research_result(result)
-        print(f"\nScout (deep research):\n{formatted}")
-        # Persist to notes automatically
-        save_note(
-            title=f"Deep Research: {question[:60]}",
-            content=formatted,
-            tags=["deep-research", "auto-generated"]
-        )
-        return ctx
-
-    # ... existing ReAct loop for normal questions ...</code></pre></div>
-
-          <p>The routing logic is intentionally crude — keyword matching, not a classification model. That's by design for now. Section 4 explains when and how to upgrade it.</p>
-        </div>
-      </div>
-
-      <!-- Step 3 -->
-      <div class="step-block">
-        <div class="step-num">Step 03</div>
-        <div class="step-content">
-          <h3>Test deep research mode</h3>
-          <p>Run Scout and ask it a question that triggers deep research mode:</p>
-
-          <div class="code-block bash"><pre><code class="language-bash">python agent.py
-# Ask: "Give me a comprehensive analysis of how vector databases work"</code></pre></div>
-
-          <p>You should see Scout print the mode switch, both subagent completion messages, and then the formatted report:</p>
-
-          <div class="output-block">
-<span class="out-dim">Ask Scout: </span><span class="out-scout">Give me a comprehensive analysis of how vector databases work</span>
-
-<span class="out-label">  [mode: deep research — spawning subagents]</span>
-
-<span class="out-dim">  [deep research] spawning Searcher + Synthesizer for: Give me a comprehensive analysis...</span>
-<span class="out-dim">  [searcher] found 4 sources</span>
-<span class="out-dim">  [synthesizer] confidence: high</span>
-
-<span class="out-label">Scout (deep research):</span>
-<span class="out-scout">## Give me a comprehensive analysis of how vector databases work</span>
-
-<span class="out-result">Vector databases store data as high-dimensional vectors — numerical representations of meaning derived from embedding models. Unlike relational databases that match on exact values, vector databases retrieve by semantic similarity, making them the backbone of RAG systems, recommendation engines, and semantic search applications...</span>
-
-<span class="out-result">**Key findings:**
-  * HNSW (Hierarchical Navigable Small World) is the dominant indexing algorithm — trades recall for speed
-  * Pinecone, Weaviate, Qdrant, and pgvector serve different scale and latency tradeoffs
-  * Embedding quality upstream determines retrieval quality downstream
-  * Hybrid search (vector + BM25) outperforms pure vector search on most benchmarks</span>
-
-<span class="out-result">**Sources:** https://example.com/guide, https://research.example.com/analysis</span>
-<span class="out-dim">*Confidence: high*</span>
-          </div>
-
-          <p>Then confirm that simple questions still use the ReAct loop — ask "what's the Anthropic API rate limit?" and verify you do <em>not</em> see the <code>[mode: deep research]</code> message.</p>
-        </div>
-      </div>
-
     </div><!-- end step-list -->
   </div>
 
@@ -1192,7 +1079,6 @@ def run_scout(question: str, ctx: dict = None) -> dict:
 
     <p><strong>JSON output and the fallback pattern:</strong> The system prompt instructs each subagent to output only valid JSON. This works well — language models have strong formatting compliance when given explicit schema instructions. But it's not perfectly reliable. Network errors, mid-stream truncation, or edge-case reasoning can produce malformed output. Always wrap <code>json.loads</code> in a <code>try/except json.JSONDecodeError</code> and have a fallback that wraps the raw text in the expected schema shape. The fallback here sets <code>raw_findings</code> or <code>summary</code> to the unparsed text and leaves structured fields empty — enough for the orchestrator to assemble something useful rather than crash.</p>
 
-    <p><strong>The detection heuristic and when to upgrade it:</strong> Keyword matching is crude but fast and costs nothing. For 80% of real queries, it works correctly. The failure modes are false positives (a casual question that happens to contain "analysis") and false negatives (a complex research request phrased without any trigger words). A better approach is to add a lightweight classification step before the main loop: send the question to a cheaper model and ask "is this a deep research request that requires reading multiple sources? Answer yes or no." This costs one small API call but dramatically improves routing accuracy. Start with keyword matching; upgrade to classification if you find the heuristic routing is producing poor results in practice.</p>
   </div>
 
   <div class="section-divider"></div>
@@ -1205,11 +1091,10 @@ def run_scout(question: str, ctx: dict = None) -> dict:
     <div class="callout callout-checkpoint">
       <div class="callout-label">Verify these pass</div>
       <ul>
-        <li>Ask "Give me a comprehensive analysis of X" — see the <code>[mode: deep research]</code> message trigger</li>
-        <li>Both Searcher and Synthesizer complete and print their status lines</li>
-        <li>The formatted result is saved to <code>notes/</code> automatically with the <code>deep-research</code> tag</li>
-        <li>Ask a simple question ("what is a transformer?") — confirm it uses the normal ReAct loop with no deep research message</li>
-        <li>Total time for a deep research request is longer than a normal request but produces a structured, multi-section report</li>
+        <li>Run <code>python -c "from subagents import run_searcher, run_synthesizer, run_deep_research; print('OK')"</code> — no import errors</li>
+        <li>Searcher has <code>web_search</code> and <code>read_url</code> in its tool list; Synthesizer has no tools</li>
+        <li>Both subagents output JSON only — no conversational text in their system prompts</li>
+        <li><code>run_deep_research</code> runs Searcher first, passes its output to Synthesizer, returns a combined dict</li>
       </ul>
     </div>
   </div>
@@ -1221,7 +1106,7 @@ def run_scout(question: str, ctx: dict = None) -> dict:
     <div class="section-number">Section 06</div>
     <h2>What Scout can do now</h2>
 
-    <p>Scout now has two modes of execution: quick answers via the ReAct loop, and deep reports via the orchestrator-subagent pipeline. This routing layer — a simple function that looks at the question and decides which execution path to use — is the architecture that powers most production research agents. The next module replaces the fake web_search stub with real Brave Search via MCP, so every source Scout finds and every fact it reports will be drawn from the live web.</p>
+    <p>Scout now has a complete subagent pipeline: a Searcher that finds and reads sources, a Synthesizer that produces structured reports, and an orchestrator function that coordinates them. The pipeline isn't wired into <code>agent.py</code> yet — that happens in P05 after real search is in place. The next module replaces the stub with real Brave Search via MCP, then connects the routing so deep research queries hit real sources and produce real reports.</p>
 
     <a href="module-p05.html" class="next-module">
       <div>
