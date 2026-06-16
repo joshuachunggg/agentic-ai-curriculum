@@ -1073,7 +1073,7 @@ async def run_deep_research(
           <div class="cc-prompt-block">
             <div class="cc-prompt-label">Claude Code Prompt</div>
             <div class="cc-prompt-body">
-              Update agent.py to detect deep research requests and route them to run_deep_research from subagents.py. Use a keyword heuristic to detect when depth is needed (words like "comprehensive", "analysis", "compare", "in-depth", "thorough"). When triggered, save the result as a note and return it directly — skip the ReAct loop. All other questions go through the existing loop unchanged.<br><br>
+              Update agent.py to detect deep research requests and route them to run_deep_research from subagents.py. Use a keyword heuristic to detect when depth is needed (words like "comprehensive", "analysis", "compare", "in-depth", "thorough"). When triggered: (1) print the mode banner, (2) run the subagent pipeline, (3) format the result into a readable report and print it to stdout under a "Scout (deep research):" header, (4) save the formatted report as a note, (5) return without entering the ReAct loop. All other questions go through the existing loop unchanged.<br><br>
               When routing to deep research, print: <code>  [mode: deep research — spawning subagents]</code><br><br>
               Only modify agent.py — don't touch subagents.py.
             </div>
