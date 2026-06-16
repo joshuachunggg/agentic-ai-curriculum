@@ -785,11 +785,11 @@
     <div class="hero-eyebrow">Build Your Agent · Practical Workshop</div>
     <div class="module-badge">MODULE P05</div>
     <h1>Real Connections with MCP</h1>
-    <p class="hero-sub">Scout's search has been returning fake data since module one. That changes now. This module connects Scout to the real web via Brave Search MCP — then wires in the deep research routing built in P04, so subagents run on real results for the first time.</p>
+    <p class="hero-sub">Scout can search the web and save notes — but it can't read files from your project. This module connects Scout to your local workspace via the MCP filesystem server, adding file read and directory listing as first-class tools.</p>
     <div class="hero-meta">
       <div class="meta-item">
         <span class="meta-label">Time</span>
-        <span class="meta-value">~60 min</span>
+        <span class="meta-value">~45 min</span>
       </div>
       <div class="meta-item">
         <span class="meta-label">Backed by</span>
@@ -805,7 +805,7 @@
       </div>
       <div class="meta-item">
         <span class="meta-label">Scout gains</span>
-        <span class="meta-value">Real web search via Brave Search MCP, deep research mode</span>
+        <span class="meta-value">Workspace file access via filesystem MCP</span>
       </div>
     </div>
   </div>
@@ -819,15 +819,15 @@
   <div class="scout-state">
     <div class="scout-state-label">Scout after P05</div>
     <div class="scout-caps">
-      <span class="scout-cap active">web_search (REAL)</span>
+      <span class="scout-cap active">web_search</span>
       <span class="scout-cap active">read_url</span>
       <span class="scout-cap active">save_note</span>
       <span class="scout-cap active">search_notes</span>
       <span class="scout-cap active">context_compression</span>
       <span class="scout-cap active">persistent_sessions</span>
       <span class="scout-cap active">subagents</span>
-      <span class="scout-cap active">deep_research</span>
-      <span class="scout-cap active">MCP_tools</span>
+      <span class="scout-cap active">read_workspace_file</span>
+      <span class="scout-cap active">list_workspace</span>
       <span class="scout-cap locked">guardrails</span>
       <span class="scout-cap locked">evals</span>
       <span class="scout-cap locked">deployment</span>
@@ -839,9 +839,11 @@
     <div class="section-number">Section 01</div>
     <h2>What we're building</h2>
 
-    <p>Scout's <code>web_search</code> has been returning fabricated data since module one. Every result has been plausible-looking fiction: realistic-sounding URLs, generic snippets, fake sources. That was useful for building and testing the loop without needing API keys — but it means every note Scout has saved, every source it has cited, every fact it has reported has been invented. In this module we fix that. After this module, Scout does real research on real information.</p>
+    <p>Scout can already search the web and save notes — but every piece of information it works with comes from the web. It has no way to read a file you point it to: a spec doc, a codebase, a report. If you tell Scout "analyze this design document" or "review my agent.py," it can't do it — there's no tool for file access.</p>
 
-    <p>You'll install the Brave Search MCP server, configure it for Scout, and update the tool dispatch to use it. Then, with real search in place, you'll wire the deep research routing built in P04 into <code>agent.py</code> — for the first time, the Searcher and Synthesizer subagents will run on actual web results. The ReAct loop doesn't change. The subagent architecture from P04 doesn't change. Only the tools change — which is exactly the payoff of the design decision made in module P02, when tools were defined as swappable implementations behind a stable interface.</p>
+    <p>This module adds workspace file access via the MCP filesystem server. You'll install one MCP server, create <code>mcp_filesystem.py</code> to wrap it, and add two new tools: <code>read_workspace_file</code> and <code>list_workspace</code>. The ReAct loop doesn't change. The tool dispatch doesn't change. Only the tool list grows.</p>
+
+    <p>The MCP filesystem server exposes <code>read_file</code>, <code>write_file</code>, <code>list_directory</code>, and <code>search_files</code> — standard file operations via the same JSON-RPC protocol used by every MCP server. We'll use <code>read_file</code> and <code>list_directory</code>, giving Scout enough to read any file in the workspace and discover what's available.</p>
   </div>
 
   <div class="section-divider"></div>
@@ -855,7 +857,7 @@
 
     <p>Technically, an MCP server is a process that implements the MCP protocol. It exposes a <code>tools/list</code> endpoint (here are the tools I have) and a <code>tools/call</code> endpoint (call this tool with these parameters). The agent discovers what's available, then invokes tools by name with typed parameters. The server handles execution and returns structured results. Communication happens over stdio for local servers — the server is a subprocess, your agent pipes JSON-RPC messages into its stdin and reads results from its stdout. For remote servers the transport is HTTP+SSE, but the protocol is identical.</p>
 
-    <p>Why MCP matters for the ecosystem is best understood through the alternative. Without it, a Brave Search integration written for Scout would need to be rewritten from scratch to work with a different agent framework, a different language, or a different model provider. With MCP, a tool built once as an MCP server works with any MCP-compatible consumer — Claude Code, your Python agent, any future framework that implements the protocol. The tool investment compounds instead of stacking up as one-off integrations. This is the interoperability layer described in Module 04, and it's practically useful right now: the Brave Search MCP server you install in this module can also be added to Claude Code's config, so Claude Code itself gains that tool for all your sessions.</p>
+    <p>Why MCP matters for the ecosystem is best understood through the alternative. Without it, a filesystem integration written for Scout would need to be rewritten from scratch to work with a different agent framework, a different language, or a different model provider. With MCP, a tool built once as an MCP server works with any MCP-compatible consumer — Claude Code, your Python agent, any future framework. The tool investment compounds instead of stacking up as one-off integrations.</p>
 
     <p>Since SDK version 0.40+, the Anthropic Python SDK has built-in support for connecting to MCP servers via <code>MCPServerStdio</code> and related classes. For this module, however, we use a direct subprocess approach to the MCP server — it's more explicit, easier to debug, and works without SDK version dependencies. The pattern is: start the server process, send a JSON-RPC <code>initialize</code> handshake, then send <code>tools/call</code> requests, parse the response. Once you understand the wire protocol, the higher-level SDK abstractions are easy to adopt later.</p>
 
@@ -866,7 +868,7 @@
 
     <div class="callout callout-example">
       <div class="callout-label">MCP in Claude Code</div>
-      <p>When you add an MCP server to Claude Code's configuration, Claude Code's built-in agent gains that tool for all sessions — automatically, for any task where it's relevant. The same Brave Search MCP server you configure for Scout today can be added to <code>~/.claude/claude_desktop_config.json</code> so Claude Code can also search the web during coding sessions. One MCP server, many consumers, zero additional integration code.</p>
+      <p>When you add an MCP server to Claude Code's configuration, Claude Code's built-in agent gains that tool for all sessions — automatically, for any task where it's relevant. The same filesystem MCP server you configure for Scout today can be added to <code>~/.claude/claude_desktop_config.json</code> — Claude Code gains workspace file awareness for all your sessions. One MCP server, many consumers, zero additional integration code.</p>
     </div>
   </div>
 
@@ -889,28 +891,25 @@
       <div class="step-block">
         <div class="step-num">Step 01</div>
         <div class="step-content">
-          <h3>Install Brave Search MCP server</h3>
-          <p>Give Claude Code this prompt to set up the Brave Search MCP server and walk you through the API key process:</p>
+          <h3>Install filesystem MCP server</h3>
+          <p>Give Claude Code this prompt to install the filesystem MCP server:</p>
 
           <div class="cc-prompt-block">
             <div class="cc-prompt-label">Claude Code Prompt</div>
             <div class="cc-prompt-body">
-              Set up Brave Search MCP for Scout: install @modelcontextprotocol/server-brave-search via npm, create .env with BRAVE_API_KEY=your_key_here, and update .gitignore to exclude .env, sessions/, and notes/.<br><br>
-              Don't modify any Python files yet. Show me the .gitignore contents after.
+              Set up the filesystem MCP server for Scout: install @modelcontextprotocol/server-filesystem via npm. Update .gitignore to exclude sessions/ and notes/ if not already there.<br><br>
+              Don't modify any Python files yet. Show me the result of: npx @modelcontextprotocol/server-filesystem --version
             </div>
           </div>
 
-          <p>Claude Code will run the install and create the env file. The commands it runs:</p>
+          <p>Claude Code will run the install. The core command:</p>
 
-          <div class="code-block bash"><pre><code class="language-bash">npm install -g @modelcontextprotocol/server-brave-search
+          <div class="code-block bash"><pre><code class="language-bash">npm install -g @modelcontextprotocol/server-filesystem</code></pre></div>
 
-# Create .env with placeholder
-echo "BRAVE_API_KEY=your_key_here" > .env
-
-# Create/update .gitignore
-echo ".env\nsessions/\nnotes/" >> .gitignore</code></pre></div>
-
-          <p>To get a real API key: sign up at <strong>brave.com/search/api/</strong> — the free tier includes 2,000 queries per month, which is more than enough for development and testing. Once you have the key, replace <code>your_key_here</code> in <code>.env</code> with the actual key.</p>
+          <div class="callout callout-insight">
+            <div class="callout-label">Note</div>
+            <p>No API key needed — the filesystem server is local. <code>SCOUT_WORKSPACE</code> defaults to the current directory; you can set it as an env var to restrict access to a subdirectory.</p>
+          </div>
         </div>
       </div>
 
@@ -918,78 +917,35 @@ echo ".env\nsessions/\nnotes/" >> .gitignore</code></pre></div>
       <div class="step-block">
         <div class="step-num">Step 02</div>
         <div class="step-content">
-          <h3>Create mcp_tools.py</h3>
-          <p>This file wraps the Brave Search MCP server in a clean Python interface:</p>
+          <h3>Create mcp_filesystem.py</h3>
+          <p>This file wraps the filesystem MCP server in a clean Python interface:</p>
 
           <div class="cc-prompt-block">
             <div class="cc-prompt-label">Claude Code Prompt</div>
             <div class="cc-prompt-body">
-              Create mcp_tools.py to wrap the Brave Search MCP server:<br><br>
-              - Load BRAVE_API_KEY from .env using python-dotenv<br>
-              - get_brave_tools() — return the brave_web_search tool definition in Anthropic API format<br>
-              - call_brave_search(query: str, count: int = 5) — communicate with the Brave Search MCP server as a subprocess using the MCP JSON-RPC protocol (stdin/stdout). Use asyncio.create_subprocess_exec so the wire protocol is explicit.<br>
-              - Add python-dotenv to requirements.txt<br><br>
-              Then update tools.py: make web_search use Brave Search when BRAVE_API_KEY is set, falling back to the stub when not. When using the stub fallback, include <code>_stub: True</code> in the returned dict so callers can detect which mode is active. Keep the web_search function signature identical.<br><br>
-              Only touch mcp_tools.py and tools.py.
+              Create mcp_filesystem.py to wrap the @modelcontextprotocol/server-filesystem MCP server:<br><br>
+              - WORKSPACE = Path(os.getenv("SCOUT_WORKSPACE", ".")).resolve() — the root the server is allowed to access<br>
+              - call_filesystem(method: str, arguments: dict) — async function that starts the server as a subprocess (npx -y @modelcontextprotocol/server-filesystem &lt;WORKSPACE&gt;), sends initialize + tools/call JSON-RPC messages via stdin/stdout, returns the parsed result. Use asyncio.create_subprocess_exec, asyncio.wait_for with a 10s timeout.<br>
+              - read_workspace_file(path: str) — sync wrapper: validates path doesn't escape WORKSPACE, calls asyncio.run(call_filesystem("read_file", {"path": ...})), returns {"path": path, "content": text[:5000], "chars": len(text)} or a structured error dict.<br>
+              - list_workspace(directory: str = ".") — sync wrapper: validates path, calls asyncio.run(call_filesystem("list_directory", {"path": ...})), returns {"directory": directory, "listing": text}.<br><br>
+              Only create mcp_filesystem.py.
             </div>
           </div>
 
           <p>Claude Code will generate a file close to this:</p>
 
-          <div class="code-block"><pre><code class="language-python"># mcp_tools.py
+          <div class="code-block-label">mcp_filesystem.py</div>
+          <div class="code-block"><pre><code class="language-python"># mcp_filesystem.py
 import os
 import json
 import asyncio
+from pathlib import Path
 
-try:
-    from dotenv import load_dotenv
-    load_dotenv()
-except ImportError:
-    pass
+WORKSPACE = Path(os.getenv("SCOUT_WORKSPACE", ".")).resolve()
 
-BRAVE_API_KEY = os.getenv("BRAVE_API_KEY", "")
-
-async def get_brave_tools() -> list:
-    """Return Brave Search tool definitions in Anthropic tool format."""
-    return [
-        {
-            "name": "brave_web_search",
-            "description": (
-                "Search the real web using Brave Search. Returns current results "
-                "with titles, URLs, snippets, and publication dates. Use for any "
-                "topic requiring up-to-date information. Specific queries return "
-                "better results than vague ones."
-            ),
-            "input_schema": {
-                "type": "object",
-                "properties": {
-                    "query": {
-                        "type": "string",
-                        "description": "Search query. Be specific."
-                    },
-                    "count": {
-                        "type": "integer",
-                        "description": "Number of results to return (1-10, default 5)",
-                        "default": 5
-                    }
-                },
-                "required": ["query"]
-            }
-        }
-    ]
-
-async def call_brave_search(query: str, count: int = 5) -> dict:
-    """Call the Brave Search MCP server via subprocess JSON-RPC."""
-    if not BRAVE_API_KEY:
-        return {
-            "error": "no_api_key",
-            "message": "Set BRAVE_API_KEY in .env — get a free key at brave.com/search/api/"
-        }
-
-    # MCP JSON-RPC messages
+async def call_filesystem(method: str, arguments: dict) -> dict:
     init_msg = json.dumps({
-        "jsonrpc": "2.0",
-        "id": 0,
+        "jsonrpc": "2.0", "id": 0,
         "method": "initialize",
         "params": {
             "protocolVersion": "2024-11-05",
@@ -999,30 +955,24 @@ async def call_brave_search(query: str, count: int = 5) -> dict:
     }) + "\n"
 
     call_msg = json.dumps({
-        "jsonrpc": "2.0",
-        "id": 1,
+        "jsonrpc": "2.0", "id": 1,
         "method": "tools/call",
-        "params": {
-            "name": "brave_web_search",
-            "arguments": {"query": query, "count": count}
-        }
+        "params": {"name": method, "arguments": arguments}
     }) + "\n"
 
     try:
         proc = await asyncio.create_subprocess_exec(
-            "npx", "-y", "@modelcontextprotocol/server-brave-search",
+            "npx", "-y", "@modelcontextprotocol/server-filesystem", str(WORKSPACE),
             stdin=asyncio.subprocess.PIPE,
             stdout=asyncio.subprocess.PIPE,
-            stderr=asyncio.subprocess.DEVNULL,
-            env={**os.environ, "BRAVE_API_KEY": BRAVE_API_KEY}
+            stderr=asyncio.subprocess.DEVNULL
         )
 
         stdout, _ = await asyncio.wait_for(
             proc.communicate(input=(init_msg + call_msg).encode()),
-            timeout=15.0
+            timeout=10.0
         )
 
-        # Parse lines, find the response with id=1
         for line in reversed(stdout.decode().split("\n")):
             line = line.strip()
             if not line:
@@ -1030,24 +980,47 @@ async def call_brave_search(query: str, count: int = 5) -> dict:
             try:
                 data = json.loads(line)
                 if data.get("id") == 1:
-                    result = data.get("result", {})
-                    content = result.get("content", [])
+                    content = data.get("result", {}).get("content", [])
                     if content and content[0].get("type") == "text":
-                        return json.loads(content[0]["text"])
+                        return {"text": content[0]["text"]}
             except (json.JSONDecodeError, KeyError):
                 continue
 
         return {"error": "parse_error", "message": "Could not parse MCP server response"}
 
     except asyncio.TimeoutError:
-        return {"error": "timeout", "message": "MCP server did not respond within 15 seconds"}
+        return {"error": "timeout", "message": "Filesystem MCP server timed out"}
     except FileNotFoundError:
         return {
             "error": "not_installed",
-            "message": "npx not found — install Node.js and run: npm install -g @modelcontextprotocol/server-brave-search"
-        }</code></pre></div>
+            "message": "npx not found — install Node.js: https://nodejs.org"
+        }
 
-          <p>The <code>asyncio.wait_for</code> timeout wrapper is important: without it, a hung server process will block your agent indefinitely. 15 seconds is generous for a search request; reduce it to 8 seconds in production.</p>
+def read_workspace_file(path: str) -> dict:
+    safe = (WORKSPACE / path).resolve()
+    if not str(safe).startswith(str(WORKSPACE)):
+        return {"error": "path_traversal", "message": "Path is outside workspace"}
+    try:
+        result = asyncio.run(call_filesystem("read_file", {"path": str(safe)}))
+        if "error" in result:
+            return result
+        text = result.get("text", "")
+        return {"path": path, "content": text[:5000], "chars": len(text)}
+    except RuntimeError as e:
+        return {"error": "runtime_error", "message": str(e),
+                "suggestion": "From async code, use: await asyncio.to_thread(read_workspace_file, path)"}
+
+def list_workspace(directory: str = ".") -> dict:
+    safe = (WORKSPACE / directory).resolve()
+    if not str(safe).startswith(str(WORKSPACE)):
+        return {"error": "path_traversal", "message": "Path is outside workspace"}
+    try:
+        result = asyncio.run(call_filesystem("list_directory", {"path": str(safe)}))
+        if "error" in result:
+            return result
+        return {"directory": directory, "listing": result.get("text", "")}
+    except RuntimeError as e:
+        return {"error": "runtime_error", "message": str(e)}</code></pre></div>
         </div>
       </div>
 
@@ -1055,71 +1028,46 @@ async def call_brave_search(query: str, count: int = 5) -> dict:
       <div class="step-block">
         <div class="step-num">Step 03</div>
         <div class="step-content">
-          <h3>Wire deep research routing into agent.py</h3>
-          <p>Now that search is real, connect the subagent pipeline from P04 to the main agent loop:</p>
+          <h3>Add tools to tools.py</h3>
+          <p>Wire the two new functions into Scout's tool dispatch:</p>
 
           <div class="cc-prompt-block">
             <div class="cc-prompt-label">Claude Code Prompt</div>
             <div class="cc-prompt-body">
-              Update agent.py to detect deep research requests and route them to run_deep_research from subagents.py. Use a keyword heuristic to detect when depth is needed (words like "comprehensive", "analysis", "compare", "in-depth", "thorough"). When triggered: (1) print the mode banner, (2) run the subagent pipeline, (3) format the result into a readable report and print it to stdout under a "Scout (deep research):" header, (4) save the formatted report as a note, (5) return without entering the ReAct loop. All other questions go through the existing loop unchanged.<br><br>
-              When routing to deep research, print: <code>  [mode: deep research — spawning subagents]</code><br><br>
-              Only modify agent.py — don't touch subagents.py.
+              Update tools.py to add two new tools from mcp_filesystem.py:<br><br>
+              - Import read_workspace_file and list_workspace from mcp_filesystem<br>
+              - Add both functions to the tool_dispatch dict in agent.py<br>
+              - Add both to the TOOLS list with descriptions:<br>
+              &nbsp;&nbsp;- read_workspace_file: "Read a file from your local workspace. Use when the user asks you to analyze a document, review code, or work with a specific file. Path is relative to the scout-agent directory."<br>
+              &nbsp;&nbsp;- list_workspace: "List files in a workspace directory. Use to discover what files are available before reading them."<br><br>
+              Only touch tools.py and agent.py.
             </div>
           </div>
 
-          <p>Claude Code will add detection logic and a routing branch. The additions look like this:</p>
+          <p>The two entries to add to <code>TOOLS</code> in <code>tools.py</code>:</p>
 
-          <div class="code-block"><pre><code class="language-python"># Additions to agent.py
-
-import asyncio
-from subagents import run_deep_research
-
-DEEP_RESEARCH_TRIGGERS = [
-    "comprehensive", "in depth", "in-depth", "thorough", "detailed analysis",
-    "compare", "landscape", "overview of", "everything about", "full report on",
-    "research", "analyze"
-]
-
-def is_deep_research_request(question: str) -> bool:
-    q = question.lower()
-    return any(trigger in q for trigger in DEEP_RESEARCH_TRIGGERS)
-
-def format_deep_research_result(result: dict) -> str:
-    synth = result.get("synthesizer", {})
-    lines = [
-        f"## {result['topic']}",
-        f"\n{synth.get('summary', '')}",
-        "\n**Key findings:**"
-    ]
-    for finding in synth.get("key_findings", []):
-        lines.append(f"  * {finding}")
-
-    sources = synth.get("sources_cited", [])
-    if sources:
-        lines.append(f"\n**Sources:** {', '.join(sources)}")
-
-    lines.append(f"\n*Confidence: {synth.get('confidence', 'unknown')}*")
-    return "\n".join(lines)
-
-# In run_scout, BEFORE the main ReAct loop:
-def run_scout(question: str, ctx: dict = None) -> dict:
-    ctx = ctx or {}
-
-    if is_deep_research_request(question):
-        print("  [mode: deep research — spawning subagents]\n")
-        result = asyncio.run(run_deep_research(question, client, MODEL))
-        formatted = format_deep_research_result(result)
-        print(f"\nScout (deep research):\n{formatted}")
-        save_note(
-            title=f"Deep Research: {question[:60]}",
-            content=formatted,
-            tags=["deep-research", "auto-generated"]
-        )
-        return ctx
-
-    # ... existing ReAct loop for normal questions ...</code></pre></div>
-
-          <p>The routing logic is intentionally crude — keyword matching, not a classification model. That's by design for now. Section 4 explains when and how to upgrade it.</p>
+          <div class="code-block"><pre><code class="language-python"># Additions to TOOLS in tools.py
+{
+    "name": "read_workspace_file",
+    "description": "Read a file from your local workspace. Use when the user asks you to analyze a document, review code, or work with a specific file. Path is relative to the scout-agent directory.",
+    "input_schema": {
+        "type": "object",
+        "properties": {
+            "path": {"type": "string", "description": "Relative file path (e.g. 'README.md', 'docs/spec.md')"}
+        },
+        "required": ["path"]
+    }
+},
+{
+    "name": "list_workspace",
+    "description": "List files in a workspace directory. Use to discover what files are available before reading them. Returns a directory listing.",
+    "input_schema": {
+        "type": "object",
+        "properties": {
+            "directory": {"type": "string", "description": "Directory to list, relative to workspace root (default '.')"}
+        }
+    }
+}</code></pre></div>
         </div>
       </div>
 
@@ -1127,78 +1075,27 @@ def run_scout(question: str, ctx: dict = None) -> dict:
       <div class="step-block">
         <div class="step-num">Step 04</div>
         <div class="step-content">
-          <h3>Test real search</h3>
-          <p>Set your API key and ask Scout something that requires current information:</p>
-
-          <div class="code-block bash"><pre><code class="language-bash"># Option A: export in shell session
-export BRAVE_API_KEY="your-key-from-brave-api"
-
-# Option B: add to .env (load_dotenv() in mcp_tools.py will pick it up)
-echo 'BRAVE_API_KEY=your-key-here' >> .env
-
-python agent.py
-# Ask: "What AI agent frameworks were released or updated in the last 6 months?"</code></pre></div>
-
-          <div class="callout callout-checkpoint">
-            <div class="callout-label">Verify real search is active</div>
-            <p>Check that output URLs are real (not <code>example.com</code>). If you see stub results, run <code>echo $BRAVE_API_KEY</code> — if empty, the env var isn't set in the current shell. Re-run <code>export BRAVE_API_KEY="your-key"</code> and try again.</p>
-          </div>
-
-          <p>With a real key you'll see results referencing actual, named projects and dates — not placeholder text:</p>
-
-          <div class="output-block">
-<span class="out-dim">Ask Scout: </span><span class="out-scout">What AI agent frameworks were released or updated in the last 6 months?</span>
-
-<span class="out-label">  → </span><span class="out-search">web_search({"query": "AI agent frameworks released updated 2025 2026"})</span>
-
-<span class="out-dim">Scout: </span><span class="out-real">Several notable agent frameworks have shipped significant updates recently. LangGraph 0.3 introduced a native checkpoint API for persistent agent state, making session resumption production-grade. AutoGen 0.4 from Microsoft Research shifted to an async-first event-driven architecture. Pydantic AI moved out of beta with structured output validation natively integrated into the tool call cycle.
-
-On the infrastructure side, the MCP ecosystem grew substantially — over 400 community-built MCP servers now on GitHub covering everything from browser automation to database access.
-
-Sources: https://blog.langchain.dev/langgraph-0-3 · https://microsoft.github.io/autogen · https://github.com/modelcontextprotocol/servers</span>
-          </div>
-
-          <p>The URLs, version numbers, and project names are real. That's the difference from five modules of stub output. Now confirm the fallback still works: remove <code>BRAVE_API_KEY</code> from your environment (<code>unset BRAVE_API_KEY</code>), run Scout again, and verify the response includes placeholder text — and that no errors are thrown.</p>
-        </div>
-      </div>
-
-      <!-- Step 5 -->
-      <div class="step-block">
-        <div class="step-num">Step 05</div>
-        <div class="step-content">
-          <h3>Test deep research mode with real search</h3>
-          <p>Now that search is real, test the full subagent pipeline end-to-end:</p>
+          <h3>Test workspace file access</h3>
+          <p>Run Scout and ask it to work with files in the project:</p>
 
           <div class="code-block bash"><pre><code class="language-bash">python agent.py
-# Ask: "Give me a comprehensive analysis of how vector databases work"</code></pre></div>
-
-          <p>You should see the mode banner, both subagent status lines, and a structured report with real sources:</p>
+# Ask: "List the files in this project, then read README.md and summarize what Scout does."</code></pre></div>
 
           <div class="output-block">
-<span class="out-dim">Ask Scout: </span><span class="out-scout">Give me a comprehensive analysis of how vector databases work</span>
+<span class="out-dim">Ask Scout: </span><span class="out-scout">List the files in this project, then read README.md and summarize what Scout does.</span>
 
-<span class="out-label">  [mode: deep research — spawning subagents]</span>
+<span class="out-label">  → </span><span class="out-search">list_workspace({"directory": "."})</span>
+<span class="out-label">  → </span><span class="out-search">read_workspace_file({"path": "README.md"})</span>
 
-<span class="out-dim">  [deep research] spawning Searcher + Synthesizer for: Give me a comprehensive analysis...</span>
-<span class="out-dim">  [searcher] found 4 sources</span>
-<span class="out-dim">  [synthesizer] confidence: high</span>
+<span class="out-dim">Scout: </span><span class="out-scout">Your scout-agent project contains: agent.py, tools.py, memory.py, subagents.py,
+mcp_filesystem.py, requirements.txt, and a notes/ directory with saved research.
 
-<span class="out-label">Scout (deep research):</span>
-<span class="out-scout">## Give me a comprehensive analysis of how vector databases work</span>
-
-<span class="out-real">Vector databases store data as high-dimensional vectors — numerical representations of meaning derived from embedding models. Unlike relational databases that match on exact values, vector databases retrieve by semantic similarity, making them the backbone of RAG systems, recommendation engines, and semantic search applications...</span>
-
-<span class="out-real">**Key findings:**
-  * HNSW (Hierarchical Navigable Small World) is the dominant indexing algorithm — trades recall for speed
-  * Pinecone, Weaviate, Qdrant, and pgvector serve different scale and latency tradeoffs
-  * Embedding quality upstream determines retrieval quality downstream
-  * Hybrid search (vector + BM25) outperforms pure vector search on most benchmarks</span>
-
-<span class="out-real">**Sources:** https://weaviate.io/blog/vector-database-explained · https://qdrant.tech/articles/what-is-a-vector-database</span>
-<span class="out-dim">*Confidence: high*</span>
+README.md describes Scout as a terminal-based research assistant that searches the web,
+reads pages in full, saves findings as structured notes, and runs parallel subagents for
+deep research on complex topics.</span>
           </div>
 
-          <p>Then confirm simple questions still use the ReAct loop — ask "what's the Anthropic API rate limit?" and verify you do <em>not</em> see the <code>[mode: deep research]</code> banner.</p>
+          <p>Then test that normal web search still works — ask Scout a question that needs current information. The new tools extend Scout's capabilities; they don't affect existing ones.</p>
         </div>
       </div>
 
@@ -1212,15 +1109,13 @@ Sources: https://blog.langchain.dev/langgraph-0-3 · https://microsoft.github.io
     <div class="section-number">Section 04</div>
     <h2>Under the hood</h2>
 
-    <p><strong>The stub-to-real upgrade pattern:</strong> Nothing in <code>agent.py</code>, the ReAct loop, or the subagent architecture changed in this module. Only the implementation of <code>web_search</code> changed. This is the payoff of the tool design from Module P02 — tools as swappable implementations behind a stable interface. The agent dispatches to <code>web_search(query=...)</code>; it has no knowledge of whether that call hits Brave or returns fake data. This interface boundary is where the upgrade happened. When you need to swap Brave for a different provider, the change is local to <code>mcp_tools.py</code> and the <code>web_search</code> function — nowhere else.</p>
-
     <p><strong>MCP protocol basics — JSON-RPC 2.0 over stdio:</strong> Every MCP interaction follows the same two-phase pattern. First: an <code>initialize</code> request where the client announces the protocol version and its capabilities; the server responds with its own capabilities. Second: a sequence of <code>tools/call</code> requests, each with a tool name and typed arguments, each returning a structured result. The server runs as a subprocess and communicates exclusively via stdin/stdout — there's no port to open, no service to run, no daemon. The server starts when you need it and the process exits when the pipe closes. This is why local MCP servers work in sandboxed environments and require no network configuration.</p>
 
-    <p><strong>Async in a sync codebase:</strong> <code>asyncio.run()</code> in a synchronous function works correctly when there is no active event loop in the current thread — which is the case when <code>web_search</code> is called from Scout's synchronous ReAct loop. The problem arises when <code>web_search</code> is called from within an already-running async context, like <code>run_searcher</code> in <code>subagents.py</code>. In that case <code>asyncio.run()</code> raises <code>RuntimeError: This event loop is already running</code>. The fix is to call <code>web_search</code> via <code>await asyncio.to_thread(web_search, query)</code> from async code — which is how <code>subagents.py</code> already calls the Anthropic SDK. For a fully clean codebase, the right long-term move is to make <code>web_search</code> itself async and update all callers. For now, the warning message and fallback to stub is an acceptable bridge.</p>
+    <p><strong>Async in a sync codebase:</strong> <code>asyncio.run()</code> in a synchronous function works correctly when there is no active event loop in the current thread — which is the case when <code>read_workspace_file</code> is called from Scout's synchronous ReAct loop. The problem arises when <code>read_workspace_file</code> is called from within an already-running async context — which can happen if you extend <code>subagents.py</code> to call <code>read_workspace_file</code> directly. In that case <code>asyncio.run()</code> raises <code>RuntimeError: This event loop is already running</code>. The fix is to call it via <code>await asyncio.to_thread(read_workspace_file, path)</code> from async code — the error message in the returned dict includes this suggestion so the failure is self-documenting.</p>
 
-    <p><strong>The detection heuristic and when to upgrade it:</strong> Keyword matching is crude but fast and costs nothing. For 80% of real queries it works correctly. The failure modes are false positives (a casual question that happens to contain "analysis") and false negatives (a complex research request phrased without any trigger words). A better approach is a lightweight classification step before the main loop: send the question to a cheaper model and ask "is this a deep research request that requires reading multiple sources? Answer yes or no." This costs one small API call but dramatically improves routing accuracy. Start with keyword matching; upgrade to classification if heuristic routing produces poor results in practice.</p>
+    <p><strong>Path safety and workspace sandboxing:</strong> The <code>path_traversal</code> check in <code>read_workspace_file</code> is not optional. Without it, a prompt like "read the file ../../etc/passwd" resolves outside the workspace and reads a sensitive system file. Resolving to an absolute path and checking that it starts with <code>WORKSPACE</code> is the standard guard. The MCP filesystem server also enforces its own root restriction, so this is defense in depth — two independent checks, neither trusting the other.</p>
 
-    <p><strong>When to go beyond the stub:</strong> The stub earned its keep across four modules of development. It let you build, test, and iterate on the agent architecture without consuming API credits or depending on external service availability. Keeping it as a fallback means Scout still works when <code>BRAVE_API_KEY</code> isn't set — useful for unit tests, offline demos, and environments where you want deterministic (if fake) results. The <code>_stub: True</code> flag in the response makes it easy to assert in tests that you're in the mode you expect. Don't delete the stub; just make it secondary.</p>
+    <p><strong>Why two separate tools instead of one:</strong> <code>read_workspace_file</code> and <code>list_workspace</code> are separate by design. A single "access_filesystem" tool that bundles listing and reading would force the model to guess which operation it needs or include mode flags in the API. Separate tools with clear names let the model reason correctly: "I should list the directory first so I know what files exist, then read the relevant one." Tight tool boundaries produce more predictable agent behavior.</p>
   </div>
 
   <div class="section-divider"></div>
@@ -1233,13 +1128,11 @@ Sources: https://blog.langchain.dev/langgraph-0-3 · https://microsoft.github.io
     <div class="callout callout-checkpoint">
       <div class="callout-label">Verify these pass</div>
       <ul>
-        <li>Set <code>BRAVE_API_KEY</code> in <code>.env</code> with your real key</li>
-        <li>Ask Scout "what happened in AI this week?" — results reference real, named events and projects, not placeholder text</li>
-        <li>Remove <code>BRAVE_API_KEY</code> from your environment (<code>unset BRAVE_API_KEY</code>) and run again — confirm Scout falls back to stub results without throwing errors</li>
-        <li>Check that stub results contain <code>"_stub": true</code> in the raw tool output (add a <code>print(result)</code> temporarily to the tool dispatch loop to inspect)</li>
-        <li>Notes saved by Scout with a real key contain actual source URLs and real information</li>
-        <li>Ask "Give me a comprehensive analysis of X" — see the <code>[mode: deep research]</code> banner trigger, both subagents complete, and the formatted report prints with real sources</li>
-        <li>Ask a simple question ("what is a transformer?") — confirm no deep research banner, normal ReAct loop runs</li>
+        <li>Run <code>python agent.py</code> and ask Scout to list the files in the project — confirm it calls <code>list_workspace</code> and returns a real directory listing</li>
+        <li>Ask Scout to read a specific file (e.g. README.md or tools.py) — confirm it calls <code>read_workspace_file</code> and returns actual file content</li>
+        <li>Ask Scout a web research question — confirm <code>web_search</code> still works and is unaffected</li>
+        <li>Deliberately ask Scout to read a non-existent file — confirm it returns a structured error, not a crash</li>
+        <li>Try a path like <code>../../../etc/passwd</code> — confirm the path_traversal error fires before the MCP server is called</li>
       </ul>
     </div>
   </div>
@@ -1251,7 +1144,7 @@ Sources: https://blog.langchain.dev/langgraph-0-3 · https://microsoft.github.io
     <div class="section-number">Section 06</div>
     <h2>What Scout can do now</h2>
 
-    <p>Scout is now connected to the real web and has two fully functional execution modes: quick answers via the ReAct loop, and deep structured reports via the orchestrator-subagent pipeline. Every research request goes out to Brave Search and returns current, real results — and the notes Scout saves contain actual information you can act on. The stub fallback remains for environments without an API key. Next module: hardening Scout with guardrails and evals before it goes anywhere near production.</p>
+    <p>Scout can now work with files in your project, not just the web. Ask it to analyze a spec, review a code file, or summarize a document — it will list what's available, read the relevant content, and synthesize from it the same way it synthesizes from web sources. The MCP filesystem server handles the file I/O; the ReAct loop, the memory system, and the subagent pipeline all work exactly as before. Next module: hardening Scout with guardrails and evals before it goes anywhere near production.</p>
 
     <a href="module-p06.html" class="next-module">
       <div>
