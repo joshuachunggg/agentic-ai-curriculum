@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>P05: Real Connections with MCP — Build Your Agent</title>
+<title>P05: Deep Research Mode — Build Your Agent</title>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;500&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
 <style>
@@ -692,7 +692,6 @@
   .out-result { color: #c0c8b8; }
   .out-label { color: var(--muted); }
   .out-scout { color: #e8e8f0; }
-  .out-real { color: #a0e0b0; }
 
   /* Next module CTA */
   .next-module {
@@ -773,7 +772,7 @@
 <!-- Sticky nav -->
 <nav class="top-nav">
   <div class="top-nav-inner">
-    <a href="index.html" class="nav-back">← Course Overview</a>
+    <a href="module-p04.html" class="nav-back">← Module P04</a>
     <div class="nav-module-label">Module P05 / 07</div>
     <a href="module-p06.html" class="nav-next">Module P06 →</a>
   </div>
@@ -784,28 +783,22 @@
   <div class="container">
     <div class="hero-eyebrow">Build Your Agent · Practical Workshop</div>
     <div class="module-badge">MODULE P05</div>
-    <h1>Real Connections with MCP</h1>
-    <p class="hero-sub">Scout can search the web and save notes — but it can't read files from your project. This module connects Scout to your local workspace via the MCP filesystem server, adding file read and directory listing as first-class tools.</p>
+    <h1>Deep Research Mode</h1>
+    <p class="hero-sub">Some questions deserve more than a single loop. Scout learns to spawn parallel subagents — a Searcher and a Synthesizer — and orchestrate them into a structured research report.</p>
     <div class="hero-meta">
       <div class="meta-item">
         <span class="meta-label">Time</span>
-        <span class="meta-value">~45 min</span>
+        <span class="meta-value">~50 min</span>
       </div>
       <div class="meta-item">
         <span class="meta-label">Backed by</span>
         <span class="meta-value">
-          <a href="../module-04.html">M04 · Multi-Agent Systems (MCP section)</a>
-        </span>
-      </div>
-      <div class="meta-item">
-        <span class="meta-label">&nbsp;</span>
-        <span class="meta-value">
-          <a href="../module-06.html">M06 · Building MCP Servers</a>
+          <a href="../module-04.html">M04 · Multi-Agent Systems &amp; Orchestration</a>
         </span>
       </div>
       <div class="meta-item">
         <span class="meta-label">Scout gains</span>
-        <span class="meta-value">Workspace file access via filesystem MCP</span>
+        <span class="meta-value">Parallel subagents, deep research mode</span>
       </div>
     </div>
   </div>
@@ -826,8 +819,7 @@
       <span class="scout-cap active">context_compression</span>
       <span class="scout-cap active">persistent_sessions</span>
       <span class="scout-cap active">subagents</span>
-      <span class="scout-cap active">read_workspace_file</span>
-      <span class="scout-cap active">list_workspace</span>
+      <span class="scout-cap locked">MCP_tools</span>
       <span class="scout-cap locked">guardrails</span>
       <span class="scout-cap locked">evals</span>
       <span class="scout-cap locked">deployment</span>
@@ -839,36 +831,34 @@
     <div class="section-number">Section 01</div>
     <h2>What we're building</h2>
 
-    <p>Scout can already search the web and save notes — but every piece of information it works with comes from the web. It has no way to read a file you point it to: a spec doc, a codebase, a report. If you tell Scout "analyze this design document" or "review my agent.py," it can't do it — there's no tool for file access.</p>
+    <p>When you ask Scout "what's the capital of France?" it should answer immediately — no need to search, no need for a pipeline. But when you ask "give me a comprehensive analysis of the competitive landscape in enterprise AI tooling," that's a fundamentally different kind of request. It requires exploring multiple angles, reading multiple sources, and synthesizing potentially conflicting information into a coherent picture. A single linear ReAct loop isn't the right tool for that. It processes one thought at a time, and thoroughness is serial.</p>
 
-    <p>This module adds workspace file access via the MCP filesystem server. You'll install one MCP server, create <code>mcp_filesystem.py</code> to wrap it, and add two new tools: <code>read_workspace_file</code> and <code>list_workspace</code>. The ReAct loop doesn't change. The tool dispatch doesn't change. Only the tool list grows.</p>
-
-    <p>The MCP filesystem server exposes <code>read_file</code>, <code>write_file</code>, <code>list_directory</code>, and <code>search_files</code> — standard file operations via the same JSON-RPC protocol used by every MCP server. We'll use <code>read_file</code> and <code>list_directory</code>, giving Scout enough to read any file in the workspace and discover what's available.</p>
+    <p>This module adds a "deep research mode." When Scout detects a complex research request, it spawns two parallel subagents: a Searcher that finds and reads multiple sources, and a Synthesizer that turns those raw findings into a structured report. Scout acts as the orchestrator — it decides when to go deep, delegates the work, and assembles the final output. The ReAct loop stays exactly as it is. You're adding a second mode of execution, not replacing the first.</p>
   </div>
 
   <div class="section-divider"></div>
 
-  <!-- Section 2: The concept — MCP -->
+  <!-- Section 2: The concept -->
   <div class="topic-section">
     <div class="section-number">Section 02</div>
-    <h2>The concept — MCP</h2>
+    <h2>The concept — Orchestrator/subagent and when to go multi-agent</h2>
 
-    <p>The Model Context Protocol is Anthropic's open standard for how agents communicate with tools. Before MCP, every agent had its own bespoke integration — custom API wrappers, custom schemas, custom auth flows, custom error handling. Connecting a new tool meant writing new glue code every time. MCP standardizes the contract: a tool server exposes its capabilities via a defined protocol, and any MCP-compatible agent can discover and use those capabilities without writing custom integration code. It's the USB-C of agent tools — one standard, many devices.</p>
+    <p>The orchestrator/subagent pattern from Module 04 is straightforward: the orchestrator decomposes a task, delegates pieces to subagents, and synthesizes their results into a final output. Subagents receive scoped tasks, execute them with their own tools and context, and return structured output. One key constraint here: subagents shouldn't spawn further subagents. Recursive delegation adds coordination complexity before it adds value. Keep the hierarchy flat — Scout orchestrates, subagents execute, that's the depth.</p>
 
-    <p>Technically, an MCP server is a process that implements the MCP protocol. It exposes a <code>tools/list</code> endpoint (here are the tools I have) and a <code>tools/call</code> endpoint (call this tool with these parameters). The agent discovers what's available, then invokes tools by name with typed parameters. The server handles execution and returns structured results. Communication happens over stdio for local servers — the server is a subprocess, your agent pipes JSON-RPC messages into its stdin and reads results from its stdout. For remote servers the transport is HTTP+SSE, but the protocol is identical.</p>
+    <p>Module 04 identifies three legitimate reasons to go multi-agent. Two apply here directly. <strong>Specialization</strong>: each subagent has a focused system prompt for its specific job; the Searcher is tuned to find and read, the Synthesizer is tuned to structure and synthesize. <strong>Context isolation</strong>: each subagent gets a fresh context window, so their tool calls and intermediate reasoning don't pollute Scout's main context. One illegitimate reason: "it sounds more sophisticated." Multi-agent adds real complexity — state management, error handling across process boundaries, coordination overhead. Don't add it unless you need one of those three things.</p>
 
-    <p>Why MCP matters for the ecosystem is best understood through the alternative. Without it, a filesystem integration written for Scout would need to be rewritten from scratch to work with a different agent framework, a different language, or a different model provider. With MCP, a tool built once as an MCP server works with any MCP-compatible consumer — Claude Code, your Python agent, any future framework. The tool investment compounds instead of stacking up as one-off integrations.</p>
+    <p>The Searcher and Synthesizer run sequentially — the Synthesizer needs the Searcher's output to work from, so they can't run in parallel. Both are async coroutines, which means each API call is non-blocking and runs efficiently in a thread pool via <code>asyncio.to_thread</code>. The multi-agent value here is specialization and context isolation, not concurrency. If you extended this with a second independent Searcher covering a different angle, <em>those</em> two searchers could run concurrently via <code>asyncio.gather</code> before feeding a single Synthesizer — that's when the parallelism payoff is real.</p>
 
-    <p>Since SDK version 0.40+, the Anthropic Python SDK has built-in support for connecting to MCP servers via <code>MCPServerStdio</code> and related classes. For this module, however, we use a direct subprocess approach to the MCP server — it's more explicit, easier to debug, and works without SDK version dependencies. The pattern is: start the server process, send a JSON-RPC <code>initialize</code> handshake, then send <code>tools/call</code> requests, parse the response. Once you understand the wire protocol, the higher-level SDK abstractions are easy to adopt later.</p>
+    <p>Structured output from subagents is non-negotiable for reliable orchestration. If the Synthesizer returns free-form prose, the orchestrator can't reliably extract the key findings, confidence level, or cited sources without another parsing step. JSON with defined keys makes the downstream assembly deterministic and testable. The system prompt instructs each subagent to output only valid JSON with a specific schema. Combined with a <code>try/except json.loads</code> fallback, this gives you structured output 95% of the time and graceful degradation the rest.</p>
 
     <div class="callout callout-insight">
       <div class="callout-label">Key Insight</div>
-      <p>MCP is not just for Anthropic models. It's an open standard — any agent framework can implement it. Wrapping your tools as MCP servers means they're immediately reusable across models, frameworks, and contexts. For tools you build and use repeatedly (web search, database access, calendar, email), MCP is the right abstraction. The upfront cost of the protocol is paid back the first time you reuse the server in a second context without writing new integration code.</p>
+      <p>The COMPASS pattern from Module 04 — Planner + Researchers + Synthesizer — is the same architecture at different scale. Scout's deep research mode is COMPASS miniaturized: a 2-agent pipeline instead of 3, but the same orchestrator-delegates-delegates principle. Start minimal; scale up if you need it. If Scout's deep research mode proves insufficient, the right upgrade path is to add a dedicated Planner step — not to add more subagents in parallel before you understand the bottleneck.</p>
     </div>
 
-    <div class="callout callout-example">
-      <div class="callout-label">MCP in Claude Code</div>
-      <p>When you add an MCP server to Claude Code's configuration, Claude Code's built-in agent gains that tool for all sessions — automatically, for any task where it's relevant. The same filesystem MCP server you configure for Scout today can be added to <code>~/.claude/claude_desktop_config.json</code> — Claude Code gains workspace file awareness for all your sessions. One MCP server, many consumers, zero additional integration code.</p>
+    <div class="callout callout-mistake">
+      <div class="callout-label">Common Mistake</div>
+      <p>Spawning subagents for simple tasks. Multi-agent adds latency (at minimum one extra API call per subagent) and complexity (state management, error handling across agents). Scout should detect intent and only spawn subagents when the request is genuinely complex. A simple rule: if a single ReAct loop can handle it in five turns or fewer, don't go multi-agent. The overhead isn't worth it — and if you route everything through the deep research pipeline, you'll burn API credits on questions that a single search would answer perfectly well.</p>
     </div>
   </div>
 
@@ -883,7 +873,7 @@
       <p>Start fresh for this module: run <code>/clear</code> in Claude Code. Your <code>CLAUDE.md</code> keeps the project context — <code>/clear</code> just wipes the conversation history from the previous module so Claude isn't confused by unrelated context.</p>
     </div>
 
-    <p>Open your terminal, run <code>claude</code> to start Claude Code, and navigate to your <code>scout-agent</code> directory.</p>
+    <p>Open your terminal, run <code>claude</code> to start Claude Code, and navigate to your <code>scout-agent</code> directory. Give Claude Code the following prompts one at a time.</p>
 
     <div class="step-list">
 
@@ -891,24 +881,184 @@
       <div class="step-block">
         <div class="step-num">Step 01</div>
         <div class="step-content">
-          <h3>Install filesystem MCP server</h3>
-          <p>Give Claude Code this prompt to install the filesystem MCP server:</p>
+          <h3>Create subagents.py</h3>
+          <p>This file contains the two subagents and the orchestration function that runs them. Give Claude Code this prompt:</p>
 
           <div class="cc-prompt-block">
             <div class="cc-prompt-label">Claude Code Prompt</div>
             <div class="cc-prompt-body">
-              Set up the filesystem MCP server for Scout: install @modelcontextprotocol/server-filesystem via npm. Update .gitignore to exclude sessions/ and notes/ if not already there.<br><br>
-              Don't modify any Python files yet. Show me the result of: npx @modelcontextprotocol/server-filesystem --version
+              Create subagents.py with two async research subagents using the Anthropic SDK:<br><br>
+              - run_searcher(topic, client, model) — a focused research agent that searches for the topic and reads multiple sources, returning structured JSON findings (sources with key points, raw summary, search count). It uses web_search and read_url from tools.py. Output JSON only — no conversational text.<br>
+              - run_synthesizer(topic, findings, client, model) — takes searcher findings and produces a structured report (executive summary, key findings, cited sources, confidence level). No tools — synthesis only. Output JSON only.<br><br>
+              Add run_deep_research(topic, client, model) that runs the Searcher first, then passes its findings to the Synthesizer, and returns a combined result dict.<br><br>
+              Only create subagents.py — don't modify other files.
             </div>
           </div>
 
-          <p>Claude Code will run the install. The core command:</p>
+          <p>Claude Code will generate a file close to this. Review it carefully — the tool call dispatch loop mirrors what you built in agent.py:</p>
 
-          <div class="code-block bash"><pre><code class="language-bash">npm install -g @modelcontextprotocol/server-filesystem</code></pre></div>
+          <div class="code-block"><pre><code class="language-python"># subagents.py
+import asyncio
+import json
+import anthropic
+from tools import web_search, read_url, TOOLS
 
-          <div class="callout callout-insight">
-            <div class="callout-label">Note</div>
-            <p>No API key needed — the filesystem server is local. <code>SCOUT_WORKSPACE</code> defaults to the current directory; you can set it as an env var to restrict access to a subdirectory.</p>
+SEARCHER_SYSTEM = """You are a research specialist. Your job: find and thoroughly read sources on a specific topic, then return structured JSON findings.
+
+Be thorough — use web_search and read_url to examine at least 3 sources. Extract concrete facts, quotes, and data points, not summaries of summaries.
+
+At the end of your research, output ONLY valid JSON in this format:
+{
+  "topic": "...",
+  "sources": [{"url": "...", "title": "...", "key_points": ["...", "..."]}],
+  "raw_findings": "...",
+  "search_count": 0
+}"""
+
+SYNTHESIZER_SYSTEM = """You are a research synthesizer. Given raw research findings, produce a clear structured report.
+
+Be direct. Cite specific sources. Note where sources agree and where they conflict. Return ONLY valid JSON:
+{
+  "topic": "...",
+  "summary": "...",
+  "key_findings": ["...", "..."],
+  "sources_cited": ["url1", "url2"],
+  "confidence": "high|medium|low"
+}"""
+
+SUBAGENT_TOOLS = [t for t in TOOLS if t["name"] in ("web_search", "read_url")]
+
+async def run_searcher(topic: str, client: anthropic.Anthropic, model: str) -> dict:
+    messages = [{"role": "user", "content": f"Research this topic thoroughly: {topic}"}]
+
+    for _ in range(12):
+        response = await asyncio.to_thread(
+            client.messages.create,
+            model=model,
+            max_tokens=4096,
+            system=SEARCHER_SYSTEM,
+            tools=SUBAGENT_TOOLS,
+            messages=messages
+        )
+
+        messages.append({"role": "assistant", "content": response.content})
+
+        if response.stop_reason == "end_turn":
+            for block in response.content:
+                if hasattr(block, "text"):
+                    try:
+                        return json.loads(block.text)
+                    except json.JSONDecodeError:
+                        return {
+                            "topic": topic,
+                            "raw_findings": block.text,
+                            "sources": [],
+                            "search_count": 0
+                        }
+            break
+
+        elif response.stop_reason == "tool_use":
+            tool_results = []
+            for block in response.content:
+                if block.type == "tool_use":
+                    if block.name == "web_search":
+                        result = web_search(**block.input)
+                    elif block.name == "read_url":
+                        result = read_url(**block.input)
+                    else:
+                        result = {"error": f"unknown tool: {block.name}"}
+                    tool_results.append({
+                        "type": "tool_result",
+                        "tool_use_id": block.id,
+                        "content": json.dumps(result)
+                    })
+            messages.append({"role": "user", "content": tool_results})
+
+    return {
+        "topic": topic,
+        "raw_findings": "",
+        "sources": [],
+        "search_count": 0,
+        "error": "max turns reached"
+    }
+
+async def run_synthesizer(
+    topic: str,
+    findings: dict,
+    client: anthropic.Anthropic,
+    model: str
+) -> dict:
+    prompt = f"""Topic: {topic}
+
+Research findings from Searcher agent:
+{json.dumps(findings, indent=2)}
+
+Synthesize these findings into a structured report."""
+
+    response = await asyncio.to_thread(
+        client.messages.create,
+        model=model,
+        max_tokens=2048,
+        system=SYNTHESIZER_SYSTEM,
+        messages=[{"role": "user", "content": prompt}]
+    )
+
+    for block in response.content:
+        if hasattr(block, "text"):
+            try:
+                return json.loads(block.text)
+            except json.JSONDecodeError:
+                return {
+                    "topic": topic,
+                    "summary": block.text,
+                    "key_findings": [],
+                    "sources_cited": [],
+                    "confidence": "medium"
+                }
+
+    return {
+        "topic": topic,
+        "summary": "",
+        "key_findings": [],
+        "sources_cited": [],
+        "confidence": "low"
+    }
+
+async def run_deep_research(
+    topic: str,
+    client: anthropic.Anthropic,
+    model: str
+) -> dict:
+    print(f"  [deep research] spawning Searcher + Synthesizer for: {topic}")
+
+    # Searcher runs first; Synthesizer needs its output to synthesize
+    searcher_result = await run_searcher(topic, client, model)
+    print(f"  [searcher] found {len(searcher_result.get('sources', []))} sources")
+
+    synthesizer_result = await run_synthesizer(topic, searcher_result, client, model)
+    print(f"  [synthesizer] confidence: {synthesizer_result.get('confidence', 'unknown')}")
+
+    return {
+        "topic": topic,
+        "searcher": searcher_result,
+        "synthesizer": synthesizer_result
+    }</code></pre></div>
+
+          <p>One note on the architecture: the Searcher and Synthesizer are sequential here (Synthesizer needs the Searcher's output to work from), but <code>asyncio.to_thread</code> still provides value — each API call runs in a thread pool rather than blocking the event loop. If you were to extend this with a third parallel subagent that doesn't depend on the Searcher, <code>asyncio.gather</code> would give you genuine parallelism for free.</p>
+
+          <div class="cc-prompt-block">
+            <div class="cc-prompt-label">Verify with Claude Code</div>
+            <div class="cc-prompt-body">
+              Run and show output:<br><br>
+              python -c "import asyncio; from subagents import run_deep_research, run_searcher, run_synthesizer; print('async subagents imported OK')"
+            </div>
+          </div>
+
+          <p>Async import failures are silent until you try to <code>asyncio.run()</code> something. Catching them here prevents a confusing error when the routing logic fires mid-session.</p>
+
+          <div class="callout callout-cc-tip">
+            <div class="callout-label">Claude Code Tip</div>
+            <p><code>subagents.py</code> is dense — async functions, multiple agents, JSON parsing. Run <code>/compact</code> after it's created. The summary preserves the architecture Claude needs to wire the routing into agent.py without re-reading the full implementation.</p>
           </div>
         </div>
       </div>
@@ -917,110 +1067,72 @@
       <div class="step-block">
         <div class="step-num">Step 02</div>
         <div class="step-content">
-          <h3>Create mcp_filesystem.py</h3>
-          <p>This file wraps the filesystem MCP server in a clean Python interface:</p>
+          <h3>Add deep research detection to agent.py</h3>
+          <p>Now update the main agent loop to detect complex research requests and route them to the subagent pipeline:</p>
 
           <div class="cc-prompt-block">
             <div class="cc-prompt-label">Claude Code Prompt</div>
             <div class="cc-prompt-body">
-              Create mcp_filesystem.py to wrap the @modelcontextprotocol/server-filesystem MCP server:<br><br>
-              - WORKSPACE = Path(os.getenv("SCOUT_WORKSPACE", ".")).resolve() — the root the server is allowed to access<br>
-              - call_filesystem(method: str, arguments: dict) — async function that starts the server as a subprocess (npx -y @modelcontextprotocol/server-filesystem &lt;WORKSPACE&gt;), sends initialize + tools/call JSON-RPC messages via stdin/stdout, returns the parsed result. Use asyncio.create_subprocess_exec, asyncio.wait_for with a 10s timeout.<br>
-              - read_workspace_file(path: str) — sync wrapper: validates path doesn't escape WORKSPACE, calls asyncio.run(call_filesystem("read_file", {"path": ...})), returns {"path": path, "content": text[:5000], "chars": len(text)} or a structured error dict.<br>
-              - list_workspace(directory: str = ".") — sync wrapper: validates path, calls asyncio.run(call_filesystem("list_directory", {"path": ...})), returns {"directory": directory, "listing": text}.<br><br>
-              Only create mcp_filesystem.py.
+              Update agent.py to detect deep research requests and route them to run_deep_research from subagents.py. Use a keyword heuristic to detect when depth is needed (words like "comprehensive", "analysis", "compare", "in-depth", "thorough"). When triggered: (1) print the mode banner, (2) run the subagent pipeline, (3) format the result into a readable report and print it to stdout under a "Scout (deep research):" header, (4) save the formatted report as a note, (5) return without entering the ReAct loop. All other questions go through the existing loop unchanged.<br><br>
+              When routing to deep research, print: <code>  [mode: deep research — spawning subagents]</code><br><br>
+              Only modify agent.py — don't touch subagents.py.
             </div>
           </div>
 
-          <p>Claude Code will generate a file close to this:</p>
+          <p>Claude Code will add detection logic and a routing branch. The additions look like this:</p>
 
-          <div class="code-block-label">mcp_filesystem.py</div>
-          <div class="code-block"><pre><code class="language-python"># mcp_filesystem.py
-import os
-import json
+          <div class="code-block"><pre><code class="language-python"># Additions to agent.py
+
 import asyncio
-from pathlib import Path
+from subagents import run_deep_research
 
-WORKSPACE = Path(os.getenv("SCOUT_WORKSPACE", ".")).resolve()
+DEEP_RESEARCH_TRIGGERS = [
+    "comprehensive", "in depth", "in-depth", "thorough", "detailed analysis",
+    "compare", "landscape", "overview of", "everything about", "full report on",
+    "research", "analyze"
+]
 
-async def call_filesystem(method: str, arguments: dict) -> dict:
-    init_msg = json.dumps({
-        "jsonrpc": "2.0", "id": 0,
-        "method": "initialize",
-        "params": {
-            "protocolVersion": "2024-11-05",
-            "capabilities": {},
-            "clientInfo": {"name": "scout", "version": "1.0"}
-        }
-    }) + "\n"
+def is_deep_research_request(question: str) -> bool:
+    q = question.lower()
+    return any(trigger in q for trigger in DEEP_RESEARCH_TRIGGERS)
 
-    call_msg = json.dumps({
-        "jsonrpc": "2.0", "id": 1,
-        "method": "tools/call",
-        "params": {"name": method, "arguments": arguments}
-    }) + "\n"
+def format_deep_research_result(result: dict) -> str:
+    synth = result.get("synthesizer", {})
+    lines = [
+        f"## {result['topic']}",
+        f"\n{synth.get('summary', '')}",
+        "\n**Key findings:**"
+    ]
+    for finding in synth.get("key_findings", []):
+        lines.append(f"  * {finding}")
 
-    try:
-        proc = await asyncio.create_subprocess_exec(
-            "npx", "-y", "@modelcontextprotocol/server-filesystem", str(WORKSPACE),
-            stdin=asyncio.subprocess.PIPE,
-            stdout=asyncio.subprocess.PIPE,
-            stderr=asyncio.subprocess.DEVNULL
+    sources = synth.get("sources_cited", [])
+    if sources:
+        lines.append(f"\n**Sources:** {', '.join(sources)}")
+
+    lines.append(f"\n*Confidence: {synth.get('confidence', 'unknown')}*")
+    return "\n".join(lines)
+
+# In run_scout, BEFORE the main ReAct loop:
+def run_scout(question: str, ctx: dict = None) -> dict:
+    ctx = ctx or {}
+
+    if is_deep_research_request(question):
+        print("  [mode: deep research — spawning subagents]\n")
+        result = asyncio.run(run_deep_research(question, client, MODEL))
+        formatted = format_deep_research_result(result)
+        print(f"\nScout (deep research):\n{formatted}")
+        # Persist to notes automatically
+        save_note(
+            title=f"Deep Research: {question[:60]}",
+            content=formatted,
+            tags=["deep-research", "auto-generated"]
         )
+        return ctx
 
-        stdout, _ = await asyncio.wait_for(
-            proc.communicate(input=(init_msg + call_msg).encode()),
-            timeout=10.0
-        )
+    # ... existing ReAct loop for normal questions ...</code></pre></div>
 
-        for line in reversed(stdout.decode().split("\n")):
-            line = line.strip()
-            if not line:
-                continue
-            try:
-                data = json.loads(line)
-                if data.get("id") == 1:
-                    content = data.get("result", {}).get("content", [])
-                    if content and content[0].get("type") == "text":
-                        return {"text": content[0]["text"]}
-            except (json.JSONDecodeError, KeyError):
-                continue
-
-        return {"error": "parse_error", "message": "Could not parse MCP server response"}
-
-    except asyncio.TimeoutError:
-        return {"error": "timeout", "message": "Filesystem MCP server timed out"}
-    except FileNotFoundError:
-        return {
-            "error": "not_installed",
-            "message": "npx not found — install Node.js: https://nodejs.org"
-        }
-
-def read_workspace_file(path: str) -> dict:
-    safe = (WORKSPACE / path).resolve()
-    if not str(safe).startswith(str(WORKSPACE)):
-        return {"error": "path_traversal", "message": "Path is outside workspace"}
-    try:
-        result = asyncio.run(call_filesystem("read_file", {"path": str(safe)}))
-        if "error" in result:
-            return result
-        text = result.get("text", "")
-        return {"path": path, "content": text[:5000], "chars": len(text)}
-    except RuntimeError as e:
-        return {"error": "runtime_error", "message": str(e),
-                "suggestion": "From async code, use: await asyncio.to_thread(read_workspace_file, path)"}
-
-def list_workspace(directory: str = ".") -> dict:
-    safe = (WORKSPACE / directory).resolve()
-    if not str(safe).startswith(str(WORKSPACE)):
-        return {"error": "path_traversal", "message": "Path is outside workspace"}
-    try:
-        result = asyncio.run(call_filesystem("list_directory", {"path": str(safe)}))
-        if "error" in result:
-            return result
-        return {"directory": directory, "listing": result.get("text", "")}
-    except RuntimeError as e:
-        return {"error": "runtime_error", "message": str(e)}</code></pre></div>
+          <p>The routing logic is intentionally crude — keyword matching, not a classification model. That's by design for now. Section 4 explains when and how to upgrade it.</p>
         </div>
       </div>
 
@@ -1028,74 +1140,39 @@ def list_workspace(directory: str = ".") -> dict:
       <div class="step-block">
         <div class="step-num">Step 03</div>
         <div class="step-content">
-          <h3>Add tools to tools.py</h3>
-          <p>Wire the two new functions into Scout's tool dispatch:</p>
-
-          <div class="cc-prompt-block">
-            <div class="cc-prompt-label">Claude Code Prompt</div>
-            <div class="cc-prompt-body">
-              Update tools.py to add two new tools from mcp_filesystem.py:<br><br>
-              - Import read_workspace_file and list_workspace from mcp_filesystem<br>
-              - Add both functions to the tool_dispatch dict in agent.py<br>
-              - Add both to the TOOLS list with descriptions:<br>
-              &nbsp;&nbsp;- read_workspace_file: "Read a file from your local workspace. Use when the user asks you to analyze a document, review code, or work with a specific file. Path is relative to the scout-agent directory."<br>
-              &nbsp;&nbsp;- list_workspace: "List files in a workspace directory. Use to discover what files are available before reading them."<br><br>
-              Only touch tools.py and agent.py.
-            </div>
-          </div>
-
-          <p>The two entries to add to <code>TOOLS</code> in <code>tools.py</code>:</p>
-
-          <div class="code-block"><pre><code class="language-python"># Additions to TOOLS in tools.py
-{
-    "name": "read_workspace_file",
-    "description": "Read a file from your local workspace. Use when the user asks you to analyze a document, review code, or work with a specific file. Path is relative to the scout-agent directory.",
-    "input_schema": {
-        "type": "object",
-        "properties": {
-            "path": {"type": "string", "description": "Relative file path (e.g. 'README.md', 'docs/spec.md')"}
-        },
-        "required": ["path"]
-    }
-},
-{
-    "name": "list_workspace",
-    "description": "List files in a workspace directory. Use to discover what files are available before reading them. Returns a directory listing.",
-    "input_schema": {
-        "type": "object",
-        "properties": {
-            "directory": {"type": "string", "description": "Directory to list, relative to workspace root (default '.')"}
-        }
-    }
-}</code></pre></div>
-        </div>
-      </div>
-
-      <!-- Step 4 -->
-      <div class="step-block">
-        <div class="step-num">Step 04</div>
-        <div class="step-content">
-          <h3>Test workspace file access</h3>
-          <p>Run Scout and ask it to work with files in the project:</p>
+          <h3>Test deep research mode</h3>
+          <p>Run Scout and ask it a question that triggers deep research mode:</p>
 
           <div class="code-block bash"><pre><code class="language-bash">python agent.py
-# Ask: "List the files in this project, then read README.md and summarize what Scout does."</code></pre></div>
+# Ask: "Give me a comprehensive analysis of how vector databases work"</code></pre></div>
+
+          <p>You should see Scout print the mode switch, both subagent completion messages, and then the formatted report:</p>
 
           <div class="output-block">
-<span class="out-dim">Ask Scout: </span><span class="out-scout">List the files in this project, then read README.md and summarize what Scout does.</span>
+<span class="out-dim">Ask Scout: </span><span class="out-scout">Give me a comprehensive analysis of how vector databases work</span>
 
-<span class="out-label">  → </span><span class="out-search">list_workspace({"directory": "."})</span>
-<span class="out-label">  → </span><span class="out-search">read_workspace_file({"path": "README.md"})</span>
+<span class="out-label">  [mode: deep research — spawning subagents]</span>
 
-<span class="out-dim">Scout: </span><span class="out-scout">Your scout-agent project contains: agent.py, tools.py, memory.py, subagents.py,
-mcp_filesystem.py, requirements.txt, and a notes/ directory with saved research.
+<span class="out-dim">  [deep research] spawning Searcher + Synthesizer for: Give me a comprehensive analysis...</span>
+<span class="out-dim">  [searcher] found 4 sources</span>
+<span class="out-dim">  [synthesizer] confidence: high</span>
 
-README.md describes Scout as a terminal-based research assistant that searches the web,
-reads pages in full, saves findings as structured notes, and runs parallel subagents for
-deep research on complex topics.</span>
+<span class="out-label">Scout (deep research):</span>
+<span class="out-scout">## Give me a comprehensive analysis of how vector databases work</span>
+
+<span class="out-result">Vector databases store data as high-dimensional vectors — numerical representations of meaning derived from embedding models. Unlike relational databases that match on exact values, vector databases retrieve by semantic similarity, making them the backbone of RAG systems, recommendation engines, and semantic search applications...</span>
+
+<span class="out-result">**Key findings:**
+  * HNSW (Hierarchical Navigable Small World) is the dominant indexing algorithm — trades recall for speed
+  * Pinecone, Weaviate, Qdrant, and pgvector serve different scale and latency tradeoffs
+  * Embedding quality upstream determines retrieval quality downstream
+  * Hybrid search (vector + BM25) outperforms pure vector search on most benchmarks</span>
+
+<span class="out-result">**Sources:** https://example.com/guide, https://research.example.com/analysis</span>
+<span class="out-dim">*Confidence: high*</span>
           </div>
 
-          <p>Then test that normal web search still works — ask Scout a question that needs current information. The new tools extend Scout's capabilities; they don't affect existing ones.</p>
+          <p>Then confirm that simple questions still use the ReAct loop — ask "what's the Anthropic API rate limit?" and verify you do <em>not</em> see the <code>[mode: deep research]</code> message.</p>
         </div>
       </div>
 
@@ -1109,13 +1186,13 @@ deep research on complex topics.</span>
     <div class="section-number">Section 04</div>
     <h2>Under the hood</h2>
 
-    <p><strong>MCP protocol basics — JSON-RPC 2.0 over stdio:</strong> Every MCP interaction follows the same two-phase pattern. First: an <code>initialize</code> request where the client announces the protocol version and its capabilities; the server responds with its own capabilities. Second: a sequence of <code>tools/call</code> requests, each with a tool name and typed arguments, each returning a structured result. The server runs as a subprocess and communicates exclusively via stdin/stdout — there's no port to open, no service to run, no daemon. The server starts when you need it and the process exits when the pipe closes. This is why local MCP servers work in sandboxed environments and require no network configuration.</p>
+    <p><strong><code>asyncio.to_thread</code> with a sync SDK:</strong> The Anthropic Python SDK's <code>client.messages.create</code> is a synchronous blocking call. If you <code>await</code> it directly from an async function, you'll block the event loop — other coroutines can't run while the HTTP request is in flight. <code>asyncio.to_thread</code> solves this by submitting the sync function to a thread pool executor, returning an awaitable that resolves when the thread completes. The event loop stays free to schedule other work. If you use <code>anthropic.AsyncAnthropic</code> instead, you get a natively async client and can <code>await client.messages.create()</code> directly — but <code>asyncio.to_thread</code> is the correct bridge when you're working with the sync client.</p>
 
-    <p><strong>Async in a sync codebase:</strong> <code>asyncio.run()</code> in a synchronous function works correctly when there is no active event loop in the current thread — which is the case when <code>read_workspace_file</code> is called from Scout's synchronous ReAct loop. The problem arises when <code>read_workspace_file</code> is called from within an already-running async context — which can happen if you extend <code>subagents.py</code> to call <code>read_workspace_file</code> directly. In that case <code>asyncio.run()</code> raises <code>RuntimeError: This event loop is already running</code>. The fix is to call it via <code>await asyncio.to_thread(read_workspace_file, path)</code> from async code — the error message in the returned dict includes this suggestion so the failure is self-documenting.</p>
+    <p><strong>Why the Synthesizer has no tools:</strong> The Synthesizer's job is synthesis, not search. Giving it tools would create scope creep — it might try to verify facts, run additional searches, or read pages the Searcher already covered. Tight scopes make subagents reliable. When a subagent's job is clearly bounded, its system prompt can be correspondingly focused, and its behavior is more predictable. The Searcher is responsible for information gathering; the Synthesizer is responsible for structured reporting. Those are different cognitive tasks, and separating them produces better output than a single "do everything" agent would.</p>
 
-    <p><strong>Path safety and workspace sandboxing:</strong> The <code>path_traversal</code> check in <code>read_workspace_file</code> is not optional. Without it, a prompt like "read the file ../../etc/passwd" resolves outside the workspace and reads a sensitive system file. Resolving to an absolute path and checking that it starts with <code>WORKSPACE</code> is the standard guard. The MCP filesystem server also enforces its own root restriction, so this is defense in depth — two independent checks, neither trusting the other.</p>
+    <p><strong>JSON output and the fallback pattern:</strong> The system prompt instructs each subagent to output only valid JSON. This works well — language models have strong formatting compliance when given explicit schema instructions. But it's not perfectly reliable. Network errors, mid-stream truncation, or edge-case reasoning can produce malformed output. Always wrap <code>json.loads</code> in a <code>try/except json.JSONDecodeError</code> and have a fallback that wraps the raw text in the expected schema shape. The fallback here sets <code>raw_findings</code> or <code>summary</code> to the unparsed text and leaves structured fields empty — enough for the orchestrator to assemble something useful rather than crash.</p>
 
-    <p><strong>Why two separate tools instead of one:</strong> <code>read_workspace_file</code> and <code>list_workspace</code> are separate by design. A single "access_filesystem" tool that bundles listing and reading would force the model to guess which operation it needs or include mode flags in the API. Separate tools with clear names let the model reason correctly: "I should list the directory first so I know what files exist, then read the relevant one." Tight tool boundaries produce more predictable agent behavior.</p>
+    <p><strong>The detection heuristic and when to upgrade it:</strong> Keyword matching is crude but fast and costs nothing. For 80% of real queries, it works correctly. The failure modes are false positives (a casual question that happens to contain "analysis") and false negatives (a complex research request phrased without any trigger words). A better approach is to add a lightweight classification step before the main loop: send the question to a cheaper model and ask "is this a deep research request that requires reading multiple sources? Answer yes or no." This costs one small API call but dramatically improves routing accuracy. Start with keyword matching; upgrade to classification if you find the heuristic routing is producing poor results in practice.</p>
   </div>
 
   <div class="section-divider"></div>
@@ -1128,11 +1205,11 @@ deep research on complex topics.</span>
     <div class="callout callout-checkpoint">
       <div class="callout-label">Verify these pass</div>
       <ul>
-        <li>Run <code>python agent.py</code> and ask Scout to list the files in the project — confirm it calls <code>list_workspace</code> and returns a real directory listing</li>
-        <li>Ask Scout to read a specific file (e.g. README.md or tools.py) — confirm it calls <code>read_workspace_file</code> and returns actual file content</li>
-        <li>Ask Scout a web research question — confirm <code>web_search</code> still works and is unaffected</li>
-        <li>Deliberately ask Scout to read a non-existent file — confirm it returns a structured error, not a crash</li>
-        <li>Try a path like <code>../../../etc/passwd</code> — confirm the path_traversal error fires before the MCP server is called</li>
+        <li>Ask "Give me a comprehensive analysis of X" — see the <code>[mode: deep research]</code> message trigger</li>
+        <li>Both Searcher and Synthesizer complete and print their status lines</li>
+        <li>The formatted result is saved to <code>notes/</code> automatically with the <code>deep-research</code> tag</li>
+        <li>Ask a simple question ("what is a transformer?") — confirm it uses the normal ReAct loop with no deep research message</li>
+        <li>Total time for a deep research request is longer than a normal request but produces a structured, multi-section report</li>
       </ul>
     </div>
   </div>
@@ -1144,7 +1221,7 @@ deep research on complex topics.</span>
     <div class="section-number">Section 06</div>
     <h2>What Scout can do now</h2>
 
-    <p>Scout can now work with files in your project, not just the web. Ask it to analyze a spec, review a code file, or summarize a document — it will list what's available, read the relevant content, and synthesize from it the same way it synthesizes from web sources. The MCP filesystem server handles the file I/O; the ReAct loop, the memory system, and the subagent pipeline all work exactly as before. Next module: hardening Scout with guardrails and evals before it goes anywhere near production.</p>
+    <p>Scout now has two modes of execution: quick answers via the ReAct loop, and deep reports via the orchestrator-subagent pipeline. Both modes run on real Brave Search data — wired in the previous module — so every source Scout finds and every fact it reports is drawn from the live web. The routing layer — a simple function that looks at the question and decides which execution path to use — is the architecture that powers most production research agents. Next module: hardening Scout with guardrails and evals before it goes anywhere near production.</p>
 
     <a href="module-p06.html" class="next-module">
       <div>
