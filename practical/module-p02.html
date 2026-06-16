@@ -1076,11 +1076,11 @@ SYSTEM = """You are Scout, a research assistant with four tools: web_search, rea
 Your research workflow:
 1. Start every research session by calling search_notes to check if you've already covered this topic
 2. Use web_search to find current sources
-3. Use read_url to get the full content of the most relevant results
-4. Synthesize your findings and save key insights with save_note (meaningful tags help future retrieval)
-5. Always cite your sources by URL in your final answer
+3. Use read_url on the 1-2 most relevant results — not all of them
+4. Synthesize your findings and give your final answer, citing sources by URL
+5. After answering, save key insights with save_note (meaningful tags help future retrieval)
 
-Be thorough but efficient. One well-read source beats three skimmed snippets."""
+Answer first, save notes after. If turns are running low, answer and skip the note."""
 
 # Updated tool dispatch in run_scout
 tool_dispatch = {
@@ -1116,11 +1116,12 @@ python agent.py</code></pre></div>
   → search_notes({"query": "Model Context Protocol"})
   → web_search({"query": "Model Context Protocol MCP how it works 2024"})
   → read_url({"url": "https://..."})
+
+Scout: Here's what I found about MCP...
+
   → save_note({"title": "Model Context Protocol — How It Works",
                "content": "...",
-               "tags": ["MCP", "agents", "tools", "Anthropic"]})
-
-Scout: Here's what I found about MCP...</code></pre></div>
+               "tags": ["MCP", "agents", "tools", "Anthropic"]})</code></pre></div>
 
         <p>After this run, check your <code>scout-agent/notes/</code> directory — there should be a <code>.json</code> file containing the note Scout saved. Run Scout again and ask about the same topic. Because <code>search_notes</code> runs first, Scout will find the existing note and reference it rather than repeating the full research cycle from scratch.</p>
       </div>

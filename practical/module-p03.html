@@ -972,6 +972,8 @@ from memory import ContextManager, save_session, load_session
 
 MODEL = "claude-opus-4-8"
 
+MAX_TURNS = 10
+
 def run_scout(question: str, session_id: str = "default") -> ContextManager:
     # Load existing session or start fresh
     ctx = load_session(session_id) or ContextManager()
@@ -979,11 +981,14 @@ def run_scout(question: str, session_id: str = "default") -> ContextManager:
     ctx.add_message("user", question)
     print(f"\nScout researching: {question}\n")
 
-    for turn in range(10):
+    for turn in range(MAX_TURNS):
+        turns_left = MAX_TURNS - turn
+        system = SYSTEM + f"\n\n[{turns_left} turn{'s' if turns_left != 1 else ''} remaining]"
+
         response = client.messages.create(
             model=MODEL,
             max_tokens=4096,
-            system=SYSTEM,
+            system=system,
             tools=TOOLS,
             messages=ctx.to_messages()   # <-- use ctx, not raw list
         )

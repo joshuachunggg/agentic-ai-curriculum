@@ -1020,7 +1020,8 @@ TOOLS = [
           <div class="cc-prompt-block">
             <div class="cc-prompt-label">Claude Code Prompt</div>
             <div class="cc-prompt-body">
-              In agent.py, build Scout's ReAct loop using the Anthropic SDK. Use claude-opus-4-8. Scout should accept a question, call tools when the model requests them, and print the final answer when the model reaches end_turn. Cap at 10 turns. Add a __main__ block that reads a question from input().<br><br>
+              In agent.py, build Scout's ReAct loop using the Anthropic SDK. Use claude-opus-4-8. Scout should accept a question, call tools when the model requests them, and print the final answer when the model reaches end_turn.<br><br>
+              Use MAX_TURNS = 10. Each iteration, compute turns_left = MAX_TURNS - turn and append "[N turns remaining]" to the system prompt so Scout knows when to wrap up.<br><br>
               Use these exact output formats:<br>
               - On start: <code>Scout researching: {question}</code><br>
               - Each tool call: <code>  → tool_name({"arg": "value"})</code><br>
@@ -1041,17 +1042,24 @@ MODEL = "claude-opus-4-8"
 
 SYSTEM = """You are Scout, a research assistant. You help users find information and answer questions with cited sources.
 
-When you search, synthesize the results into a clear answer. Always reference your sources by URL. Be concise — a well-cited paragraph beats a wall of text."""
+When you search, synthesize the results into a clear answer. Always reference your sources by URL. Be concise — a well-cited paragraph beats a wall of text.
+
+Always give your final answer before saving any notes."""
+
+MAX_TURNS = 10
 
 def run_scout(question: str) -> list:
     messages = [{"role": "user", "content": question}]
-    print(f"\n🔍 Scout researching: {question}\n")
+    print(f"\nScout researching: {question}\n")
 
-    for turn in range(10):
+    for turn in range(MAX_TURNS):
+        turns_left = MAX_TURNS - turn
+        system = SYSTEM + f"\n\n[{turns_left} turn{'s' if turns_left != 1 else ''} remaining]"
+
         response = client.messages.create(
             model=MODEL,
             max_tokens=4096,
-            system=SYSTEM,
+            system=system,
             tools=TOOLS,
             messages=messages
         )
