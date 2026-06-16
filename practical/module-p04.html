@@ -894,14 +894,14 @@
           <div class="cc-prompt-block">
             <div class="cc-prompt-label">Claude Code Prompt</div>
             <div class="cc-prompt-body">
-              Set up Brave Search MCP for Scout: install @modelcontextprotocol/server-brave-search via npm, create .env with BRAVE_API_KEY=your_key_here, and update .gitignore to exclude .env, sessions/, and notes/.<br><br>
+              Set up Brave Search MCP for Scout: install @brave/brave-search-mcp-server via npm, create .env with BRAVE_API_KEY=your_key_here, and update .gitignore to exclude .env, sessions/, and notes/.<br><br>
               Don't modify any Python files yet. Show me the .gitignore contents after.
             </div>
           </div>
 
           <p>Claude Code will run the install and create the env file. The commands it runs:</p>
 
-          <div class="code-block bash"><pre><code class="language-bash">npm install -g @modelcontextprotocol/server-brave-search
+          <div class="code-block bash"><pre><code class="language-bash">npm install -g @brave/brave-search-mcp-server
 
 # Create .env with placeholder
 echo "BRAVE_API_KEY=your_key_here" > .env
@@ -990,7 +990,7 @@ async def call_brave_search(query: str, count: int = 5) -> dict:
 
     server = StdioServerParameters(
         command="npx",
-        args=["-y", "@modelcontextprotocol/server-brave-search"],
+        args=["-y", "@brave/brave-search-mcp-server"],
         env={**os.environ, "BRAVE_API_KEY": BRAVE_API_KEY}
     )
 
