@@ -926,7 +926,7 @@ echo ".env\nsessions/\nnotes/" >> .gitignore</code></pre></div>
               Create mcp_tools.py to wrap the Brave Search MCP server using the MCP Python SDK:<br><br>
               - Load BRAVE_API_KEY from .env using python-dotenv<br>
               - get_brave_tools() — return the brave_web_search tool definition in Anthropic API format<br>
-              - call_brave_search(query: str, count: int = 5) — use the mcp package (ClientSession + stdio_client + StdioServerParameters) to connect to the Brave Search MCP server and call the brave_web_search tool<br>
+              - call_brave_search(query: str, count: int = 5) — use the mcp package (ClientSession + stdio_client + StdioServerParameters) to connect to the Brave Search MCP server and call the brave_web_search tool. The server returns one JSON object per content block (not a wrapper array), so iterate all result.content blocks and parse each one individually to build a list of {title, url, snippet} dicts<br>
               - Add python-dotenv and mcp to requirements.txt<br><br>
               Then update tools.py: make web_search use Brave Search when BRAVE_API_KEY is set, falling back to the stub when not. When using the stub fallback, include <code>_stub: True</code> in the returned dict so callers can detect which mode is active. Keep the web_search function signature identical.<br><br>
               Only touch mcp_tools.py and tools.py.
@@ -1002,14 +1002,28 @@ async def call_brave_search(query: str, count: int = 5) -> dict:
                     "brave_web_search",
                     {"query": query, "count": count}
                 )
-                if result.content and result.content[0].type == "text":
-                    return json.loads(result.content[0].text)
-                return {"error": "empty_response", "message": "No content returned"}
+                # Brave returns one JSON object per content block, not a wrapper array
+                results = []
+                for block in result.content:
+                    raw = getattr(block, "text", "") or ""
+                    if not raw:
+                        continue
+                    try:
+                        item = json.loads(raw)
+                        results.append({
+                            "title": item.get("title", ""),
+                            "url": item.get("url", ""),
+                            "snippet": item.get("description", item.get("snippet", "")),
+                        })
+                    except Exception:
+                        continue
+                return {"query": query, "results": results}
 
     except Exception as e:
         return {"error": "mcp_error", "message": str(e)}</code></pre></div>
 
           <p><code>stdio_client</code> launches the server subprocess and returns a read/write pair. <code>ClientSession</code> handles the JSON-RPC handshake on <code>initialize()</code> and serializes <code>call_tool()</code> into the correct wire format. Both context managers clean up the process on exit — no manual process management needed.</p>
+          <p>Note the response shape: <code>@brave/brave-search-mcp-server</code> returns one JSON object per <code>content</code> block — each block is a single result with <code>title</code>, <code>url</code>, and <code>description</code>. Iterating all blocks and parsing each individually is the correct pattern; grabbing only <code>content[0]</code> silently discards all but the first result.</p>
         </div>
       </div>
 
